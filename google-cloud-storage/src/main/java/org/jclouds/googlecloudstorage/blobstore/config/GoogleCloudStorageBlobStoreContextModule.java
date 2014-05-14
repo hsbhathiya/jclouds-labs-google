@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.s3.blobstore.config;
+package org.jclouds.googlecloudstorage.blobstore.config;
 
 import com.google.inject.AbstractModule;
 

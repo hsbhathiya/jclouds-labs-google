@@ -31,6 +31,7 @@ import java.util.Properties;
 import org.jclouds.apis.ApiMetadata;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.googlecloudstorage.GoogleCloudStorageApiMetadata;
+import org.jclouds.googlecloudstorage.blobstore.config.GoogleCloudStorageBlobStoreContextModule;
 import org.jclouds.googlecloudstorage.config.GoogleCloudStorageParserModule;
 import org.jclouds.googlecloudstorage.config.OAuthModuleWithoutTypeAdapters;
 import org.jclouds.oauth.v2.config.OAuthAuthenticationModule;
@@ -38,7 +39,6 @@ import org.jclouds.oauth.v2.config.OAuthAuthenticationModule;
 
 
 import org.jclouds.rest.internal.BaseRestApiMetadata;
-import org.jclouds.s3.blobstore.config.GoogleCloudStorageBlobStoreContextModule;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.TypeToken;
