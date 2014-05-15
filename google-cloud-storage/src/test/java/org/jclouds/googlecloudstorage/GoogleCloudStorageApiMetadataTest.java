@@ -25,13 +25,13 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.TypeToken;
 
 /**
- * Tests that GoogleCloudStorageApiMetadata is properly registered in ServiceLoader
+ * 
  * <p/>
  * <pre>
  * META-INF/services/org.jclouds.apis.ApiMetadata
  * </pre>
  *
- * @author Adrian Cole
+ * @author Bhathiya Supun
  */
 @Test(groups = "unit", testName = "GoogleStorageApiMetadataTest")
 public class GoogleCloudStorageApiMetadataTest extends BaseApiMetadataTest {

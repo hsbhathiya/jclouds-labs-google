@@ -38,6 +38,7 @@ import org.jclouds.oauth.v2.config.OAuthAuthenticationModule;
 
 
 
+import org.jclouds.rest.internal.BaseHttpApiMetadata;
 import org.jclouds.rest.internal.BaseRestApiMetadata;
 
 import com.google.common.collect.ImmutableSet;
@@ -55,7 +56,7 @@ public class GoogleCloudStorageApiMetadata extends BaseRestApiMetadata{
 	    *             {@link GoogleCloudStorageAsyncClient} interface will be removed in jclouds 1.7.
 	    */
 	   @Deprecated
-	   public static final TypeToken<org.jclouds.rest.RestContext<? extends GoogleCloudStorageApi, ? extends GoogleCloudStorageAsyncClient>> CONTEXT_TOKEN = new TypeToken<org.jclouds.rest.RestContext<? extends GoogleCloudStorageApi, ? extends GoogleCloudStorageAsyncClient>>() {
+	   public static final TypeToken<org.jclouds.rest.RestContext<? extends GoogleCloudStorageClient, ? extends GoogleCloudStorageAsyncClient>> CONTEXT_TOKEN = new TypeToken<org.jclouds.rest.RestContext<? extends GoogleCloudStorageClient, ? extends GoogleCloudStorageAsyncClient>>() {
 	      private static final long serialVersionUID = 1L;
 	   };
 	   
@@ -73,7 +74,7 @@ public class GoogleCloudStorageApiMetadata extends BaseRestApiMetadata{
 	  
 
 	   public static Properties defaultProperties() {
-	      Properties properties = BaseRestApiMetadata.defaultProperties();
+	      Properties properties = BaseHttpApiMetadata.defaultProperties();
 	      
 	      properties.put("oauth.endpoint", "https://accounts.google.com/o/oauth2/token");
 	      properties.put(AUDIENCE, "https://accounts.google.com/o/oauth2/token");
@@ -90,7 +91,7 @@ public class GoogleCloudStorageApiMetadata extends BaseRestApiMetadata{
 		     
 		      @SuppressWarnings("deprecation")
 		      protected Builder() {
-		         this(GoogleCloudStorageApi.class, GoogleCloudStorageAsyncClient.class);
+		         this(GoogleCloudStorageClient.class, GoogleCloudStorageAsyncClient.class);
 		      }
 		      
 		      
@@ -98,9 +99,9 @@ public class GoogleCloudStorageApiMetadata extends BaseRestApiMetadata{
 	   protected Builder(Class<?> syncClient, Class<?> asyncClient) {
 		  super(syncClient, asyncClient);
           id(GCS_PROVIDER_NAME)
-                   .name("Google Cloud Storage json Api")
+                   .name("Google Cloud Storage Api ")
                   .identityName("Email associated with the Google API client_id")
-                  .credentialName("Secret key")
+                  .credentialName("Private key literal associated with the Google API client_id")
                   .documentation(URI.create("https://developers.google.com/storage/docs/json_api"))
                   .version("v1")
                   .defaultEndpoint("https://www.googleapis.com/storage/v1")
@@ -117,10 +118,8 @@ public class GoogleCloudStorageApiMetadata extends BaseRestApiMetadata{
 	   @Override
 	      public ApiMetadata build() {
 	         return new GoogleCloudStorageApiMetadata(this);
-	      }
-      
-   }
-	   
+	      }     
+   }	   
 	   private static class ConcreteBuilder extends Builder<ConcreteBuilder> {
 		      @Override
 		      protected ConcreteBuilder self() {

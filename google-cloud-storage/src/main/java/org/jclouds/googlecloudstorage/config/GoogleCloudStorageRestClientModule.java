@@ -25,7 +25,7 @@ import javax.inject.Singleton;
 import org.jclouds.Constants;
 import org.jclouds.date.DateService;
 import org.jclouds.date.TimeStamp;
-import org.jclouds.googlecloudstorage.GoogleCloudStorageApi;
+import org.jclouds.googlecloudstorage.GoogleCloudStorageClient;
 import org.jclouds.googlecloudstorage.GoogleCloudStorageAsyncClient;
 import org.jclouds.googlecloudstorage.filters.RequestAuthorizeSignature;
 import org.jclouds.rest.ConfiguresRestClient;
@@ -43,16 +43,16 @@ import com.google.inject.Scopes;
 
 
 /**
- * Configures the S3 connection, including logging and http transport.
+ * Configures the GCS connection, including logging and http transport.
  * 
- * @author Adrian Cole
+ * @author Bhathiya Supun
  */
 @ConfiguresRestClient
-public class GoogleCloudStorageRestClientModule<S extends GoogleCloudStorageApi, A extends GoogleCloudStorageAsyncClient> extends RestClientModule<S, A>{
+public class GoogleCloudStorageRestClientModule<S extends GoogleCloudStorageClient, A extends GoogleCloudStorageAsyncClient> extends RestClientModule<S, A>{
 
    @SuppressWarnings("unchecked")
    public GoogleCloudStorageRestClientModule() {
-      this(TypeToken.class.cast(typeToken(GoogleCloudStorageApi.class)), TypeToken.class.cast(typeToken(GoogleCloudStorageAsyncClient.class)));
+      this(TypeToken.class.cast(typeToken(GoogleCloudStorageClient.class)), TypeToken.class.cast(typeToken(GoogleCloudStorageAsyncClient.class)));
    }
    
    protected GoogleCloudStorageRestClientModule(TypeToken<S> syncClientType, TypeToken<A> asyncClientType) {

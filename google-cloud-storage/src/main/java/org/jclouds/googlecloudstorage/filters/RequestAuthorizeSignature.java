@@ -21,8 +21,9 @@ import javax.inject.Singleton;
 import org.jclouds.http.HttpException;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.http.HttpRequestFilter;
+import org.jclouds.oauth.v2.filters.OAuthAuthenticator;
 import org.jclouds.rest.RequestSigner;
-
+import org.jclouds.rest.annotations.RequestFilters;
 
 
 /**
@@ -30,8 +31,17 @@ import org.jclouds.rest.RequestSigner;
  * 
  */
 @Singleton
-public class RequestAuthorizeSignature implements HttpRequestFilter, RequestSigner {
-
+@RequestFilters(OAuthAuthenticator.class)
+public class RequestAuthorizeSignature implements HttpRequestFilter , RequestSigner {
+	
+	
+	
+	@Override
+	@RequestFilters(OAuthAuthenticator.class)
+	public HttpRequest filter(HttpRequest request) throws HttpException {
+		return request;
+	}
+		
 	@Override
 	public String createStringToSign(HttpRequest input) {
 		// TODO Auto-generated method stub
@@ -43,11 +53,4 @@ public class RequestAuthorizeSignature implements HttpRequestFilter, RequestSign
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public HttpRequest filter(HttpRequest request) throws HttpException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

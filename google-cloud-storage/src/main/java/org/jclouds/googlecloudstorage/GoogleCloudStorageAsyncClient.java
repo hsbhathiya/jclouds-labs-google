@@ -17,18 +17,28 @@
 package org.jclouds.googlecloudstorage;
 
 import static org.jclouds.blobstore.attr.BlobScopes.CONTAINER;
+import static org.jclouds.googlecloudstorage.reference.GoogleCloudStorageConstants.STORAGE_FULLCONTROL_SCOPE;
 
 import java.io.Closeable;
 
-
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 
 import org.jclouds.blobstore.attr.BlobScope;
-import org.jclouds.googlecloudstorage.filters.RequestAuthorizeSignature;
+import org.jclouds.oauth.v2.config.OAuthScopes;
+import org.jclouds.oauth.v2.filters.OAuthAuthenticator;
+import org.jclouds.rest.annotations.MapBinder;
+import org.jclouds.rest.annotations.PayloadParam;
 import org.jclouds.rest.annotations.RequestFilters;
-
-
+import org.jclouds.rest.binders.BindToJsonPayload;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.inject.name.Named;
 
 
 /**
@@ -37,8 +47,24 @@ import com.google.common.util.concurrent.ListenableFuture;
  * @author Bhathiya Supun
  */
 @Deprecated
-@RequestFilters(RequestAuthorizeSignature.class)
+@RequestFilters(OAuthAuthenticator.class)
 @BlobScope(CONTAINER)
 public interface GoogleCloudStorageAsyncClient extends Closeable {
+	
+	
+	   /**
+	    * https://developers.google.com/storage/docs/json_api/v1/buckets/insert
+	    */
+	   @Named("Bucket:insert")
+	   @POST
+	   @Consumes(MediaType.APPLICATION_JSON)
+	   @Produces(MediaType.APPLICATION_JSON)
+	   @Path("/b")
+	   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE) 	
+	   @MapBinder(BindToJsonPayload.class)
+	   ListenableFuture<Boolean> BucketInsert(@PayloadParam("name") String BucketName , @QueryParam("Project") String ProjectID );
+
+	           
+		
  
 }

@@ -20,7 +20,7 @@ import java.io.Closeable;
 
 //*********************Form S3Cient**********************************//
 
-public interface GoogleCloudStorageApi extends Closeable {
+public interface GoogleCloudStorageClient extends Closeable {
 
   // Reffer S3Client for support.Define the API 
 }

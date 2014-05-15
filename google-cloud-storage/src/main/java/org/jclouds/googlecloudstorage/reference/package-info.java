@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 /**
- * This package contains properties and reference data used in S3.
- * @author Adrian Cole
+ * This package contains properties and reference data used in GCS.
+ * @author Bhathiya Supun
  */
 package org.jclouds.googlecloudstorage.reference;

@@ -17,17 +17,11 @@
 package org.jclouds.googlecloudstorage.reference;
 
 /**
- * Additional headers specified by Amazon S3 REST API.
+ * Additional headers specified by Amazon GCS REST API.
  * 
- * @see <a
- *      href="http://docs.amazonwebservices.com/AmazonS3/latest/index.html?RESTAuthentication.html"
- *      />
  * @author Bhathiya Supun 
  * 
  */
 public interface GoogleCloudStorageHeaders {
-	
-	
-
 
 }

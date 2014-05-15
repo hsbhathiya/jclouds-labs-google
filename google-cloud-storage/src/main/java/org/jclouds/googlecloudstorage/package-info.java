@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 /**
- * This package contains an Amazon S3 client implemented by {@link org.jclouds.http.HttpCommandExecutorService} commands.
+ * This package contains an Google Cloud Storage client implemented by {@link org.jclouds.http.HttpCommandExecutorService} commands.
  *
- * @see <a href="http://amazon.com/s3"/>
- * @author Adrian Cole
+ * @see <a href="https://developers.google.com/storage/docs/json_api/"/>
+ * @author Bhathiya Supun
  */
 package org.jclouds.googlecloudstorage;

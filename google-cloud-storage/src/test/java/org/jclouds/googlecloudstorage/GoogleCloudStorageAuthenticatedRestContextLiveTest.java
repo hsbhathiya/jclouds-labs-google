@@ -16,23 +16,25 @@
  */
 package org.jclouds.googlecloudstorage;
 
-import org.jclouds.googlecloudstorage.GoogleCloudStorageApi;
+import org.jclouds.googlecloudstorage.GoogleCloudStorageClient;
 import org.jclouds.googlecloudstorage.reference.GoogleCloudStorageConstants;
 import org.jclouds.oauth.v2.internal.BaseOAuthAuthenticatedApiLiveTest;
 import org.testng.annotations.Test;
 
 /**
- * @author David Alves
+ * @author Bhathiya Supun
  */
 @Test(groups = "live")
-public class GoogleCloudStorageAuthenticatedRestContextLiveTest extends BaseOAuthAuthenticatedApiLiveTest<GoogleCloudStorageApi> {
-
+public class GoogleCloudStorageAuthenticatedRestContextLiveTest extends BaseOAuthAuthenticatedApiLiveTest<GoogleCloudStorageClient> {
+	
+	
    public GoogleCloudStorageAuthenticatedRestContextLiveTest() {
-      provider = "google-compute-engine";
+      provider = "google-cloud-storage";
    }
 
    @Override
    public String getScopes() {
       return GoogleCloudStorageConstants.STORAGE_FULLCONTROL_SCOPE;
    }
+   
 }
