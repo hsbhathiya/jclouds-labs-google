@@ -22,5 +22,5 @@ import java.io.Closeable;
 
 public interface GoogleCloudStorageClient extends Closeable {
 
-  // Reffer S3Client for support.Define the API 
+	boolean BucketInsert(String bucketName , String ProjectID);
 }

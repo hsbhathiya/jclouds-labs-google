@@ -55,11 +55,11 @@ public interface GoogleCloudStorageAsyncClient extends Closeable {
 	   /**
 	    * https://developers.google.com/storage/docs/json_api/v1/buckets/insert
 	    */
-	   @Named("Bucket:insert")
+	   @Named("BucketInsert")
 	   @POST
 	   @Consumes(MediaType.APPLICATION_JSON)
 	   @Produces(MediaType.APPLICATION_JSON)
-	   @Path("/b")
+	   @Path("/")
 	   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE) 	
 	   @MapBinder(BindToJsonPayload.class)
 	   ListenableFuture<Boolean> BucketInsert(@PayloadParam("name") String BucketName , @QueryParam("Project") String ProjectID );
