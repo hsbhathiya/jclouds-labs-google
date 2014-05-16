@@ -27,7 +27,7 @@ import com.google.inject.ImplementedBy;
 @ImplementedBy(GoogleCloudStorageBlobStoreContextImpl.class)
 public interface GoogleCloudStorageBlobStoreContext extends BlobStoreContext {
 
-   @Override
-   GoogleCloudStorageBlobStore getBlobStore();
-  
+	@Override
+	GoogleCloudStorageBlobStore getBlobStore();
+
 }

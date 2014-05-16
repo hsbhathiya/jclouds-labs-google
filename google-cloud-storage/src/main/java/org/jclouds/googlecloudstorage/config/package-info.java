@@ -14,8 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * This package contains modules who manage the dependencies of the S3Context, S3Client, and S3 Map views.
  * @author Adrian Cole
  */
 package org.jclouds.googlecloudstorage.config;
+

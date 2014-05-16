@@ -37,20 +37,20 @@ import com.google.common.reflect.TypeToken;
  * @author Bhathiya Supun
  */
 @Singleton
-public class GoogleCloudStorageBlobStoreContextImpl extends BlobStoreContextImpl implements GoogleCloudStorageBlobStoreContext {
+public class GoogleCloudStorageBlobStoreContextImpl extends BlobStoreContextImpl implements
+		GoogleCloudStorageBlobStoreContext {
 
-   @Inject
-   public GoogleCloudStorageBlobStoreContextImpl(@Provider Context backend, @Provider TypeToken<? extends Context> backendType,
-            Utils utils, ConsistencyModel consistencyModel,
-            @SuppressWarnings("deprecation") AsyncBlobStore ablobStore, BlobStore blobStore,
-            BlobRequestSigner blobRequestSigner) {
-      super(backend, backendType, utils, consistencyModel, ablobStore,
-               blobStore, blobRequestSigner);
-   }
+	@Inject
+	public GoogleCloudStorageBlobStoreContextImpl(@Provider Context backend,
+			@Provider TypeToken<? extends Context> backendType, Utils utils, ConsistencyModel consistencyModel,
+			@SuppressWarnings("deprecation") AsyncBlobStore ablobStore, BlobStore blobStore,
+			BlobRequestSigner blobRequestSigner) {
+		super(backend, backendType, utils, consistencyModel, ablobStore, blobStore, blobRequestSigner);
+	}
 
-   @Override
-   public GoogleCloudStorageBlobStore getBlobStore() {
-      return GoogleCloudStorageBlobStore.class.cast(super.getBlobStore());
-   }
+	@Override
+	public GoogleCloudStorageBlobStore getBlobStore() {
+		return GoogleCloudStorageBlobStore.class.cast(super.getBlobStore());
+	}
 
 }

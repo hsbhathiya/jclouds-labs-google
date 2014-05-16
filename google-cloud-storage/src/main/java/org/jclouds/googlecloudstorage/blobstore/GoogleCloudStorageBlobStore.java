@@ -18,7 +18,6 @@ package org.jclouds.googlecloudstorage.blobstore;
 
 import java.util.Set;
 
-
 import javax.inject.Singleton;
 
 import org.jclouds.blobstore.BlobStoreContext;
@@ -36,7 +35,6 @@ import org.jclouds.blobstore.util.BlobUtils;
 
 import org.jclouds.domain.Location;
 
-
 import com.google.common.base.Supplier;
 
 /**
@@ -46,9 +44,8 @@ import com.google.common.base.Supplier;
 @Singleton
 public class GoogleCloudStorageBlobStore extends BaseBlobStore {
 
-	protected GoogleCloudStorageBlobStore(BlobStoreContext context,
-			BlobUtils blobUtils, Supplier<Location> defaultLocation,
-			Supplier<Set<? extends Location>> locations) {
+	protected GoogleCloudStorageBlobStore(BlobStoreContext context, BlobUtils blobUtils,
+			Supplier<Location> defaultLocation, Supplier<Set<? extends Location>> locations) {
 		super(context, blobUtils, defaultLocation, locations);
 		// TODO Auto-generated constructor stub
 	}
@@ -72,15 +69,13 @@ public class GoogleCloudStorageBlobStore extends BaseBlobStore {
 	}
 
 	@Override
-	public boolean createContainerInLocation(Location location,
-			String container, CreateContainerOptions options) {
+	public boolean createContainerInLocation(Location location, String container, CreateContainerOptions options) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public PageSet<? extends StorageMetadata> list(String container,
-			ListContainerOptions options) {
+	public PageSet<? extends StorageMetadata> list(String container, ListContainerOptions options) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -110,8 +105,7 @@ public class GoogleCloudStorageBlobStore extends BaseBlobStore {
 	}
 
 	@Override
-	public Blob getBlob(String container, String name,
-			org.jclouds.blobstore.options.GetOptions options) {
+	public Blob getBlob(String container, String name, org.jclouds.blobstore.options.GetOptions options) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -119,7 +113,7 @@ public class GoogleCloudStorageBlobStore extends BaseBlobStore {
 	@Override
 	public void removeBlob(String container, String name) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -127,6 +121,5 @@ public class GoogleCloudStorageBlobStore extends BaseBlobStore {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
-}
 
+}

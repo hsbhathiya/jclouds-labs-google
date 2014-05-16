@@ -18,10 +18,9 @@ package org.jclouds.googlecloudstorage.blobstore.config;
 
 import com.google.inject.AbstractModule;
 
-
-
 /**
- * Configures the {@link S3BlobStoreContext}; requires {@link S3AsyncBlobStore} bound.
+ * Configures the {@link S3BlobStoreContext}; requires {@link S3AsyncBlobStore}
+ * bound.
  * 
  * @author Adrian Cole
  */
@@ -30,8 +29,7 @@ public class GoogleCloudStorageBlobStoreContextModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-  
 }

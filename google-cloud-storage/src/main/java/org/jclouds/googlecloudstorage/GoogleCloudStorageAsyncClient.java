@@ -40,31 +40,28 @@ import org.jclouds.rest.binders.BindToJsonPayload;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.name.Named;
 
-
 /**
  * Provides asynchronous access to GCS via their REST API.
  * <p/>
+ * 
  * @author Bhathiya Supun
  */
 @Deprecated
 @RequestFilters(OAuthAuthenticator.class)
 @BlobScope(CONTAINER)
 public interface GoogleCloudStorageAsyncClient extends Closeable {
-	
-	
-	   /**
-	    * https://developers.google.com/storage/docs/json_api/v1/buckets/insert
-	    */
-	   @Named("BucketInsert")
-	   @POST
-	   @Consumes(MediaType.APPLICATION_JSON)
-	   @Produces(MediaType.APPLICATION_JSON)
-	   @Path("/")
-	   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE) 	
-	   @MapBinder(BindToJsonPayload.class)
-	   ListenableFuture<Boolean> BucketInsert(@PayloadParam("name") String BucketName , @QueryParam("Project") String ProjectID );
 
-	           
-		
- 
+	/**
+	 * https://developers.google.com/storage/docs/json_api/v1/buckets/insert
+	 */
+	@Named("BucketInsert")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/")
+	@OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
+	@MapBinder(BindToJsonPayload.class)
+	ListenableFuture<Boolean> BucketInsert(@PayloadParam("name") String BucketName,
+			@QueryParam("Project") String ProjectID);
+
 }

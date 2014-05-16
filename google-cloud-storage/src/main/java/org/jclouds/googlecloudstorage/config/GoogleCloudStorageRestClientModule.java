@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.jclouds.googlecloudstorage.config;
+
 import static org.jclouds.reflect.Reflection2.typeToken;
 
 import java.util.concurrent.TimeUnit;
@@ -32,15 +33,12 @@ import org.jclouds.rest.ConfiguresRestClient;
 import org.jclouds.rest.RequestSigner;
 import org.jclouds.rest.config.RestClientModule;
 
-
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-
 
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
-
 
 /**
  * Configures the GCS connection, including logging and http transport.
@@ -48,51 +46,52 @@ import com.google.inject.Scopes;
  * @author Bhathiya Supun
  */
 @ConfiguresRestClient
-public class GoogleCloudStorageRestClientModule<S extends GoogleCloudStorageClient, A extends GoogleCloudStorageAsyncClient> extends RestClientModule<S, A>{
+public class GoogleCloudStorageRestClientModule<S extends GoogleCloudStorageClient, A extends GoogleCloudStorageAsyncClient>
+		extends RestClientModule<S, A> {
 
-   @SuppressWarnings("unchecked")
-   public GoogleCloudStorageRestClientModule() {
-      this(TypeToken.class.cast(typeToken(GoogleCloudStorageClient.class)), TypeToken.class.cast(typeToken(GoogleCloudStorageAsyncClient.class)));
-   }
-   
-   protected GoogleCloudStorageRestClientModule(TypeToken<S> syncClientType, TypeToken<A> asyncClientType) {
-      super(syncClientType, asyncClientType);
-   }
-      
-   @Override
+	@SuppressWarnings("unchecked")
+	public GoogleCloudStorageRestClientModule() {
+		this(TypeToken.class.cast(typeToken(GoogleCloudStorageClient.class)), TypeToken.class
+				.cast(typeToken(GoogleCloudStorageAsyncClient.class)));
+	}
+
+	protected GoogleCloudStorageRestClientModule(TypeToken<S> syncClientType, TypeToken<A> asyncClientType) {
+		super(syncClientType, asyncClientType);
+	}
+
+	@Override
 	protected void configure() {
 		// TODO Auto-generated method stub
 		super.configure();
-		install(new GoogleCloudStorageParserModule());		
+		install(new GoogleCloudStorageParserModule());
 		bindRequestSigner();
 	}
-   
-   protected void bindRequestSigner() {
-	      bind(RequestAuthorizeSignature.class).in(Scopes.SINGLETON);
+
+	protected void bindRequestSigner() {
+		bind(RequestAuthorizeSignature.class).in(Scopes.SINGLETON);
 	}
-   
-   
-   @Provides
-   @Singleton
-   protected RequestSigner provideRequestSigner(RequestAuthorizeSignature in) {
-      return in;
-   }
 
-   @Provides
-   @TimeStamp
-   protected String provideTimeStamp(@TimeStamp Supplier<String> cache) {
-      return cache.get();
-   }
+	@Provides
+	@Singleton
+	protected RequestSigner provideRequestSigner(RequestAuthorizeSignature in) {
+		return in;
+	}
 
-   @Provides
-   @TimeStamp
-   @Singleton
-   protected Supplier<String> provideTimeStampCache(@Named(Constants.PROPERTY_SESSION_INTERVAL) long seconds,
-            final DateService dateService) {
-      return Suppliers.memoizeWithExpiration(new Supplier<String>() {
-         public String get() {
-            return dateService.rfc822DateFormat();
-         }
-      }, seconds, TimeUnit.SECONDS);
-   }
+	@Provides
+	@TimeStamp
+	protected String provideTimeStamp(@TimeStamp Supplier<String> cache) {
+		return cache.get();
+	}
+
+	@Provides
+	@TimeStamp
+	@Singleton
+	protected Supplier<String> provideTimeStampCache(@Named(Constants.PROPERTY_SESSION_INTERVAL) long seconds,
+			final DateService dateService) {
+		return Suppliers.memoizeWithExpiration(new Supplier<String>() {
+			public String get() {
+				return dateService.rfc822DateFormat();
+			}
+		}, seconds, TimeUnit.SECONDS);
+	}
 }

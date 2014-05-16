@@ -25,23 +25,18 @@ import org.jclouds.oauth.v2.filters.OAuthAuthenticator;
 import org.jclouds.rest.RequestSigner;
 import org.jclouds.rest.annotations.RequestFilters;
 
-
 /**
  * @author Bhathiya Supun
  * 
  */
 @Singleton
-@RequestFilters(OAuthAuthenticator.class)
-public class RequestAuthorizeSignature implements HttpRequestFilter , RequestSigner {
-	
-	
-	
+public class RequestAuthorizeSignature implements HttpRequestFilter, RequestSigner {
+
 	@Override
-	@RequestFilters(OAuthAuthenticator.class)
 	public HttpRequest filter(HttpRequest request) throws HttpException {
 		return request;
 	}
-		
+
 	@Override
 	public String createStringToSign(HttpRequest input) {
 		// TODO Auto-generated method stub

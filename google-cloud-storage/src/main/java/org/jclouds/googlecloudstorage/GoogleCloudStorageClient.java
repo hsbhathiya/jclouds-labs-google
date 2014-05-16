@@ -22,5 +22,5 @@ import java.io.Closeable;
 
 public interface GoogleCloudStorageClient extends Closeable {
 
-	boolean BucketInsert(String bucketName , String ProjectID);
+	boolean BucketInsert(String bucketName, String ProjectID);
 }

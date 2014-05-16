@@ -23,7 +23,6 @@ import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.googlecloudstorage.GoogleCloudStorageAsyncClient;
 import org.jclouds.http.HttpRequest;
 
-
 /**
  * 
  * @author Bhathiya Supun
@@ -39,15 +38,13 @@ public class GoogleCloudStorageBlobRequestSigner<T extends GoogleCloudStorageAsy
 	}
 
 	@Override
-	public HttpRequest signGetBlob(String container, String name,
-			long timeInSeconds) {
+	public HttpRequest signGetBlob(String container, String name, long timeInSeconds) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public HttpRequest signGetBlob(String container, String name,
-			org.jclouds.blobstore.options.GetOptions options) {
+	public HttpRequest signGetBlob(String container, String name, org.jclouds.blobstore.options.GetOptions options) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -65,10 +62,9 @@ public class GoogleCloudStorageBlobRequestSigner<T extends GoogleCloudStorageAsy
 	}
 
 	@Override
-	public HttpRequest signPutBlob(String container, Blob blob,
-			long timeInSeconds) {
+	public HttpRequest signPutBlob(String container, Blob blob, long timeInSeconds) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-  
+
 }

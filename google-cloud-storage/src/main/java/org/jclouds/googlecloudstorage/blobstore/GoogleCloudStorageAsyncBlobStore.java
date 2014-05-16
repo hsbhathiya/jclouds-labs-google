@@ -47,9 +47,8 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 @Singleton
 public class GoogleCloudStorageAsyncBlobStore extends BaseAsyncBlobStore {
 
-	protected GoogleCloudStorageAsyncBlobStore(BlobStoreContext context,
-			BlobUtils blobUtils, ListeningExecutorService userExecutor,
-			Supplier<Location> defaultLocation,
+	protected GoogleCloudStorageAsyncBlobStore(BlobStoreContext context, BlobUtils blobUtils,
+			ListeningExecutorService userExecutor, Supplier<Location> defaultLocation,
 			Supplier<Set<? extends Location>> locations) {
 		super(context, blobUtils, userExecutor, defaultLocation, locations);
 		// TODO Auto-generated constructor stub
@@ -68,22 +67,20 @@ public class GoogleCloudStorageAsyncBlobStore extends BaseAsyncBlobStore {
 	}
 
 	@Override
-	public ListenableFuture<Boolean> createContainerInLocation(
-			Location location, String container) {
+	public ListenableFuture<Boolean> createContainerInLocation(Location location, String container) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ListenableFuture<Boolean> createContainerInLocation(
-			Location location, String container, CreateContainerOptions options) {
+	public ListenableFuture<Boolean> createContainerInLocation(Location location, String container,
+			CreateContainerOptions options) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ListenableFuture<PageSet<? extends StorageMetadata>> list(
-			String container, ListContainerOptions options) {
+	public ListenableFuture<PageSet<? extends StorageMetadata>> list(String container, ListContainerOptions options) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -101,22 +98,19 @@ public class GoogleCloudStorageAsyncBlobStore extends BaseAsyncBlobStore {
 	}
 
 	@Override
-	public ListenableFuture<String> putBlob(String container, Blob blob,
-			PutOptions options) {
+	public ListenableFuture<String> putBlob(String container, Blob blob, PutOptions options) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ListenableFuture<BlobMetadata> blobMetadata(String container,
-			String key) {
+	public ListenableFuture<BlobMetadata> blobMetadata(String container, String key) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ListenableFuture<Blob> getBlob(String container, String key,
-			org.jclouds.blobstore.options.GetOptions options) {
+	public ListenableFuture<Blob> getBlob(String container, String key, org.jclouds.blobstore.options.GetOptions options) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -133,5 +127,4 @@ public class GoogleCloudStorageAsyncBlobStore extends BaseAsyncBlobStore {
 		return false;
 	}
 
-  
 }
