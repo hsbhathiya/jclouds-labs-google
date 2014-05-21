@@ -18,24 +18,12 @@ package org.jclouds.googlecloudstorage.domain;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Objects.toStringHelper;
-import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Iterables.getLast;
 
 import java.beans.ConstructorProperties;
 import java.net.URI;
-import java.util.Date;
-import java.util.Set;
 
-import org.jclouds.googlecomputeengine.domain.Instance;
-import org.jclouds.googlecomputeengine.domain.Instance.Builder;
-import org.jclouds.javax.annotation.Nullable;
-
-import com.google.common.annotations.Beta;
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * Represents a Bucket Access Control Resource.
@@ -45,21 +33,21 @@ import com.google.common.collect.ImmutableSet;
  *      "https://developers.google.com/storage/docs/json_api/v1/bucketAccessControls"
  *      />
  */
-public class BucketACL extends Resource {
+public class BucketAccessControls extends Resource {
 
    public enum Role {
       READER, WRITER, OWNER
    }
 
-   protected String bucket;
-   protected String entity;
-   protected Role role;
-   protected String email;
-   protected String domain;
-   protected String entityId;
-   protected ProjectTeam projectTeam;
+   protected final String bucket;
+   protected final String entity;
+   protected final Role role;
+   protected final String email;
+   protected final String domain;
+   protected final String entityId;
+   protected final ProjectTeam projectTeam;
 
-   protected BucketACL(String id, URI selfLink, String name, String etag, String bucket, String entity,
+   protected BucketAccessControls(String id, URI selfLink, String name, String etag, String bucket, String entity,
          String entityId, Role role, String email, String domain, ProjectTeam projectTeam) {
       super(Kind.BUCKETACCESSCONTROL, id, selfLink, name, etag);
       this.bucket = checkNotNull(bucket, "bucket");
@@ -71,42 +59,107 @@ public class BucketACL extends Resource {
       this.projectTeam = checkNotNull(projectTeam, "projectTeam");
 
    }
-   
 
    public String getBucket() {
       return bucket;
    }
 
-
    public String getEntity() {
       return entity;
    }
-
 
    public Role getRole() {
       return role;
    }
 
-
    public String getEmail() {
       return email;
    }
-
 
    public String getDomain() {
       return domain;
    }
 
-
    public String getEntityId() {
       return entityId;
    }
-
 
    public ProjectTeam getProjectTeam() {
       return projectTeam;
    }
 
+   public static class ProjectTeam {
+
+      public enum Team {
+         owner, editor, viewer;
+      }
+
+      private final String projectId;
+      private final Team team;
+
+      @ConstructorProperties({ "projectId", "team" })
+      public ProjectTeam(String projectId, Team team) {
+         this.projectId = checkNotNull(projectId);
+         this.team = checkNotNull(team);
+      }
+
+      public String getProjectId() {
+         return projectId;
+      }
+
+      public Team getTeam() {
+         return team;
+      }
+
+      @Override
+      public int hashCode() {
+         return Objects.hashCode(projectId, team);
+      }
+
+      @Override
+      public boolean equals(Object obj) {
+         if (this == obj)
+            return true;
+         if (obj == null || getClass() != obj.getClass())
+            return false;
+         ProjectTeam that = ProjectTeam.class.cast(obj);
+         return equal(this.projectId, that.projectId) && equal(this.team, that.team);
+      }
+
+      protected Objects.ToStringHelper string() {
+         return toStringHelper(this).add("projectId", projectId).add("team", team);
+      }
+
+      @Override
+      public String toString() {
+         return string().toString();
+      }
+
+      public static class Builder {
+
+         private String projectId;
+         private Team team;
+
+         public Builder projectId(String projectId) {
+            this.projectId = projectId;
+            return this;
+         }
+
+         public Builder team(Team team) {
+            this.team = team;
+            return this;
+         }
+
+         public ProjectTeam build() {
+            return new ProjectTeam(this.projectId, this.team);
+         }
+
+         public Builder fromProjectTeam(ProjectTeam in) {
+            return this.projectId(in.getProjectId()).team(in.getTeam());
+         }
+
+      }
+   }
 
    @Override
    public boolean equals(Object obj) {
@@ -114,7 +167,7 @@ public class BucketACL extends Resource {
          return true;
       if (obj == null || getClass() != obj.getClass())
          return false;
-      BucketACL that = BucketACL.class.cast(obj);
+      BucketAccessControls that = BucketAccessControls.class.cast(obj);
       return equal(this.kind, that.kind) && equal(this.bucket, that.bucket) && equal(this.entity, that.entity);
    }
 
@@ -181,23 +234,15 @@ public class BucketACL extends Resource {
          return this;
       }
 
-      public BucketACL build() {
-         return new BucketACL(super.id, super.selfLink, super.name, super.etag, bucket, entity, entityId, role, email,
-               domain, projectTeam);
-
+      public BucketAccessControls build() {
+         return new BucketAccessControls(super.id, super.selfLink, super.name, super.etag, bucket, entity, entityId,
+               role, email, domain, projectTeam);
       }
-      
-      public Builder fromBucketACL(BucketACL bACL) {
-         return super.fromResource(bACL)
-               .bucket(bACL.getBucket())
-               .entity(bACL.getEntity())
-               .entityId(bACL.getEntityId())
-               .role(bACL.getRole())
-               .email(bACL.getEmail())
-               .domain(bACL.getDomain())
-               .projectTeam(bACL.getProjectTeam());
-               
-                 
+
+      public Builder fromBucketACL(BucketAccessControls bACL) {
+         return super.fromResource(bACL).bucket(bACL.getBucket()).entity(bACL.getEntity()).entityId(bACL.getEntityId())
+               .role(bACL.getRole()).email(bACL.getEmail()).domain(bACL.getDomain()).projectTeam(bACL.getProjectTeam());
+
       }
 
       @Override
@@ -205,47 +250,6 @@ public class BucketACL extends Resource {
          return this;
       }
 
-
-   }
-
-   public static class ProjectTeam {
-
-      public enum Team {
-         owner, editor, viewer;
-      }
-
-      private final String projectId;
-      private final Team team;
-
-      @ConstructorProperties({ "projectId", "team" })
-      public ProjectTeam(String projectId, Team team) {
-         this.projectId = checkNotNull(projectId);
-         this.team = checkNotNull(team);
-      }
-
-      @Override
-      public int hashCode() {
-         return Objects.hashCode(projectId, team);
-      }
-
-      @Override
-      public boolean equals(Object obj) {
-         if (this == obj)
-            return true;
-         if (obj == null || getClass() != obj.getClass())
-            return false;
-         ProjectTeam that = ProjectTeam.class.cast(obj);
-         return equal(this.projectId, that.projectId) && equal(this.team, that.team);
-      }
-
-      protected Objects.ToStringHelper string() {
-         return toStringHelper(this).add("projectId", projectId).add("team", team);
-      }
-
-      @Override
-      public String toString() {
-         return string().toString();
-      }
    }
 
 }
