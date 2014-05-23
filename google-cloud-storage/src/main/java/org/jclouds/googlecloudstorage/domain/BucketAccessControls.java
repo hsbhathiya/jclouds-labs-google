@@ -29,9 +29,7 @@ import com.google.common.base.Objects;
  * Represents a Bucket Access Control Resource.
  * 
  * @author Bhathiya Supun
- * @see <a href=
- *      "https://developers.google.com/storage/docs/json_api/v1/bucketAccessControls"
- *      />
+ * @see <a href= "https://developers.google.com/storage/docs/json_api/v1/bucketAccessControls" />
  */
 public class BucketAccessControls extends Resource {
 

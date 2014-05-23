@@ -16,21 +16,15 @@
  */
 package org.jclouds.googlecloudstorage.handlers;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.net.URI;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls.Role;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.rest.MapBinder;
 import org.jclouds.rest.binders.BindToJsonPayload;
-
-import com.google.common.base.Function;
 
 /**
  * @author Bhathiya Supun
@@ -40,13 +34,6 @@ public class BucketAccessControlsBinder implements MapBinder {
    @Inject
    private BindToJsonPayload jsonBinder;
 
-   @Inject
-   @Named("machineTypeToURI")
-   Function<String, URI> machineTypesToURI;
-
-   /**
-    * {@inheritDoc}
-    */
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) {
       BucketAccessControls BACLInsert = BucketAccessControls.builder().entity((String) postParams.get("entity"))
@@ -54,9 +41,6 @@ public class BucketAccessControlsBinder implements MapBinder {
       return bindToRequest(request, BACLInsert);
    }
 
-   /**
-    * {@inheritDoc}
-    */
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Object input) {
       return jsonBinder.bindToRequest(request, input);
