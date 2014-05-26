@@ -14,33 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage;
+package org.jclouds.googlecloudstorage.internal;
 
-import java.io.Closeable;
+import java.util.Properties;
 
-import javax.ws.rs.Path;
-
-import org.jclouds.googlecloudstorage.features.BucketAccessControlsApi;
-import org.jclouds.rest.annotations.Delegate;
+import org.jclouds.googlecloudstorage.GoogleCloudStorageClient;
 
 /**
- * Provides access to GoogleCloudStorage.
- * <p/>
- *
  * @author Bhathiya Supun
- * @see <a href="https://developers.google.com/storage/docs/json_api/v1/">api doc</a>
  */
+public class BaseGoogleCloudStorageApiExpectTest extends BaseGoogleCloudStorageExpectTest<GoogleCloudStorageClient> {
 
-
-public interface GoogleCloudStorageClient extends Closeable {
-
-	boolean BucketInsert(String bucketName, String ProjectID);
-	
-   /**
-    * Provides access to BucketAccessControl features
-    */
-   @Delegate
-   @Path("/")
-   BucketAccessControlsApi getBucketAccessControlsApi();
-   
+   @Override
+   protected Properties setupProperties() {
+      Properties properties = super.setupProperties();
+      properties.put("google-cloud-storage.identity", "Jcloudtest");
+      return properties;
+   }
 }

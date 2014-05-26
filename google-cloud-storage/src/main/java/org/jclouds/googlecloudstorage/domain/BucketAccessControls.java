@@ -57,6 +57,7 @@ public class BucketAccessControls extends Resource {
       this.projectTeam = checkNotNull(projectTeam, "projectTeam");
 
    }
+   
 
    public String getBucket() {
       return bucket;

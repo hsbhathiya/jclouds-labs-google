@@ -14,33 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage;
+package org.jclouds.googlecloudstorage.internal;
 
-import java.io.Closeable;
-
-import javax.ws.rs.Path;
-
-import org.jclouds.googlecloudstorage.features.BucketAccessControlsApi;
-import org.jclouds.rest.annotations.Delegate;
+import org.jclouds.compute.ComputeService;
+import org.jclouds.compute.ComputeServiceContext;
 
 /**
- * Provides access to GoogleCloudStorage.
- * <p/>
- *
- * @author Bhathiya Supun
- * @see <a href="https://developers.google.com/storage/docs/json_api/v1/">api doc</a>
+ * @author David Alves
  */
+public class BaseGoogleComputeEngineServiceExpectTest extends BaseGoogleComputeEngineServiceContextExpectTest<ComputeService> {
 
-
-public interface GoogleCloudStorageClient extends Closeable {
-
-	boolean BucketInsert(String bucketName, String ProjectID);
-	
-   /**
-    * Provides access to BucketAccessControl features
-    */
-   @Delegate
-   @Path("/")
-   BucketAccessControlsApi getBucketAccessControlsApi();
-   
+   @Override
+   public ComputeService apply(ComputeServiceContext input) {
+      return input.getComputeService();
+   }
 }
