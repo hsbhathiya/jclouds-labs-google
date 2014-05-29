@@ -77,7 +77,7 @@ public interface BucketAccessControlsApi {
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/b/{bucket}/acl/{entity}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @Fallback(AbsentOn403Or404Or500.class)
+   @Fallback(NullOnNotFoundOr404.class)
    @Nullable
    BucketAccessControls getBucketAccessControls(@PathParam("bucket") String bucketName,
          @PathParam("entity") String entity);
@@ -98,13 +98,12 @@ public interface BucketAccessControlsApi {
    @Named("BucketAccessControls:insert")
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
-   @Produces(MediaType.APPLICATION_JSON)
-   @Path("/b/{bucket}/instances")
+   @Path("/b/{bucket}/acl")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @MapBinder(BucketAccessControlsBinder.class)
-   BucketAccessControls createBucketAccessControls(@PayloadParam("entity") String entity,
-         @PayloadParam("BACLInsert") BucketAccessControls bucketAccessControls, @PathParam("bucket") String bucketName,
-         @PayloadParam("role") Role role);
+   BucketAccessControls createBucketAccessControls(
+         @PayloadParam("BACLInsert") BucketAccessControls bucketAccessControls,
+         @PathParam("bucket") String bucketName);
 
    /**
     * Permanently deletes the ACL entry for the specified entity on the specified bucket.
@@ -118,10 +117,11 @@ public interface BucketAccessControlsApi {
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/b/{bucket}/acl/{entity}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @Fallback(AbsentOn403Or404Or500.class)
+   @Fallback(NullOnNotFoundOr404.class)
    @Nullable
    // empty response-> void?
-   HttpResponse deleteBucketAccessControls(@PathParam("bucket") String bucketName, @PathParam("entity") String entity);
+   HttpResponse deleteBucketAccessControls(@PathParam("bucket") String bucketName,
+         @PathParam("entity") String entity);
 
    /**
     * Retrieves ACL entries on a specified bucket
@@ -137,7 +137,8 @@ public interface BucketAccessControlsApi {
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/b/{bucket}/acl")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @Fallback(AbsentOn403Or404Or500.class)
+   @Fallback(NullOnNotFoundOr404.class)
+   @Nullable
    ListBucketAccessControls listBucketAccessControls(@PathParam("bucket") String bucketName);
 
    /**
@@ -158,7 +159,7 @@ public interface BucketAccessControlsApi {
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/b/{bucket}/acl/{entity}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @Fallback(AbsentOn403Or404Or500.class)
+   @Fallback(NullOnNotFoundOr404.class)
    BucketAccessControls updateBucketAccessControls(@PathParam("bucket") String bucketName,
          @PathParam("entity") String entity,
          @BinderParam(BindToJsonPayload.class) BucketAccessControls bucketAccessControls);
@@ -181,7 +182,7 @@ public interface BucketAccessControlsApi {
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/b/{bucket}/acl/{entity}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @Fallback(AbsentOn403Or404Or500.class)
+   @Fallback(NullOnNotFoundOr404.class)
    BucketAccessControls patchBucketAccessControls(@PathParam("bucket") String bucketName,
          @PathParam("entity") String entity,
          @BinderParam(BindToJsonPayload.class) BucketAccessControls bucketAccessControls);

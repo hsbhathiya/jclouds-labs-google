@@ -16,21 +16,46 @@
  */
 package org.jclouds.googlecloudstorage.config;
 
+import java.lang.reflect.Type;
+import java.util.Map;
+
+import javax.inject.Singleton;
+
+import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
+import org.jclouds.googlecloudstorage.domain.ListBucketAccessControls;
 import org.jclouds.json.config.GsonModule.DateAdapter;
 import org.jclouds.json.config.GsonModule.Iso8601DateAdapter;
+import org.jclouds.oauth.v2.domain.ClaimSet;
+import org.jclouds.oauth.v2.domain.Header;
+import org.jclouds.oauth.v2.json.ClaimSetTypeAdapter;
+import org.jclouds.oauth.v2.json.HeaderTypeAdapter;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 
 /**
- * 
- * 
  * @author Bhathiya Supun
  */
 public class GoogleCloudStorageParserModule extends AbstractModule {
 
-	@Override
-	protected void configure() {
-		bind(DateAdapter.class).to(Iso8601DateAdapter.class);
-	}
+   @Override
+   protected void configure() {
+      bind(DateAdapter.class).to(Iso8601DateAdapter.class);
+   }
+
+   @Provides
+   @Singleton
+   public Map<Type, Object> provideCustomAdapterBindings() {
+      return new ImmutableMap.Builder<Type, Object>()
+            .put(Header.class, new HeaderTypeAdapter())
+            .put(ClaimSet.class, new ClaimSetTypeAdapter())
+            .build();
+   }
 
 }

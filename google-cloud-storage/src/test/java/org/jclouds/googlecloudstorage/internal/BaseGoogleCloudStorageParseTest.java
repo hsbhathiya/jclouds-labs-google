@@ -16,16 +16,21 @@
  */
 package org.jclouds.googlecloudstorage.internal;
 
-import org.jclouds.compute.ComputeService;
-import org.jclouds.compute.ComputeServiceContext;
+import org.jclouds.googlecloudstorage.config.GoogleCloudStorageParserModule;
+import org.jclouds.json.BaseItemParserTest;
+import org.jclouds.json.config.GsonModule;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 /**
- * @author David Alves
+ * @author Bhathiya Supun
  */
-public class BaseGoogleComputeEngineServiceExpectTest extends BaseGoogleComputeEngineServiceContextExpectTest<ComputeService> {
+public abstract class BaseGoogleCloudStorageParseTest<T> extends BaseItemParserTest<T> {
 
    @Override
-   public ComputeService apply(ComputeServiceContext input) {
-      return input.getComputeService();
+   protected Injector injector() {
+      return Guice.createInjector(new GsonModule() , new GoogleCloudStorageParserModule());
    }
+
 }

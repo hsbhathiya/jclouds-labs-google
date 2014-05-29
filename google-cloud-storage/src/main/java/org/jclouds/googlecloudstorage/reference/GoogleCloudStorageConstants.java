@@ -39,8 +39,8 @@ public final class GoogleCloudStorageConstants {
 
 	public static final String STORAGE_READWRITE_SCOPE = "https://www.googleapis.com/auth/devstorage.read_write";
 
-	public static final String STORAGE_FULLCONTROL_SCOPE = "https://www.googleapis.com/auth/devstorage.read_write";
-
+	public static final String STORAGE_FULLCONTROL_SCOPE = "https://www.googleapis.com/auth/devstorage.full_control";
+	
 	/**
 	 * The total time, in msecs, to wait for an operation to complete.
 	 */

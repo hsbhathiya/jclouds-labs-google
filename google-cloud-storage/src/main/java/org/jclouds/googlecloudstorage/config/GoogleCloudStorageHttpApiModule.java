@@ -14,11 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jclouds.googlecloudstorage.config;
+
+
+
+
+
+import org.jclouds.googlecloudstorage.GoogleCloudStorageClient;
+import org.jclouds.rest.ConfiguresHttpApi;
+import org.jclouds.rest.config.HttpApiModule;
+
 
 /**
- * This package contains HttpRequestFilters needed to operate the REST api.
- * 
+ * Configures the GoogleCloud connection.
+ *
  * @author Bhathiya Supun
  */
-package org.jclouds.googlecloudstorage.filters;
-
+@ConfiguresHttpApi
+public class GoogleCloudStorageHttpApiModule extends HttpApiModule<GoogleCloudStorageClient> {
+   public GoogleCloudStorageHttpApiModule() {
+    }
+  
+}

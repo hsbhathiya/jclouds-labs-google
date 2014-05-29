@@ -19,6 +19,7 @@ package org.jclouds.googlecloudstorage.handlers;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.ws.rs.PathParam;
 
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls.Role;
@@ -36,9 +37,10 @@ public class BucketAccessControlsBinder implements MapBinder {
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) {
-      BucketAccessControls BACLInsert = BucketAccessControls.builder().entity((String) postParams.get("entity"))
-            .role((Role) postParams.get("role")).build();
-      return bindToRequest(request, BACLInsert);
+      BucketAccessControls postBucket = (BucketAccessControls)postParams.get("BACLInsert");
+   /*   BucketAccessControls BACLInsert = BucketAccessControls.builder().entity((String) postParams.get("entity"))
+            .role((Role) postParams.get("role")).build();*/
+      return bindToRequest(request, postBucket);
    }
 
    @Override

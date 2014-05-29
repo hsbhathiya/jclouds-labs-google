@@ -23,12 +23,13 @@ import javax.ws.rs.core.MediaType;
 
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls.Role;
+import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageParseTest;
 import org.jclouds.json.BaseItemParserTest;
 
 /**
  * @author Bhathiya Supun
  */
-public class BucketaclUpdateTest extends BaseItemParserTest<BucketAccessControls> {
+public class BucketaclUpdateTest extends BaseGoogleCloudStorageParseTest<BucketAccessControls> {
 
    @Override
    public String resource() {
@@ -43,6 +44,6 @@ public class BucketaclUpdateTest extends BaseItemParserTest<BucketAccessControls
             .id("jcloudtestbucket/allUsers")
             .selfLink(
                   URI.create("https://content.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allUsers"))
-            .bucket("jcloudbuckettest").entity("allUsers").role(Role.OWNER).etag("CAM=").build();
+            .bucket("jcloudtestbucket").entity("allUsers").role(Role.OWNER).etag("CAg=").build();
    }
 }

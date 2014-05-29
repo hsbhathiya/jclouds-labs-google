@@ -58,6 +58,7 @@ import org.jclouds.util.Strings2;
 import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.io.ByteSource;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
@@ -95,7 +96,6 @@ public class BaseGoogleCloudStorageExpectTest<T> extends BaseRestApiExpectTest<T
    @Override
    protected Module createModule() {
 
-
       return new Module() {
          @Override
          public void configure(Binder binder) {
@@ -103,9 +103,9 @@ public class BaseGoogleCloudStorageExpectTest<T> extends BaseRestApiExpectTest<T
             binder.bind(new TypeLiteral<Supplier<Long>>() {}).toInstance(Suppliers.ofInstance(0L));
             try {
                KeyFactory keyfactory = KeyFactory.getInstance("RSA");
-               PrivateKey privateKey = keyfactory.generatePrivate(privateKeySpec(newStringPayload
-                       (PRIVATE_KEY)));
-               PublicKey publicKey = keyfactory.generatePublic(publicKeySpec(newStringPayload(PUBLIC_KEY)));
+               PrivateKey privateKey = keyfactory.generatePrivate(privateKeySpec(ByteSource.wrap(
+                       PRIVATE_KEY.getBytes(UTF_8))));
+               PublicKey publicKey = keyfactory.generatePublic(publicKeySpec(ByteSource.wrap(PUBLIC_KEY.getBytes(UTF_8))));
                KeyPair keyPair = new KeyPair(publicKey, privateKey);
                openSshKey = SshKeys.encodeAsOpenSSH(RSAPublicKey.class.cast(publicKey));
                final Crypto crypto = createMock(Crypto.class);
@@ -136,6 +136,8 @@ public class BaseGoogleCloudStorageExpectTest<T> extends BaseRestApiExpectTest<T
             });
          }
       };
+    
+    
    }
 
    @Override

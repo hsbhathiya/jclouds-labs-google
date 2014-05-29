@@ -37,10 +37,10 @@ public interface GoogleCloudStorageClient extends Closeable {
 	boolean BucketInsert(String bucketName, String ProjectID);
 	
    /**
-    * Provides access to BucketAccessControl features
+    * Provides access to Bucket Access Control features
     */
    @Delegate
-   @Path("/")
+   @Path("")
    BucketAccessControlsApi getBucketAccessControlsApi();
    
 }

@@ -36,7 +36,7 @@ public class ListBucketAccessControls {
    protected ListBucketAccessControls(Kind kind, Set<BucketAccessControls> items) {
 
       this.kind = checkNotNull(kind, "kind");
-      this.items = checkNotNull(items, "item");
+      this.items = checkNotNull(items, "items");
    }
 
    public Kind getKind() {

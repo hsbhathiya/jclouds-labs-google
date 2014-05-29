@@ -18,18 +18,32 @@ package org.jclouds.googlecloudstorage.internal;
 
 import java.util.Properties;
 
+import org.jclouds.apis.BaseApiLiveTest;
 import org.jclouds.googlecloudstorage.GoogleCloudStorageClient;
+
+import com.google.inject.Injector;
+
+import com.google.inject.Module;
 
 /**
  * @author Bhathiya Supun
  */
-public class BaseGoogleCloudStorageApiExpectTest extends
-      BaseGoogleCloudStorageExpectTest<GoogleCloudStorageClient> {
+public class BaseGoogleCloudStorageApiLiveTest extends BaseApiLiveTest<GoogleCloudStorageClient> {
 
-   @Override
-   protected Properties setupProperties() {
-      Properties properties = super.setupProperties();
-      properties.put("google-cloud-storage.identity", "myproject");
-      return properties;
+   protected static final String API_URL_PREFIX = "https://www.googleapis.com/storage/v1/b/";
+   protected static final String BUCKET_NAME = "jcloudtestbucket2";
+   protected static final String BUCKETACL_API_URL_SUFFIX = BUCKET_NAME + "/acl/";
+
+   protected static final String PROJECT_NAME = "JcloudTest";
+
+   public BaseGoogleCloudStorageApiLiveTest() {
+      provider = "google-cloud-storage";
    }
+
+   protected GoogleCloudStorageClient create(Properties props, Iterable<Module> modules) {
+      Injector injector = newBuilder().modules(modules).overrides(props).buildInjector();
+
+      return injector.getInstance(GoogleCloudStorageClient.class);
+   }
+
 }

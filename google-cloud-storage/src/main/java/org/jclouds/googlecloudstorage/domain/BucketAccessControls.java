@@ -45,16 +45,17 @@ public class BucketAccessControls extends Resource {
    protected final String entityId;
    protected final ProjectTeam projectTeam;
 
-   protected BucketAccessControls(String id, URI selfLink, String name, String etag, String bucket, String entity,
+   protected BucketAccessControls(String id, URI selfLink,String etag, String bucket, String entity,
          String entityId, Role role, String email, String domain, ProjectTeam projectTeam) {
-      super(Kind.BUCKETACCESSCONTROL, id, selfLink, name, etag);
-      this.bucket = checkNotNull(bucket, "bucket");
-      this.entity = checkNotNull(entity, "entity");
-      this.entityId = checkNotNull(entityId, "entityId");
-      this.role = checkNotNull(role, "role");
+      super(Kind.bucketAccessControl,id ==null ? (bucket+"/"+entity):id,selfLink, etag);
+       
+      this.bucket = checkNotNull(bucket ,"bucket");
+      this.entity = checkNotNull(entity,"entity");
+      this.entityId = entityId;
+      this.role = role;
       this.email = email;
       this.domain = domain;
-      this.projectTeam = checkNotNull(projectTeam, "projectTeam");
+      this.projectTeam = projectTeam;
 
    }
    
@@ -90,7 +91,7 @@ public class BucketAccessControls extends Resource {
    public static class ProjectTeam {
 
       public enum Team {
-         owner, editor, viewer;
+         owners, editors, viewers;
       }
 
       private final String projectId;
@@ -98,8 +99,8 @@ public class BucketAccessControls extends Resource {
 
       @ConstructorProperties({ "projectId", "team" })
       public ProjectTeam(String projectId, Team team) {
-         this.projectId = checkNotNull(projectId);
-         this.team = checkNotNull(team);
+         this.projectId = projectId;
+         this.team = team;
       }
 
       public String getProjectId() {
@@ -174,6 +175,10 @@ public class BucketAccessControls extends Resource {
       return super.string().omitNullValues().add("bucket", bucket).add("entity", entity).add("entityId", entityId)
             .add("role", role).add("email", email).add("domain", domain);
    }
+   @Override
+   public int hashCode() {
+     return Objects.hashCode(kind, bucket,entity);
+   }
 
    @Override
    public String toString() {
@@ -234,7 +239,7 @@ public class BucketAccessControls extends Resource {
       }
 
       public BucketAccessControls build() {
-         return new BucketAccessControls(super.id, super.selfLink, super.name, super.etag, bucket, entity, entityId,
+         return new BucketAccessControls(super.id, super.selfLink, super.etag, bucket, entity, entityId,
                role, email, domain, projectTeam);
       }
 

@@ -46,6 +46,7 @@ public class Bucket extends Resource {
       STANDARD, DURABLE_REDUCED_AVAILABILITY;
    }
 
+   protected final String name;
    protected final Date creationTimestamp;
    protected final Long metageneration;
    protected final Set<BucketAccessControls> acl;
@@ -59,11 +60,12 @@ public class Bucket extends Resource {
    protected final LifeCycle lifeCycle;
    protected final StorageClass storageClass;
 
-   protected Bucket(Kind kind, String id, URI selfLink, String name, String etag, Date creationTimestamp,
-         Long metageneration, Set<BucketAccessControls> acl, Set<BucketAccessControls> defaultObjectAcl, Owner owner,
-         Location location, Website website, Logging logging, Versioning versioning, Set<Cors> cors,
+   protected Bucket(Kind kind, String id, URI selfLink, String name, String etag,
+         Date creationTimestamp, Long metageneration, Set<BucketAccessControls> acl,
+         Set<BucketAccessControls> defaultObjectAcl, Owner owner, Location location,
+         Website website, Logging logging, Versioning versioning, Set<Cors> cors,
          LifeCycle lifeCycle, StorageClass storageClass) {
-      super(kind, id, selfLink, name, etag);
+      super(kind, id, selfLink,etag);
       this.creationTimestamp = checkNotNull(creationTimestamp, "creationTimestamp");
       this.metageneration = checkNotNull(metageneration, "metageneration");
       this.acl = checkNotNull(acl, "acl");
@@ -76,6 +78,11 @@ public class Bucket extends Resource {
       this.cors = checkNotNull(cors, "cors");
       this.lifeCycle = checkNotNull(lifeCycle, "lifrCycle");
       this.storageClass = checkNotNull(storageClass, "storageClass");
+      this.name = name;
+   }
+
+   public String getName() {
+      return name;
    }
 
    public Date getCreationTimestamp() {
@@ -138,9 +145,10 @@ public class Bucket extends Resource {
    }
 
    protected Objects.ToStringHelper string() {
-      return super.string().omitNullValues().add("creationTimestamp", creationTimestamp)
-            .add("metageneration", metageneration).add("acl", acl).add("defaultObjectAcl", defaultObjectAcl)
-            .add("owner", owner).add("location", location).add("website", website).add("logging", logging)
+      return super.string().omitNullValues().add("name", name)
+            .add("creationTimestamp", creationTimestamp).add("metageneration", metageneration)
+            .add("acl", acl).add("defaultObjectAcl", defaultObjectAcl).add("owner", owner)
+            .add("location", location).add("website", website).add("logging", logging)
             .add("versioning", versioning).add("cors", cors).add("lifeCycle", lifeCycle)
             .add("storageClass", storageClass);
 
@@ -161,6 +169,7 @@ public class Bucket extends Resource {
 
    public static final class Builder extends Resource.Builder<Builder> {
 
+      private String name;
       private Date creationTimestamp;
       private Long metageneration;
       private ImmutableSet.Builder<BucketAccessControls> acl = ImmutableSet.builder();
@@ -173,6 +182,11 @@ public class Bucket extends Resource {
       private ImmutableSet.Builder<Cors> cors = ImmutableSet.builder();
       private LifeCycle lifeCycle;
       private StorageClass storageClass;
+
+      public Builder name(String name) {
+         this.name = name;
+         return this;
+      }
 
       public Builder creationTimeStamp(Date creationTimestamp) {
          this.creationTimestamp = creationTimestamp;
@@ -255,15 +269,16 @@ public class Bucket extends Resource {
       }
 
       public Bucket build() {
-         return new Bucket(super.kind, super.id, super.selfLink, super.name, super.etag, creationTimestamp,
-               metageneration, acl.build(), defaultObjectAcl.build(), owner, location, website, logging, versioning,
-               cors.build(), lifeCycle, storageClass);
+         return new Bucket(super.kind, super.id, super.selfLink, name, super.etag,
+               creationTimestamp, metageneration, acl.build(), defaultObjectAcl.build(), owner,
+               location, website, logging, versioning, cors.build(), lifeCycle, storageClass);
       }
 
       public Builder fromBucket(Bucket in) {
-         return super.fromResource(in).creationTimeStamp(in.getCreationTimestamp())
-               .metageneration(in.getMetageneration()).acl(in.getAcl()).defaultObjectAcl(in.getDefaultObjectAcl())
-               .owner(in.getOwner()).location(in.getLocation()).website(in.getWebsite()).logging(in.getLogging())
+         return super.fromResource(in).name(in.getName()).creationTimeStamp(in.getCreationTimestamp())
+               .metageneration(in.getMetageneration()).acl(in.getAcl())
+               .defaultObjectAcl(in.getDefaultObjectAcl()).owner(in.getOwner())
+               .location(in.getLocation()).website(in.getWebsite()).logging(in.getLogging())
                .versioning(in.getVersioning()).cors(in.getCors()).lifeCycle(in.getLifeCycle())
                .storageClass(in.getStorageClass());
       }
@@ -376,7 +391,8 @@ public class Bucket extends Resource {
       }
 
       protected Objects.ToStringHelper string() {
-         return toStringHelper(this).add("mainPageSuffix", mainPageSuffix).add("notFoundPage", notFoundPage);
+         return toStringHelper(this).add("mainPageSuffix", mainPageSuffix).add("notFoundPage",
+               notFoundPage);
       }
 
       @Override
@@ -443,11 +459,13 @@ public class Bucket extends Resource {
          if (obj == null || getClass() != obj.getClass())
             return false;
          Logging that = Logging.class.cast(obj);
-         return equal(this.logBucket, that.logBucket) && equal(this.logObjectPrefix, that.logObjectPrefix);
+         return equal(this.logBucket, that.logBucket)
+               && equal(this.logObjectPrefix, that.logObjectPrefix);
       }
 
       protected Objects.ToStringHelper string() {
-         return toStringHelper(this).add("logBucket", logBucket).add("logObjectPrefix", logObjectPrefix);
+         return toStringHelper(this).add("logBucket", logBucket).add("logObjectPrefix",
+               logObjectPrefix);
       }
 
       @Override
@@ -491,8 +509,8 @@ public class Bucket extends Resource {
       private final Set<String> responseHeader;
       private final Integer maxAgeSeconds;
 
-      public Cors(@Nullable Set<String> origin, @Nullable Set<String> method, @Nullable Set<String> responseHeader,
-            Integer maxAgeSeconds) {
+      public Cors(@Nullable Set<String> origin, @Nullable Set<String> method,
+            @Nullable Set<String> responseHeader, Integer maxAgeSeconds) {
 
          this.origin = origin == null ? ImmutableSet.<String> of() : origin;
          this.method = method == null ? ImmutableSet.<String> of() : method;
@@ -530,12 +548,13 @@ public class Bucket extends Resource {
             return false;
          Cors that = Cors.class.cast(obj);
          return equal(this.origin, that.origin) && equal(this.method, that.method)
-               && equal(this.responseHeader, that.responseHeader) && equal(this.maxAgeSeconds, that.maxAgeSeconds);
+               && equal(this.responseHeader, that.responseHeader)
+               && equal(this.maxAgeSeconds, that.maxAgeSeconds);
       }
 
       protected Objects.ToStringHelper string() {
-         return toStringHelper(this).add("origin", origin).add("method", method).add("responseHeader", responseHeader)
-               .add("maxAgeSeconds", maxAgeSeconds);
+         return toStringHelper(this).add("origin", origin).add("method", method)
+               .add("responseHeader", responseHeader).add("maxAgeSeconds", maxAgeSeconds);
       }
 
       @Override
@@ -590,12 +609,13 @@ public class Bucket extends Resource {
          }
 
          public Cors build() {
-            return new Cors(this.origin.build(), this.method.build(), this.reponseHeader.build(), this.maxAgeSeconds);
+            return new Cors(this.origin.build(), this.method.build(), this.reponseHeader.build(),
+                  this.maxAgeSeconds);
          }
 
          public Builder fromCors(Cors c) {
-            return this.maxAgeSeconds(c.getMaxAgeSeconds()).origin(c.getOrigin()).method(c.getMethod())
-                  .responseHeader(c.getResponseHeader());
+            return this.maxAgeSeconds(c.getMaxAgeSeconds()).origin(c.getOrigin())
+                  .method(c.getMethod()).responseHeader(c.getResponseHeader());
          }
 
       }
@@ -894,7 +914,8 @@ public class Bucket extends Resource {
             private final Boolean isLive;
             private final Integer numNewerVersions;
 
-            public Condition(Integer age, Date createdBefore, Boolean isLive, Integer numNewerVersions) {
+            public Condition(Integer age, Date createdBefore, Boolean isLive,
+                  Integer numNewerVersions) {
                this.age = age;
                this.createdBefore = createdBefore;
                this.isLive = isLive;
@@ -955,8 +976,8 @@ public class Bucket extends Resource {
             }
 
             protected Objects.ToStringHelper string() {
-               return toStringHelper(this).add("age", age).add("createdBefore", createdBefore).add("isLive", isLive)
-                     .add("numNewerVersions", numNewerVersions);
+               return toStringHelper(this).add("age", age).add("createdBefore", createdBefore)
+                     .add("isLive", isLive).add("numNewerVersions", numNewerVersions);
             }
 
             @Override
@@ -996,12 +1017,13 @@ public class Bucket extends Resource {
                }
 
                public Condition build() {
-                  return new Condition(this.age, this.createdBefore, this.isLive, this.numNewerVersions);
+                  return new Condition(this.age, this.createdBefore, this.isLive,
+                        this.numNewerVersions);
                }
 
                public Builder fromCondition(Condition in) {
-                  return this.age(in.getAge()).createdBefore(in.getCreatedBefore()).isLive(in.getIsLive())
-                        .numNewerVersions(in.getNumNewerVersions());
+                  return this.age(in.getAge()).createdBefore(in.getCreatedBefore())
+                        .isLive(in.getIsLive()).numNewerVersions(in.getNumNewerVersions());
                }
 
             }

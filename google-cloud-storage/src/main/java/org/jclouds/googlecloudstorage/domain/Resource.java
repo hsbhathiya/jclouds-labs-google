@@ -26,6 +26,7 @@ import java.beans.ConstructorProperties;
 import java.net.URI;
 import java.util.Date;
 
+
 import org.jclouds.javax.annotation.Nullable;
 
 import com.google.common.annotations.Beta;
@@ -38,108 +39,76 @@ import com.google.common.collect.Iterables;
 
 /**
  * Base class for Google Cloud Storage resources.
- *
+ * 
  * @author Bhathiya Supun
  */
-@Beta
+
 public class Resource {
 
    public enum Kind {
-      BUCKETACCESSCONTROL,
-      BUCKET,
-      OBJECTACCESSCONTROL,
-      OBJECT;
-      
+      bucketAccessControl, bucketAccessControls, BUCKET, OBJECT_ACCESS_CONTROL, OBJECT;
+
       public String value() {
-         return Joiner.on("#").join("storage", CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name()));
+         return Joiner.on("#").join("storage", name());
       }
 
       @Override
       public String toString() {
          return value();
       }
-
+      
       public static Kind fromValue(String kind) {
-         return valueOf(CaseFormat.LOWER_CAMEL.to(CaseFormat
-                 .UPPER_UNDERSCORE,
-                 Iterables.getLast(Splitter.on("#").split(checkNotNull(kind,
-                         "kind")))));
+         return valueOf(Iterables.getLast(Splitter.on("#").split(checkNotNull(kind, "kind"))));
       }
    }
 
    protected final Kind kind;
    protected final String id;
    protected final URI selfLink;
-   protected final String name;
    protected final String etag;
-   
 
-   @ConstructorProperties({
-           "kind", "id", "selfLink", "name" , "etag" 
-   })
-   protected Resource(Kind kind, String id, URI selfLink, String name,
-                      String etag) {
+   @ConstructorProperties({ "kind", "id", "selfLink","etag" })
+   protected Resource(Kind kind, String id, URI selfLink, String etag) {
       this.kind = checkNotNull(kind, "kind");
       this.id = checkNotNull(id, "id");
-      this.selfLink = checkNotNull(selfLink, "selfLink");
-      this.name = checkNotNull(name, "name");
-      this.etag = checkNotNull(etag, "etag");   
+      this.selfLink = selfLink;
+      this.etag = etag;
    }
-   
 
-   
    public Kind getKind() {
       return kind;
    }
 
-
-
    public String getId() {
       return id;
    }
-   
 
    public URI getSelfLink() {
       return selfLink;
    }
 
-
-
-   public String getName() {
-      return name;
-   }
-
-
-
    public String getEtag() {
       return etag;
    }
 
-
-
    @Override
    public int hashCode() {
-      return Objects.hashCode(kind, name);
+      return Objects.hashCode(kind, id,selfLink,etag);
    }
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj) return true;
-      if (obj == null || getClass() != obj.getClass()) return false;
+      if (this == obj)
+         return true;
+      if (obj == null || getClass() != obj.getClass())
+         return false;
       Resource that = Resource.class.cast(obj);
-      return equal(this.kind, that.kind)
-              && equal(this.name, that.name);
+      return equal(this.kind, that.kind) && equal(this.id, that.id);
    }
 
    protected ToStringHelper string() {
-      return toStringHelper(this)
-              .omitNullValues()
-              .add("kind", kind)
-              .add("id", id)
-              .add("name", name)
-              .add("selfLink", selfLink)
-              .add("name", name)
-              .add("etag", etag);
+      return toStringHelper(this).omitNullValues().add("kind", kind).add("id", id)
+            .add("selfLink", selfLink).add("etag", etag);
    }
 
    /**
@@ -165,7 +134,6 @@ public class Resource {
       protected Kind kind;
       protected String id;
       protected URI selfLink;
-      protected String name;
       protected String etag;
 
       /**
@@ -193,32 +161,20 @@ public class Resource {
       }
 
       /**
-       * @see Resource#getName()
-       */
-      public T name(String name) {
-         this.name = name;
-         return self();
-      }
-
-      /**
        * @see Resource#getEtag
        */
       public T etag(String etag) {
          this.etag = etag;
          return self();
       }
-
+      
       public Resource build() {
-         return new Resource(kind, id, selfLink, name, etag);
+         return new Resource(kind, id, selfLink, etag);
       }
 
       public T fromResource(Resource in) {
-         return this
-                 .kind(in.getKind())
-                 .id(in.getId())
-                 .selfLink(in.getSelfLink())
-                 .name(in.getName())
-                 .etag(in.getEtag());
+         return this.kind(in.getKind()).id(in.getId()).selfLink(in.getSelfLink())
+               .etag(in.getEtag());
       }
    }
 
