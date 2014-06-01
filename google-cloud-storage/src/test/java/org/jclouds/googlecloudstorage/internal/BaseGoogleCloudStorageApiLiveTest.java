@@ -31,6 +31,7 @@ import com.google.inject.Module;
 public class BaseGoogleCloudStorageApiLiveTest extends BaseApiLiveTest<GoogleCloudStorageClient> {
 
    protected static final String API_URL_PREFIX = "https://www.googleapis.com/storage/v1/b/";
+  //This should be replaced by the bucket created in  "Bucket insert" operation when it is   implemented
    protected static final String BUCKET_NAME = "jcloudtestbucket2";
    protected static final String BUCKETACL_API_URL_SUFFIX = BUCKET_NAME + "/acl/";
 
@@ -42,8 +43,7 @@ public class BaseGoogleCloudStorageApiLiveTest extends BaseApiLiveTest<GoogleClo
 
    protected GoogleCloudStorageClient create(Properties props, Iterable<Module> modules) {
       Injector injector = newBuilder().modules(modules).overrides(props).buildInjector();
-
-      return injector.getInstance(GoogleCloudStorageClient.class);
+      return injector.getInstance(GoogleCloudStorageClient.class);      
    }
 
 }

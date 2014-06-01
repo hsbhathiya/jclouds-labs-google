@@ -28,7 +28,10 @@ import org.jclouds.collect.PagedIterable;
 import org.jclouds.googlecloudstorage.GoogleCloudStorageClient;
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls.Role;
+import org.jclouds.googlecloudstorage.domain.ListBucketAccessControls;
+import org.jclouds.googlecloudstorage.domain.Resource.Kind;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiLiveTest;
+import org.jclouds.http.HttpResponse;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
@@ -44,24 +47,75 @@ import com.google.inject.Module;
 public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    
    //This should be replaced by the bucket created in  "Bucket insert" operation when it is   implemented
-   private static final String BUCKET_NAME = "jcloudtestbucket2";
+//   private static final String BUCKET_NAME = "jcloudtestbucket2";
 
    private BucketAccessControlsApi api() {
       return api.getBucketAccessControlsApi();
    }
 
 
-   /*@Test(groups = "live")
+   @Test(groups = "live")
    public void testCreateBucketacl() {
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers").role(Role.OWNER).build();
-      BucketAccessControls response = api().createBucketAccessControls("allUsers", bucketacl,BUCKET_NAME , Role.OWNER);
+      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers").role(Role.READER).build();
+      BucketAccessControls response = api().createBucketAccessControls( bucketacl,BUCKET_NAME );
      
       assertNotNull(response);
       assertEquals(response.getId(), BUCKET_NAME + "/allUsers" );
 
    }
+   
+   @Test(groups = "live" , dependsOnMethods = "testCreateBucketacl")
+   public void testUpdateBucketacl() {
+      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers").role(Role.WRITER).build();
+      BucketAccessControls response = api().updateBucketAccessControls( BUCKET_NAME ,"allUsers" ,bucketacl);
+     
+      assertNotNull(response);
+      assertEquals(response.getId(), BUCKET_NAME + "/allUsers" );
+      assertEquals(response.getRole(), Role.WRITER);
+   }
+   
+   @Test(groups = "live" , dependsOnMethods = "testUpdateBucketacl")
+   public void testGetBucketacl() {     
+      BucketAccessControls response = api().getBucketAccessControls(BUCKET_NAME, "allUsers");
+     
+      assertNotNull(response);
+      assertEquals(response.getId(), BUCKET_NAME + "/allUsers" );
+      assertEquals(response.getRole(), Role.WRITER);
+   }
+   
+   @Test(groups = "live" , dependsOnMethods = "testUpdateBucketacl")
+   public void testListBucketacl() {     
+      ListBucketAccessControls response = api().listBucketAccessControls(BUCKET_NAME);
+     
+      assertNotNull(response);
+      assertEquals(response.getKind(), Kind.bucketAccessControls );
+      assertNotNull(response.getItems());
+   }
+   
+   @Test(groups = "live" , dependsOnMethods = "testUpdateBucketacl")
+   public void testPatchBucketacl() {
+      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers").role(Role.READER).build();
+      BucketAccessControls response = api().patchBucketAccessControls( BUCKET_NAME ,"allUsers" ,bucketacl);
+     
+      assertNotNull(response);
+      assertEquals(response.getId(), BUCKET_NAME + "/allUsers" );
+      assertEquals(response.getRole(), Role.READER);
 
-   @Test(groups = "live", dependsOnMethods = "testCreateBucketacl")
+   }
+   
+   @Test(groups = "live" , dependsOnMethods = "testPatchBucketacl")
+   public void testDeleteBucketacl() {
+    
+      HttpResponse response = api().deleteBucketAccessControls( BUCKET_NAME ,"allUsers");
+     
+      assertNotNull(response);
+      assertEquals(response.getStatusCode(), 204);   
+   }
+   
+
+   
+
+  /* @Test(groups = "live", dependsOnMethods = "testCreateBucketacl")
    public void testGetBucketacl() {
       
    }
