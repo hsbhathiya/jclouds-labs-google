@@ -28,11 +28,6 @@ public final class GoogleCloudStorageConstants {
    
    public static final String GCS_PROVIDER_NAME = "google-cloud-storage";
    
-   /**
-    * The name of the project that keeps public resources.
-    */
-   public static final String GOOGLE_PROJECT = "google";
-   
    public static final String STORAGE_READONLY_SCOPE = "https://www.googleapis.com/auth/devstorage.read_only";
    
    public static final String STORAGE_WRITEONLY_SCOPE = "https://www.googleapis.com/auth/devstorage.write_only";
