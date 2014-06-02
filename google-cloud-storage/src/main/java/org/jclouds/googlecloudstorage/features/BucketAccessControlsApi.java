@@ -101,9 +101,8 @@ public interface BucketAccessControlsApi {
    @Path("/b/{bucket}/acl")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @MapBinder(BucketAccessControlsBinder.class)
-   BucketAccessControls createBucketAccessControls(
-         @PayloadParam("BACLInsert") BucketAccessControls bucketAccessControls,
-         @PathParam("bucket") String bucketName);
+   BucketAccessControls createBucketAccessControls(@PathParam("bucket") String bucketName,
+         @PayloadParam("BACLInsert") BucketAccessControls bucketAccessControls);
 
    /**
     * Permanently deletes the ACL entry for the specified entity on the specified bucket.

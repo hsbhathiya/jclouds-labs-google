@@ -46,9 +46,6 @@ import com.google.inject.Module;
  */
 public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    
-   //This should be replaced by the bucket created in  "Bucket insert" operation when it is   implemented
-//   private static final String BUCKET_NAME = "jcloudtestbucket2";
-
    private BucketAccessControlsApi api() {
       return api.getBucketAccessControlsApi();
    }
@@ -57,7 +54,7 @@ public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLi
    @Test(groups = "live")
    public void testCreateBucketacl() {
       BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers").role(Role.READER).build();
-      BucketAccessControls response = api().createBucketAccessControls( bucketacl,BUCKET_NAME );
+      BucketAccessControls response = api().createBucketAccessControls(BUCKET_NAME, bucketacl );
      
       assertNotNull(response);
       assertEquals(response.getId(), BUCKET_NAME + "/allUsers" );
@@ -111,28 +108,4 @@ public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLi
       assertNotNull(response);
       assertEquals(response.getStatusCode(), 204);   
    }
-   
-
-   
-
-  /* @Test(groups = "live", dependsOnMethods = "testCreateBucketacl")
-   public void testGetBucketacl() {
-      
-   }
-
-   @Test(groups = "live", dependsOnMethods = "testCreateBucketacl")
-   public void testListBucketacl() {
-   }
-
-
-
-   private void assertInstanceEquals(BucketAccessControls result, BucketAccessControls expected) {
-      assertEquals(result.getName(), expected.getName());      
-   }
-
-   @AfterClass(groups = { "integration", "live" })
-   protected void tearDownContext() {
-      
-    }*/
-
 }
