@@ -71,7 +71,7 @@ public class BaseGoogleCloudStorageExpectTest<T> extends BaseRestApiExpectTest<T
    private static final String header = "{\"alg\":\"none\",\"typ\":\"JWT\"}";
 
    private static final String CLAIMS_TEMPLATE = "{" +
-           "\"iss\":\"myproject\"," +
+           "\"iss\":\"JcloudTest\"," +
            "\"scope\":\"%s\"," +
            "\"aud\":\"https://accounts.google.com/o/oauth2/token\"," +
            "\"exp\":3600," +

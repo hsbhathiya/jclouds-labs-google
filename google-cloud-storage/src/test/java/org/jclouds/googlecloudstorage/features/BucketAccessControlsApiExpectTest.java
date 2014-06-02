@@ -227,7 +227,7 @@ public class BucketAccessControlsApiExpectTest extends BaseGoogleCloudStorageApi
                         MediaType.APPLICATION_JSON)).build();
 
       HttpResponse updateResponse = HttpResponse.builder().statusCode(200)
-            .payload(staticPayloadFromResource("/bucketacl_update_requestpayload.json")).build();
+            .payload(staticPayloadFromResource("/bucketacl_update_initial.json")).build();
 
       BucketAccessControlsApi api = requestsSendResponses(
             requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE, patchRequest, updateResponse)
