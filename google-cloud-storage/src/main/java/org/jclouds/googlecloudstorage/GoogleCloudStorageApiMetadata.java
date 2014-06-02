@@ -46,23 +46,23 @@ import com.google.inject.Module;
  */
 
 public class GoogleCloudStorageApiMetadata extends BaseHttpApiMetadata<GoogleCloudStorageClient> {
-
+   
    @Override
    public Builder toBuilder() {
       return new Builder().fromApiMetadata(this);
    }
-
+   
    public GoogleCloudStorageApiMetadata() {
       this(new Builder());
    }
-
+   
    protected GoogleCloudStorageApiMetadata(Builder builder) {
       super(builder);
    }
-
+   
    public static Properties defaultProperties() {
       Properties properties = BaseHttpApiMetadata.defaultProperties();
-
+      
       properties.put("oauth.endpoint", "https://accounts.google.com/o/oauth2/token");
       properties.put(AUDIENCE, "https://accounts.google.com/o/oauth2/token");
       properties.put(SIGNATURE_OR_MAC_ALGORITHM, "RS256");
@@ -74,9 +74,8 @@ public class GoogleCloudStorageApiMetadata extends BaseHttpApiMetadata<GoogleClo
       // "loginUser=jclouds");
       return properties;
    }
-
-   public static class Builder extends
-         BaseHttpApiMetadata.Builder<GoogleCloudStorageClient, Builder> {
+   
+   public static class Builder extends BaseHttpApiMetadata.Builder<GoogleCloudStorageClient, Builder> {
       protected Builder() {
          id(GCS_PROVIDER_NAME)
                .name("Google Cloud Storage Api ")
@@ -88,23 +87,21 @@ public class GoogleCloudStorageApiMetadata extends BaseHttpApiMetadata<GoogleClo
                .defaultProperties(GoogleCloudStorageApiMetadata.defaultProperties())
                .view(typeToken(BlobStoreContext.class))
                .defaultModules(
-                     ImmutableSet.<Class<? extends Module>> builder()
-                           .add(GoogleCloudStorageParserModule.class)
-                           .add(OAuthAuthenticationModule.class)
-                           .add(OAuthModuleWithoutTypeAdapters.class)
+                     ImmutableSet.<Class<? extends Module>> builder().add(GoogleCloudStorageParserModule.class)
+                           .add(OAuthAuthenticationModule.class).add(OAuthModuleWithoutTypeAdapters.class)
                            .add(GoogleCloudStorageHttpApiModule.class).build());
-
+         
       }
-
+      
       @Override
       public GoogleCloudStorageApiMetadata build() {
          return new GoogleCloudStorageApiMetadata(this);
       }
-
+      
       @Override
       protected Builder self() {
          return this;
       }
    }
-
+   
 }

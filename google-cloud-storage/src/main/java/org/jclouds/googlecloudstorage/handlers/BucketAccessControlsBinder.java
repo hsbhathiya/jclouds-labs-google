@@ -31,18 +31,20 @@ import org.jclouds.rest.binders.BindToJsonPayload;
  * @author Bhathiya Supun
  */
 public class BucketAccessControlsBinder implements MapBinder {
-
+   
    @Inject
    private BindToJsonPayload jsonBinder;
-
+   
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) {
-      BucketAccessControls postBucket = (BucketAccessControls)postParams.get("BACLInsert");
-   /*   BucketAccessControls BACLInsert = BucketAccessControls.builder().entity((String) postParams.get("entity"))
-            .role((Role) postParams.get("role")).build();*/
+      BucketAccessControls postBucket = (BucketAccessControls) postParams.get("BACLInsert");
+      /*
+       * BucketAccessControls BACLInsert = BucketAccessControls.builder().entity((String) postParams.get("entity"))
+       * .role((Role) postParams.get("role")).build();
+       */
       return bindToRequest(request, postBucket);
    }
-
+   
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Object input) {
       return jsonBinder.bindToRequest(request, input);

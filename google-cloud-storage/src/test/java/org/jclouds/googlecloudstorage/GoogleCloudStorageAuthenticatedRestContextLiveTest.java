@@ -26,15 +26,15 @@ import org.testng.annotations.Test;
  */
 @Test(groups = "live")
 public class GoogleCloudStorageAuthenticatedRestContextLiveTest extends
-		BaseOAuthAuthenticatedApiLiveTest<GoogleCloudStorageClient> {
-
-	public GoogleCloudStorageAuthenticatedRestContextLiveTest() {
-		provider = "google-cloud-storage";
-	}
-
-	@Override
-	public String getScopes() {
-		return GoogleCloudStorageConstants.STORAGE_FULLCONTROL_SCOPE;
-	}
-
+      BaseOAuthAuthenticatedApiLiveTest<GoogleCloudStorageClient> {
+   
+   public GoogleCloudStorageAuthenticatedRestContextLiveTest() {
+      provider = "google-cloud-storage";
+   }
+   
+   @Override
+   public String getScopes() {
+      return GoogleCloudStorageConstants.STORAGE_FULLCONTROL_SCOPE;
+   }
+   
 }

@@ -29,24 +29,24 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
 
 public class ListBucketAccessControls {
-
+   
    protected final Kind kind;
    protected final Set<BucketAccessControls> items;
-
+   
    protected ListBucketAccessControls(Kind kind, Set<BucketAccessControls> items) {
-
+      
       this.kind = checkNotNull(kind, "kind");
       this.items = checkNotNull(items, "items");
    }
-
+   
    public Kind getKind() {
       return kind;
    }
-
+   
    public Set<BucketAccessControls> getItems() {
       return items;
    }
-
+   
    @Override
    public boolean equals(Object obj) {
       if (this == obj)
@@ -55,57 +55,56 @@ public class ListBucketAccessControls {
          return false;
       ListBucketAccessControls that = ListBucketAccessControls.class.cast(obj);
       return equal(this.kind, that.kind) && equal(this.items, that.items);
-
+      
    }
-
+   
    protected Objects.ToStringHelper string() {
       return toStringHelper(this).omitNullValues().add("kind", kind).add("items", items);
-
+      
    }
-
+   
    @Override
    public String toString() {
       return string().toString();
    }
-
+   
    public static Builder builder() {
       return new Builder();
    }
-
+   
    public Builder toBuilder() {
       return new Builder().fromListBucketAccessControls(this);
    }
-
+   
    public static final class Builder {
-
+      
       private Kind kind;
       private ImmutableSet.Builder<BucketAccessControls> items = ImmutableSet.builder();
-
+      
       public Builder kind(Kind kind) {
          this.kind = kind;
          return this;
       }
-
+      
       public Builder addItems(BucketAccessControls bucketAccessControls) {
          this.items.add(bucketAccessControls);
          return this;
       }
-
+      
       public Builder items(Set<BucketAccessControls> items) {
          this.items.addAll(items);
          return this;
       }
-
+      
       public ListBucketAccessControls build() {
          return new ListBucketAccessControls(this.kind, items.build());
       }
-
+      
       public Builder fromListBucketAccessControls(ListBucketAccessControls in) {
          return this.kind(in.getKind()).items(in.getItems());
-
+         
       }
-
+      
    }
-
- 
+   
 }

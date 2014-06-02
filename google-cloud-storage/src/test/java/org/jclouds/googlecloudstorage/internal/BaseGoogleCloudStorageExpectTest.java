@@ -67,45 +67,42 @@ import com.google.inject.TypeLiteral;
  * @author Bhathiya Supun
  */
 public class BaseGoogleCloudStorageExpectTest<T> extends BaseRestApiExpectTest<T> {
-
+   
    private static final String header = "{\"alg\":\"none\",\"typ\":\"JWT\"}";
-
-   private static final String CLAIMS_TEMPLATE = "{" +
-           "\"iss\":\"JcloudTest\"," +
-           "\"scope\":\"%s\"," +
-           "\"aud\":\"https://accounts.google.com/o/oauth2/token\"," +
-           "\"exp\":3600," +
-           "\"iat\":0}";
-
+   
+   private static final String CLAIMS_TEMPLATE = "{" + "\"iss\":\"JcloudTest\"," + "\"scope\":\"%s\","
+         + "\"aud\":\"https://accounts.google.com/o/oauth2/token\"," + "\"exp\":3600," + "\"iat\":0}";
+   
    protected static final String TOKEN = "1/8xbJqaOZXSUZbHLl5EOtu1pxz3fmmetKx9W8CV4t79M";
-
-   protected static final HttpResponse TOKEN_RESPONSE = HttpResponse.builder().statusCode(200).payload(
-           payloadFromString("{\n" +
-                   "  \"access_token\" : \"" + TOKEN + "\",\n" +
-                   "  \"token_type\" : \"Bearer\",\n" +
-                   "  \"expires_in\" : 3600\n" +
-                   "}")).build();
-
+   
+   protected static final HttpResponse TOKEN_RESPONSE = HttpResponse
+         .builder()
+         .statusCode(200)
+         .payload(
+               payloadFromString("{\n" + "  \"access_token\" : \"" + TOKEN + "\",\n"
+                     + "  \"token_type\" : \"Bearer\",\n" + "  \"expires_in\" : 3600\n" + "}")).build();
+   
    protected String openSshKey;
-
-
+   
    public BaseGoogleCloudStorageExpectTest() {
       provider = "google-cloud-storage";
    }
-
+   
    @Override
    protected Module createModule() {
-
+      
       return new Module() {
          @Override
          public void configure(Binder binder) {
             // Predicatable time
-            binder.bind(new TypeLiteral<Supplier<Long>>() {}).toInstance(Suppliers.ofInstance(0L));
+            binder.bind(new TypeLiteral<Supplier<Long>>() {
+            }).toInstance(Suppliers.ofInstance(0L));
             try {
                KeyFactory keyfactory = KeyFactory.getInstance("RSA");
-               PrivateKey privateKey = keyfactory.generatePrivate(privateKeySpec(ByteSource.wrap(
-                       PRIVATE_KEY.getBytes(UTF_8))));
-               PublicKey publicKey = keyfactory.generatePublic(publicKeySpec(ByteSource.wrap(PUBLIC_KEY.getBytes(UTF_8))));
+               PrivateKey privateKey = keyfactory.generatePrivate(privateKeySpec(ByteSource.wrap(PRIVATE_KEY
+                     .getBytes(UTF_8))));
+               PublicKey publicKey = keyfactory
+                     .generatePublic(publicKeySpec(ByteSource.wrap(PUBLIC_KEY.getBytes(UTF_8))));
                KeyPair keyPair = new KeyPair(publicKey, privateKey);
                openSshKey = SshKeys.encodeAsOpenSSH(RSAPublicKey.class.cast(publicKey));
                final Crypto crypto = createMock(Crypto.class);
@@ -125,7 +122,7 @@ public class BaseGoogleCloudStorageExpectTest<T> extends BaseRestApiExpectTest<T
             } catch (IOException e) {
                propagate(e);
             }
-            //  predictable node names
+            // predictable node names
             final AtomicInteger suffix = new AtomicInteger();
             binder.bind(new TypeLiteral<Supplier<String>>() {
             }).toInstance(new Supplier<String>() {
@@ -136,10 +133,9 @@ public class BaseGoogleCloudStorageExpectTest<T> extends BaseRestApiExpectTest<T
             });
          }
       };
-    
-    
+      
    }
-
+   
    @Override
    protected Properties setupProperties() {
       Properties props = super.setupProperties();
@@ -147,7 +143,7 @@ public class BaseGoogleCloudStorageExpectTest<T> extends BaseRestApiExpectTest<T
       props.put(OAuthProperties.SIGNATURE_OR_MAC_ALGORITHM, OAuthConstants.NO_ALGORITHM);
       return props;
    }
-
+   
    @Override
    protected HttpRequestComparisonType compareHttpRequestAsType(HttpRequest input) {
       HttpRequestComparisonType reqType = HttpRequestComparisonType.DEFAULT;
@@ -158,32 +154,28 @@ public class BaseGoogleCloudStorageExpectTest<T> extends BaseRestApiExpectTest<T
       }
       return reqType;
    }
-
+   
    protected HttpRequest requestForScopes(String... scopes) {
       String claims = String.format(CLAIMS_TEMPLATE, Joiner.on(",").join(scopes));
-
+      
       String payload = "grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&" +
-              // Base64 Encoded Header
-              "assertion=" + base64Url().omitPadding().encode(header.getBytes(UTF_8)) + "." +
-              // Base64 Encoded Claims
-              base64Url().omitPadding().encode(claims.getBytes(UTF_8)) + ".";
-
-      return HttpRequest.builder()
-              .method("POST")
-              .endpoint(URI.create("https://accounts.google.com/o/oauth2/token"))
-              .addHeader("Accept", MediaType.APPLICATION_JSON)
-              .payload(payloadFromStringWithContentType(payload, "application/x-www-form-urlencoded"))
-              .build();
+      // Base64 Encoded Header
+            "assertion=" + base64Url().omitPadding().encode(header.getBytes(UTF_8)) + "." +
+            // Base64 Encoded Claims
+            base64Url().omitPadding().encode(claims.getBytes(UTF_8)) + ".";
+      
+      return HttpRequest.builder().method("POST").endpoint(URI.create("https://accounts.google.com/o/oauth2/token"))
+            .addHeader("Accept", MediaType.APPLICATION_JSON)
+            .payload(payloadFromStringWithContentType(payload, "application/x-www-form-urlencoded")).build();
    }
-
+   
    protected static Payload staticPayloadFromResource(String resource) {
       try {
-         return payloadFromString(Strings2.toStringAndClose(BaseGoogleCloudStorageExpectTest.class.getResourceAsStream
-                 (resource)));
+         return payloadFromString(Strings2.toStringAndClose(BaseGoogleCloudStorageExpectTest.class
+               .getResourceAsStream(resource)));
       } catch (IOException e) {
          throw propagate(e);
       }
    }
-
-
+   
 }

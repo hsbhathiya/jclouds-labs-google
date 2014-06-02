@@ -30,12 +30,12 @@ import org.jclouds.json.BaseItemParserTest;
  * @author Bhathiya Supun
  */
 public class BucketaclInsertTest extends BaseGoogleCloudStorageParseTest<BucketAccessControls> {
-
+   
    @Override
    public String resource() {
       return "/bucketacl_insert_response.json";
    }
-
+   
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
    public BucketAccessControls expected() {
@@ -44,8 +44,7 @@ public class BucketaclInsertTest extends BaseGoogleCloudStorageParseTest<BucketA
             .id("jcloudtestbucket/allAuthenticatedUsers")
             .selfLink(
                   URI.create("https://content.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allAuthenticatedUsers"))
-            .bucket("jcloudtestbucket").entity("allAuthenticatedUsers").role(Role.WRITER)
-            .etag("CAQ=").build();
+            .bucket("jcloudtestbucket").entity("allAuthenticatedUsers").role(Role.WRITER).etag("CAQ=").build();
       
    }
 }

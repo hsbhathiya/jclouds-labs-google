@@ -16,23 +16,18 @@
  */
 package org.jclouds.googlecloudstorage.config;
 
-
-
-
-
 import org.jclouds.googlecloudstorage.GoogleCloudStorageClient;
 import org.jclouds.rest.ConfiguresHttpApi;
 import org.jclouds.rest.config.HttpApiModule;
 
-
 /**
  * Configures the GoogleCloud connection.
- *
+ * 
  * @author Bhathiya Supun
  */
 @ConfiguresHttpApi
 public class GoogleCloudStorageHttpApiModule extends HttpApiModule<GoogleCloudStorageClient> {
    public GoogleCloudStorageHttpApiModule() {
-    }
-  
+   }
+   
 }

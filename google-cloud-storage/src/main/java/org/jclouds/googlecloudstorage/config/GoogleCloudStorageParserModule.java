@@ -43,19 +43,17 @@ import com.google.inject.Provides;
  * @author Bhathiya Supun
  */
 public class GoogleCloudStorageParserModule extends AbstractModule {
-
+   
    @Override
    protected void configure() {
       bind(DateAdapter.class).to(Iso8601DateAdapter.class);
    }
-
+   
    @Provides
    @Singleton
    public Map<Type, Object> provideCustomAdapterBindings() {
-      return new ImmutableMap.Builder<Type, Object>()
-            .put(Header.class, new HeaderTypeAdapter())
-            .put(ClaimSet.class, new ClaimSetTypeAdapter())
-            .build();
+      return new ImmutableMap.Builder<Type, Object>().put(Header.class, new HeaderTypeAdapter())
+            .put(ClaimSet.class, new ClaimSetTypeAdapter()).build();
    }
-
+   
 }

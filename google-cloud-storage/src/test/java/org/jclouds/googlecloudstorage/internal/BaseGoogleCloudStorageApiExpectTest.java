@@ -23,9 +23,8 @@ import org.jclouds.googlecloudstorage.GoogleCloudStorageClient;
 /**
  * @author Bhathiya Supun
  */
-public class BaseGoogleCloudStorageApiExpectTest extends
-      BaseGoogleCloudStorageExpectTest<GoogleCloudStorageClient> {
-
+public class BaseGoogleCloudStorageApiExpectTest extends BaseGoogleCloudStorageExpectTest<GoogleCloudStorageClient> {
+   
    @Override
    protected Properties setupProperties() {
       Properties properties = super.setupProperties();

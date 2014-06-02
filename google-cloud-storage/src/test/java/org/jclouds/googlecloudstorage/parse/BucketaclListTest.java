@@ -36,34 +36,29 @@ import com.google.common.collect.ImmutableSet;
  * @author Bhathiya Supun
  */
 public class BucketaclListTest extends BaseGoogleCloudStorageParseTest<ListBucketAccessControls> {
-
+   
    @Override
    public String resource() {
       return "/bucketacl_list.json";
    }
-
+   
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
    public ListBucketAccessControls expected() {
-      return ListBucketAccessControls.builder().kind(Kind.bucketAccessControls)
-            .items(ImmutableSet.of(item_1, item_2)).build();
-    }
-
-   private BucketAccessControls item_1 = BucketAccessControls
-         .builder()
-         .id("jcloudtestbucket/allUsers")
-         .selfLink(
-               URI.create("https://content.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allUsers"))
+      return ListBucketAccessControls.builder().kind(Kind.bucketAccessControls).items(ImmutableSet.of(item_1, item_2))
+            .build();
+   }
+   
+   private BucketAccessControls item_1 = BucketAccessControls.builder().id("jcloudtestbucket/allUsers")
+         .selfLink(URI.create("https://content.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allUsers"))
          .bucket("jcloudtestbucket").entity("allUsers").role(Role.READER).etag("CAc=").build();
-
-   private BucketAccessControls item_2 =
-       BucketAccessControls
-            .builder()
-            .id("jcloudtestbucket/project-owners-1082289308625")
-            .selfLink(
-                  URI.create("https://content.googleapis.com/storage/v1/b/jcloudtestbucket/acl/project-owners-1082289308625"))
-            .projectTeam(new ProjectTeam("1082289308625", Team.owners)).bucket("jcloudtestbucket")
-            .entity("project-owners-1082289308625").role(Role.OWNER).etag("CAc=").build();
- 
-
+   
+   private BucketAccessControls item_2 = BucketAccessControls
+         .builder()
+         .id("jcloudtestbucket/project-owners-1082289308625")
+         .selfLink(
+               URI.create("https://content.googleapis.com/storage/v1/b/jcloudtestbucket/acl/project-owners-1082289308625"))
+         .projectTeam(new ProjectTeam("1082289308625", Team.owners)).bucket("jcloudtestbucket")
+         .entity("project-owners-1082289308625").role(Role.OWNER).etag("CAc=").build();
+   
 }

@@ -25,18 +25,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.TypeToken;
 
 /**
- * 
- * <p/>
- * 
- * <pre>
- * META - INF / services / org.jclouds.apis.ApiMetadata
- * </pre>
- * 
  * @author Bhathiya Supun
  */
 @Test(groups = "unit", testName = "GoogleStorageApiMetadataTest")
 public class GoogleCloudStorageApiMetadataTest extends BaseApiMetadataTest {
-	public GoogleCloudStorageApiMetadataTest() {
-		super(new GoogleCloudStorageApiMetadata(), ImmutableSet.<TypeToken<? extends View>> of());
-	}
+   public GoogleCloudStorageApiMetadataTest() {
+      super(new GoogleCloudStorageApiMetadata(), ImmutableSet.<TypeToken<? extends View>> of());
+   }
 }

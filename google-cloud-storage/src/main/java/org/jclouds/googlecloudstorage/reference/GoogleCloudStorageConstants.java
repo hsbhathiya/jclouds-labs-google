@@ -22,36 +22,35 @@ import com.google.common.annotations.Beta;
  * @author Bhathiya Supun
  */
 public final class GoogleCloudStorageConstants {
-	
-	 private GoogleCloudStorageConstants() {		
-	 }
-
-	public static final String GCS_PROVIDER_NAME = "google-cloud-storage";
-
-	/**
-	 * The name of the project that keeps public resources.
-	 */
-	public static final String GOOGLE_PROJECT = "google";
-
-	public static final String STORAGE_READONLY_SCOPE = "https://www.googleapis.com/auth/devstorage.read_only";
-
-	public static final String STORAGE_WRITEONLY_SCOPE = "https://www.googleapis.com/auth/devstorage.write_only";
-
-	public static final String STORAGE_READWRITE_SCOPE = "https://www.googleapis.com/auth/devstorage.read_write";
-
-	public static final String STORAGE_FULLCONTROL_SCOPE = "https://www.googleapis.com/auth/devstorage.full_control";
-	
-	/**
-	 * The total time, in msecs, to wait for an operation to complete.
-	 */
-	@Beta
-	public static final String OPERATION_COMPLETE_TIMEOUT = "jclouds.google-cloud-storage.operation-complete-timeout";
-
-	/**
-	 * The interval, in msecs, between calls to check whether an operation has
-	 * completed.
-	 */
-	@Beta
-	public static final String OPERATION_COMPLETE_INTERVAL = "jclouds.google-cloud-storage.operation-complete-interval";
-
+   
+   private GoogleCloudStorageConstants() {
+   }
+   
+   public static final String GCS_PROVIDER_NAME = "google-cloud-storage";
+   
+   /**
+    * The name of the project that keeps public resources.
+    */
+   public static final String GOOGLE_PROJECT = "google";
+   
+   public static final String STORAGE_READONLY_SCOPE = "https://www.googleapis.com/auth/devstorage.read_only";
+   
+   public static final String STORAGE_WRITEONLY_SCOPE = "https://www.googleapis.com/auth/devstorage.write_only";
+   
+   public static final String STORAGE_READWRITE_SCOPE = "https://www.googleapis.com/auth/devstorage.read_write";
+   
+   public static final String STORAGE_FULLCONTROL_SCOPE = "https://www.googleapis.com/auth/devstorage.full_control";
+   
+   /**
+    * The total time, in msecs, to wait for an operation to complete.
+    */
+   @Beta
+   public static final String OPERATION_COMPLETE_TIMEOUT = "jclouds.google-cloud-storage.operation-complete-timeout";
+   
+   /**
+    * The interval, in msecs, between calls to check whether an operation has completed.
+    */
+   @Beta
+   public static final String OPERATION_COMPLETE_INTERVAL = "jclouds.google-cloud-storage.operation-complete-interval";
+   
 }

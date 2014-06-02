@@ -29,25 +29,20 @@ import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageParseTest;
  * @author Bhathiya Supun
  */
 public class BucketaclGetTest extends BaseGoogleCloudStorageParseTest<BucketAccessControls> {
-
+   
    @Override
    public String resource() {
       return "/bucketacl_get.json";
    }
-
+   
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
    public BucketAccessControls expected() {
-      return  BucketAccessControls
-            .builder()
-            .bucket("jcloudtestbucket")
-            .entity("allUsers")
-            .role(Role.READER)
+      return BucketAccessControls.builder().bucket("jcloudtestbucket").entity("allUsers").role(Role.READER)
             .etag("CAM=")
-            .selfLink(
-                  URI.create("https://content.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allUsers"))
+            .selfLink(URI.create("https://content.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allUsers"))
             .id("jcloudtestbucket/allUsers").build();
       
    }
-      
+   
 }

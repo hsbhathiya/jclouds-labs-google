@@ -27,10 +27,10 @@ import com.google.inject.Injector;
  * @author Bhathiya Supun
  */
 public abstract class BaseGoogleCloudStorageParseTest<T> extends BaseItemParserTest<T> {
-
+   
    @Override
    protected Injector injector() {
-      return Guice.createInjector(new GsonModule() , new GoogleCloudStorageParserModule());
+      return Guice.createInjector(new GsonModule(), new GoogleCloudStorageParserModule());
    }
-
+   
 }

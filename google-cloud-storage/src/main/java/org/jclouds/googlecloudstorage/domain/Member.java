@@ -17,29 +17,28 @@
 package org.jclouds.googlecloudstorage.domain;
 
 /**
- * In Google Cloud Storage each Bucket is associated with a unique project.Project consist of set 
- * of users or "Members".Members are identified by their email address  associated with google account
-  * <p/>
+ * In Google Cloud Storage each Bucket is associated with a unique project.Project consist of set of users or
+ * "Members".Members are identified by their email address associated with google account
+ * <p/>
  * 
-  * @author Bhathiya Supun 
+ * @author Bhathiya Supun
  */
 public class Member {
    private String emailAddress;
- 
-
+   
    public Member(String emailAddress) {
-		this.emailAddress = emailAddress;
-	}
-
+      this.emailAddress = emailAddress;
+   }
+   
    public String getEmailAddress() {
-		return emailAddress;
-	}
+      return emailAddress;
+   }
    
    public void setEmailAddress(String emailAddress) {
-		this.emailAddress = emailAddress;
-	}
+      this.emailAddress = emailAddress;
+   }
    
-	@Override
+   @Override
    public boolean equals(Object obj) {
       if (this == obj)
          return true;
@@ -55,5 +54,5 @@ public class Member {
          return false;
       return true;
    }
-
+   
 }

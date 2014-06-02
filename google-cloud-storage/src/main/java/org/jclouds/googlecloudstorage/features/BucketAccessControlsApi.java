@@ -61,7 +61,7 @@ import org.jclouds.rest.binders.BindToJsonPayload;
 @SkipEncoding({ '/', '=' })
 @RequestFilters(OAuthAuthenticator.class)
 public interface BucketAccessControlsApi {
-
+   
    /**
     * Returns the ACL entry for the specified entity on the specified bucket.
     * 
@@ -81,7 +81,7 @@ public interface BucketAccessControlsApi {
    @Nullable
    BucketAccessControls getBucketAccessControls(@PathParam("bucket") String bucketName,
          @PathParam("entity") String entity);
-
+   
    /**
     * Creates a new ACL entry on the specified bucket.
     * 
@@ -103,7 +103,7 @@ public interface BucketAccessControlsApi {
    @MapBinder(BucketAccessControlsBinder.class)
    BucketAccessControls createBucketAccessControls(@PathParam("bucket") String bucketName,
          @PayloadParam("BACLInsert") BucketAccessControls bucketAccessControls);
-
+   
    /**
     * Permanently deletes the ACL entry for the specified entity on the specified bucket.
     * 
@@ -119,9 +119,8 @@ public interface BucketAccessControlsApi {
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
    // empty response-> void?
-   HttpResponse deleteBucketAccessControls(@PathParam("bucket") String bucketName,
-         @PathParam("entity") String entity);
-
+   HttpResponse deleteBucketAccessControls(@PathParam("bucket") String bucketName, @PathParam("entity") String entity);
+   
    /**
     * Retrieves ACL entries on a specified bucket
     * 
@@ -139,7 +138,7 @@ public interface BucketAccessControlsApi {
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
    ListBucketAccessControls listBucketAccessControls(@PathParam("bucket") String bucketName);
-
+   
    /**
     * Updates an ACL entry on the specified bucket
     * 
@@ -151,7 +150,7 @@ public interface BucketAccessControlsApi {
     *           BucketAccessControls resource with role
     * @return If successful, this method returns a BucketAccessControls resource in the response body
     */
-
+   
    @Named("BucketAccessControls:update")
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
@@ -162,7 +161,7 @@ public interface BucketAccessControlsApi {
    BucketAccessControls updateBucketAccessControls(@PathParam("bucket") String bucketName,
          @PathParam("entity") String entity,
          @BinderParam(BindToJsonPayload.class) BucketAccessControls bucketAccessControls);
-
+   
    /**
     * Updates an ACL entry on the specified bucket.PATCH avoids sending unnecessary data when modifying resources
     * 
@@ -174,7 +173,7 @@ public interface BucketAccessControlsApi {
     *           BucketAccessControls resource with role
     * @return If successful, this method returns a BucketAccessControls resource in the response body
     */
-
+   
    @Named("BucketAccessControls:patch")
    @PATCH
    @Consumes(MediaType.APPLICATION_JSON)
@@ -185,5 +184,5 @@ public interface BucketAccessControlsApi {
    BucketAccessControls patchBucketAccessControls(@PathParam("bucket") String bucketName,
          @PathParam("entity") String entity,
          @BinderParam(BindToJsonPayload.class) BucketAccessControls bucketAccessControls);
-
+   
 }

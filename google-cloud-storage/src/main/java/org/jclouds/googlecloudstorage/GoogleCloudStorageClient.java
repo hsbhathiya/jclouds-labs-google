@@ -26,16 +26,15 @@ import org.jclouds.rest.annotations.Delegate;
 /**
  * Provides access to GoogleCloudStorage.
  * <p/>
- *
+ * 
  * @author Bhathiya Supun
  * @see <a href="https://developers.google.com/storage/docs/json_api/v1/">api doc</a>
  */
 
-
 public interface GoogleCloudStorageClient extends Closeable {
-
-	boolean BucketInsert(String bucketName, String ProjectID);
-	
+   
+   boolean BucketInsert(String bucketName, String ProjectID);
+   
    /**
     * Provides access to Bucket Access Control features
     */

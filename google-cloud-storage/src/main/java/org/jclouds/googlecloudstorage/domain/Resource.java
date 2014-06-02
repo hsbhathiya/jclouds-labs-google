@@ -26,7 +26,6 @@ import java.beans.ConstructorProperties;
 import java.net.URI;
 import java.util.Date;
 
-
 import org.jclouds.javax.annotation.Nullable;
 
 import com.google.common.annotations.Beta;
@@ -44,14 +43,14 @@ import com.google.common.collect.Iterables;
  */
 
 public class Resource {
-
+   
    public enum Kind {
       bucketAccessControl, bucketAccessControls, BUCKET, OBJECT_ACCESS_CONTROL, OBJECT;
-
+      
       public String value() {
          return Joiner.on("#").join("storage", name());
       }
-
+      
       @Override
       public String toString() {
          return value();
@@ -61,41 +60,41 @@ public class Resource {
          return valueOf(Iterables.getLast(Splitter.on("#").split(checkNotNull(kind, "kind"))));
       }
    }
-
+   
    protected final Kind kind;
    protected final String id;
    protected final URI selfLink;
    protected final String etag;
-
-   @ConstructorProperties({ "kind", "id", "selfLink","etag" })
+   
+   @ConstructorProperties({ "kind", "id", "selfLink", "etag" })
    protected Resource(Kind kind, String id, URI selfLink, String etag) {
       this.kind = checkNotNull(kind, "kind");
       this.id = checkNotNull(id, "id");
       this.selfLink = selfLink;
       this.etag = etag;
    }
-
+   
    public Kind getKind() {
       return kind;
    }
-
+   
    public String getId() {
       return id;
    }
-
+   
    public URI getSelfLink() {
       return selfLink;
    }
-
+   
    public String getEtag() {
       return etag;
    }
-
+   
    @Override
    public int hashCode() {
-      return Objects.hashCode(kind, id,selfLink,etag);
+      return Objects.hashCode(kind, id, selfLink, etag);
    }
-
+   
    @Override
    public boolean equals(Object obj) {
       if (this == obj)
@@ -105,12 +104,12 @@ public class Resource {
       Resource that = Resource.class.cast(obj);
       return equal(this.kind, that.kind) && equal(this.id, that.id);
    }
-
+   
    protected ToStringHelper string() {
-      return toStringHelper(this).omitNullValues().add("kind", kind).add("id", id)
-            .add("selfLink", selfLink).add("etag", etag);
+      return toStringHelper(this).omitNullValues().add("kind", kind).add("id", id).add("selfLink", selfLink)
+            .add("etag", etag);
    }
-
+   
    /**
     * {@inheritDoc}
     */
@@ -118,24 +117,24 @@ public class Resource {
    public String toString() {
       return string().toString();
    }
-
+   
    public static Builder<?> builder() {
       return new ConcreteBuilder();
    }
-
+   
    public Builder<?> toBuilder() {
       return new ConcreteBuilder().fromResource(this);
    }
-
+   
    public abstract static class Builder<T extends Builder<T>> {
-
+      
       protected abstract T self();
-
+      
       protected Kind kind;
       protected String id;
       protected URI selfLink;
       protected String etag;
-
+      
       /**
        * @see Resource#getKind()
        */
@@ -143,7 +142,7 @@ public class Resource {
          this.kind = kind;
          return self();
       }
-
+      
       /**
        * @see Resource#getId()
        */
@@ -151,7 +150,7 @@ public class Resource {
          this.id = id;
          return self();
       }
-
+      
       /**
        * @see Resource#getSelfLink()
        */
@@ -159,7 +158,7 @@ public class Resource {
          this.selfLink = selfLink;
          return self();
       }
-
+      
       /**
        * @see Resource#getEtag
        */
@@ -171,13 +170,12 @@ public class Resource {
       public Resource build() {
          return new Resource(kind, id, selfLink, etag);
       }
-
+      
       public T fromResource(Resource in) {
-         return this.kind(in.getKind()).id(in.getId()).selfLink(in.getSelfLink())
-               .etag(in.getEtag());
+         return this.kind(in.getKind()).id(in.getId()).selfLink(in.getSelfLink()).etag(in.getEtag());
       }
    }
-
+   
    private static class ConcreteBuilder extends Builder<ConcreteBuilder> {
       @Override
       protected ConcreteBuilder self() {

@@ -49,63 +49,65 @@ public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLi
    private BucketAccessControlsApi api() {
       return api.getBucketAccessControlsApi();
    }
-
-
+   
    @Test(groups = "live")
    public void testCreateBucketacl() {
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers").role(Role.READER).build();
-      BucketAccessControls response = api().createBucketAccessControls(BUCKET_NAME, bucketacl );
-     
+      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
+            .role(Role.READER).build();
+      BucketAccessControls response = api().createBucketAccessControls(BUCKET_NAME, bucketacl);
+      
       assertNotNull(response);
-      assertEquals(response.getId(), BUCKET_NAME + "/allUsers" );
-
+      assertEquals(response.getId(), BUCKET_NAME + "/allUsers");
+      
    }
    
-   @Test(groups = "live" , dependsOnMethods = "testCreateBucketacl")
+   @Test(groups = "live", dependsOnMethods = "testCreateBucketacl")
    public void testUpdateBucketacl() {
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers").role(Role.WRITER).build();
-      BucketAccessControls response = api().updateBucketAccessControls( BUCKET_NAME ,"allUsers" ,bucketacl);
-     
+      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
+            .role(Role.WRITER).build();
+      BucketAccessControls response = api().updateBucketAccessControls(BUCKET_NAME, "allUsers", bucketacl);
+      
       assertNotNull(response);
-      assertEquals(response.getId(), BUCKET_NAME + "/allUsers" );
+      assertEquals(response.getId(), BUCKET_NAME + "/allUsers");
       assertEquals(response.getRole(), Role.WRITER);
    }
    
-   @Test(groups = "live" , dependsOnMethods = "testUpdateBucketacl")
-   public void testGetBucketacl() {     
+   @Test(groups = "live", dependsOnMethods = "testUpdateBucketacl")
+   public void testGetBucketacl() {
       BucketAccessControls response = api().getBucketAccessControls(BUCKET_NAME, "allUsers");
-     
+      
       assertNotNull(response);
-      assertEquals(response.getId(), BUCKET_NAME + "/allUsers" );
+      assertEquals(response.getId(), BUCKET_NAME + "/allUsers");
       assertEquals(response.getRole(), Role.WRITER);
    }
    
-   @Test(groups = "live" , dependsOnMethods = "testUpdateBucketacl")
-   public void testListBucketacl() {     
+   @Test(groups = "live", dependsOnMethods = "testUpdateBucketacl")
+   public void testListBucketacl() {
       ListBucketAccessControls response = api().listBucketAccessControls(BUCKET_NAME);
-     
+      
       assertNotNull(response);
-      assertEquals(response.getKind(), Kind.bucketAccessControls );
+      assertEquals(response.getKind(), Kind.bucketAccessControls);
       assertNotNull(response.getItems());
    }
    
-   @Test(groups = "live" , dependsOnMethods = "testUpdateBucketacl")
+   @Test(groups = "live", dependsOnMethods = "testUpdateBucketacl")
    public void testPatchBucketacl() {
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers").role(Role.READER).build();
-      BucketAccessControls response = api().patchBucketAccessControls( BUCKET_NAME ,"allUsers" ,bucketacl);
-     
+      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
+            .role(Role.READER).build();
+      BucketAccessControls response = api().patchBucketAccessControls(BUCKET_NAME, "allUsers", bucketacl);
+      
       assertNotNull(response);
-      assertEquals(response.getId(), BUCKET_NAME + "/allUsers" );
+      assertEquals(response.getId(), BUCKET_NAME + "/allUsers");
       assertEquals(response.getRole(), Role.READER);
-
+      
    }
    
-   @Test(groups = "live" , dependsOnMethods = "testPatchBucketacl")
+   @Test(groups = "live", dependsOnMethods = "testPatchBucketacl")
    public void testDeleteBucketacl() {
-    
-      HttpResponse response = api().deleteBucketAccessControls( BUCKET_NAME ,"allUsers");
-     
+      
+      HttpResponse response = api().deleteBucketAccessControls(BUCKET_NAME, "allUsers");
+      
       assertNotNull(response);
-      assertEquals(response.getStatusCode(), 204);   
+      assertEquals(response.getStatusCode(), 204);
    }
 }
