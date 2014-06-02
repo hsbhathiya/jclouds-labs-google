@@ -32,7 +32,7 @@ public class BaseGoogleCloudStorageApiLiveTest extends BaseApiLiveTest<GoogleClo
    
    protected static final String API_URL_PREFIX = "https://www.googleapis.com/storage/v1/b/";
    // This should be replaced by the bucket created in "Bucket insert" operation when it is implemented
-   protected static final String BUCKET_NAME = "jcloudtestbucket2";
+   protected static final String BUCKET_NAME = System.getProperty("test.google-cloud-storage.bucket");
    protected static final String BUCKETACL_API_URL_SUFFIX = BUCKET_NAME + "/acl/";
    
    protected static final String PROJECT_NAME = "JcloudTest";
