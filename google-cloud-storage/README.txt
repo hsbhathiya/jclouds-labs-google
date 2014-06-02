@@ -33,8 +33,11 @@ MIICXgIBAAKBgQRRbRqVDtJLN1MO/xJoKqZuphDeBh5jIKueW3aNIiWs1XFcct+h
 -- this text is literally from your <my_key>.pem
 aH7xmpHSTbbXmQkuuv+z8EKijigprd/FoJpTX1f5/R+4wQ==
 -----END RSA PRIVATE KEY-----</test.google-cloud-storage.credential>
+ <test.google-cloud-storage.bucket>YOUR_BUCKET_NAME</test.google-cloud-storage.bucket>
   </properties>
 ```
 
 2. mvn clean install -Plive 
+
+
 
