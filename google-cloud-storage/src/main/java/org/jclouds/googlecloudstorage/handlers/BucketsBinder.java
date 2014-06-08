@@ -14,39 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage;
+package org.jclouds.googlecloudstorage.handlers;
 
-import java.io.Closeable;
+import java.util.Map;
 
-import javax.ws.rs.Path;
+import javax.inject.Inject;
 
-import org.jclouds.googlecloudstorage.features.BucketAccessControlsApi;
-import org.jclouds.googlecloudstorage.features.BucketsApi;
-import org.jclouds.rest.annotations.Delegate;
+import org.jclouds.googlecloudstorage.domain.Buckets;
+import org.jclouds.http.HttpRequest;
+import org.jclouds.rest.MapBinder;
+import org.jclouds.rest.binders.BindToJsonPayload;
 
 /**
- * Provide access to GoogleCloudStorage.
- * 
  * @author Bhathiya Supun
- * @see <a href="https://developers.google.com/storage/docs/json_api/v1/">api doc /a>
  */
+public class BucketsBinder implements MapBinder {
 
-public interface GoogleCloudStorageApi extends Closeable {
-   
-   boolean BucketInsert(String bucketName, String ProjectID);
-   /**
-    * Provides access to Bucket Access Control features
-    */
-   @Delegate
-   @Path("")
-   BucketAccessControlsApi getBucketAccessControlsApi();   
-   
-   /**
-    * Provides access to Bucket features
-    */
-   @Delegate
-   @Path("")
-   BucketsApi getBucketsApi();  
-   
-   
+   @Inject
+   private BindToJsonPayload jsonBinder;
+
+   @Override
+   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) {
+      Buckets postBucket = (Buckets) postParams.get("bucket");
+      return bindToRequest(request, postBucket);
+   }
+
+   @Override
+   public <R extends HttpRequest> R bindToRequest(R request, Object input) {
+      return jsonBinder.bindToRequest(request, input);
+   }
 }

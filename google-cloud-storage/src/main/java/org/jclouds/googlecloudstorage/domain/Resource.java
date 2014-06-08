@@ -37,7 +37,7 @@ import com.google.common.collect.Iterables;
 public class Resource {
 
    public enum Kind {
-      bucketAccessControl, bucketAccessControls, BUCKET, OBJECT_ACCESS_CONTROL, OBJECT;
+      bucketAccessControl, bucketAccessControls, bucket,buckets,objectAccessControl, objectAccessControls, object;
 
       public String value() {
          return Joiner.on("#").join("storage", name());

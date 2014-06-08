@@ -14,39 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage;
+package org.jclouds.googlecloudstorage.features;
 
-import java.io.Closeable;
-
-import javax.ws.rs.Path;
-
-import org.jclouds.googlecloudstorage.features.BucketAccessControlsApi;
-import org.jclouds.googlecloudstorage.features.BucketsApi;
-import org.jclouds.rest.annotations.Delegate;
+import com.google.common.base.CaseFormat;
 
 /**
- * Provide access to GoogleCloudStorage.
- * 
  * @author Bhathiya Supun
- * @see <a href="https://developers.google.com/storage/docs/json_api/v1/">api doc /a>
  */
 
-public interface GoogleCloudStorageApi extends Closeable {
-   
-   boolean BucketInsert(String bucketName, String ProjectID);
-   /**
-    * Provides access to Bucket Access Control features
-    */
-   @Delegate
-   @Path("")
-   BucketAccessControlsApi getBucketAccessControlsApi();   
-   
-   /**
-    * Provides access to Bucket features
-    */
-   @Delegate
-   @Path("")
-   BucketsApi getBucketsApi();  
-   
-   
+public final class ApiResourceRefferences {
+
+   private ApiResourceRefferences() {
+   }
+
+   public enum Projection {
+      noAcl, full
+   }
+
+   public enum PredefinedAcl {
+      AUTHENTICATED_READ, PRIVATE, PROJEECT_PRIVATE, PUBLIC_READ, PUBLIC_READ_WRITE;
+
+      public String value() {
+         return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name());
+      }
+
+      @Override
+      public String toString() {
+         return value();
+      }
+
+      public static PredefinedAcl fromValue(String predefinedAcl) {
+         return valueOf(CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, predefinedAcl));
+      }
+   }
+
 }
