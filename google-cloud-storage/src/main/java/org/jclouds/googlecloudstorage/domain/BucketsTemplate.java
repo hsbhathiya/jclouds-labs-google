@@ -19,77 +19,107 @@ package org.jclouds.googlecloudstorage.domain;
 
 import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Objects.toStringHelper;
-import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.net.URI;
 import java.util.Date;
 import java.util.Set;
 
+import org.jclouds.googlecloudstorage.domain.Buckets.Location;
+import org.jclouds.googlecloudstorage.domain.Buckets.StorageClass;
 import org.jclouds.javax.annotation.Nullable;
 
-import com.google.common.base.CaseFormat;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
-public class Buckets extends Resource {
+public class BucketsTemplate {
 
-   public enum Location {
-      ASIA, EU, US, ASIA_EAST1, US_CENTRAL1, US_CENTRAL2, US_EAST1, US_EAST2, US_EAST3, US_WEST1;
+   protected String name;
+   protected Long projectNumber;
+   protected Set<BucketAccessControls> acl = Sets.newLinkedHashSet();
+   protected Set<ObjectAccessControls> defaultObjectAccessControls = Sets.newLinkedHashSet();
+   protected Owner owner;
+   protected Location location;
+   protected Website website;
+   protected Logging logging;
+   protected Versioning versioning;
+   protected Set<Cors> cors = Sets.newLinkedHashSet();
+   protected LifeCycle lifeCycle;
+   protected StorageClass storageClass;
 
-      public String value() {
-         return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_HYPHEN, name()).toUpperCase();
-      }
-
-      @Override
-      public String toString() {
-         return value().toUpperCase();
-      }
-      
-      public static Location fromValue(String location) {         
-         return valueOf(CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_UNDERSCORE, location.toLowerCase()));
-      }
-      
+   public BucketsTemplate name(String name) {
+      this.name = name;
+      return this;
    }
 
-   public enum StorageClass {
-      STANDARD, DURABLE_REDUCED_AVAILABILITY;
+   public BucketsTemplate projectNumber(Long projectNumber) {
+      this.projectNumber = projectNumber;
+      return this;
+
    }
 
-   protected final String name;
-   protected final Long projectNumber;
-   protected final Date timeCreated;
-   protected final Long metageneration;
-   protected final Set<BucketAccessControls> acl;
-   protected final Set<BucketAccessControls> defaultObjectAcl;
-   protected final Owner owner;
-   protected final Location location;
-   protected final Website website;
-   protected final Logging logging;
-   protected final Versioning versioning;
-   protected final Set<Cors> cors;
-   protected final LifeCycle lifeCycle;
-   protected final StorageClass storageClass;
+   public BucketsTemplate owner(Owner owner) {
+      this.owner = owner;
+      return this;
+   }
 
-   protected Buckets(String id, URI selfLink, String name, String etag, Long projectNumber, Date timeCreated,
-            Long metageneration, Set<BucketAccessControls> acl, Set<BucketAccessControls> defaultObjectAcl,
-            Owner owner, Location location, Website website, Logging logging, Versioning versioning, Set<Cors> cors,
-            LifeCycle lifeCycle, StorageClass storageClass) {
+   public BucketsTemplate location(Location location) {
+      this.location = location;
+      return this;
+   }
 
-      super(Kind.bucket, id, selfLink, etag);
-      this.projectNumber = checkNotNull(projectNumber, "projectNumber");
-      this.timeCreated = checkNotNull(timeCreated, "timeCreated");
-      this.metageneration = checkNotNull(metageneration, "metageneration");
-      this.acl = acl.isEmpty() ? null : acl;
-      this.defaultObjectAcl = acl.isEmpty() ? null : defaultObjectAcl;
-      this.owner = checkNotNull(owner, "Owner");
-      this.location = checkNotNull(location, "location");
+   public BucketsTemplate website(Website website) {
       this.website = website;
+      return this;
+   }
+
+   public BucketsTemplate logging(Logging logging) {
       this.logging = logging;
+      return this;
+   }
+
+   public BucketsTemplate versioning(Versioning versioning) {
       this.versioning = versioning;
-      this.cors = acl.isEmpty() ? null : cors;
+      return this;
+   }
+
+   public BucketsTemplate lifeCycle(LifeCycle lifeCycle) {
       this.lifeCycle = lifeCycle;
+      return this;
+   }
+
+   public BucketsTemplate storageClass(StorageClass storageClass) {
       this.storageClass = storageClass;
-      this.name = checkNotNull(name, "name");
+      return this;
+   }
+
+   public BucketsTemplate addAcl(BucketAccessControls bucketAccessControls) {
+      this.acl.add(bucketAccessControls);
+      return this;
+   }
+
+   public BucketsTemplate acl(Set<BucketAccessControls> acl) {
+      this.acl.addAll(acl);
+      return this;
+   }
+
+   public BucketsTemplate addDefaultObjectAccessControls(ObjectAccessControls oac) {
+      this.defaultObjectAccessControls.add(oac);
+      return this;
+   }
+
+   public BucketsTemplate defaultObjectAccessControls(Set<ObjectAccessControls> defaultObjectAcl) {
+      this.defaultObjectAccessControls.addAll(defaultObjectAcl);
+      return this;
+   }
+
+   public BucketsTemplate addCORS(Cors cors) {
+      this.cors.add(cors);
+      return this;
+   }
+
+   public BucketsTemplate cors(Set<Cors> cors) {
+      this.cors.addAll(cors);
+      return this;
    }
 
    public Long getProjectNumber() {
@@ -100,20 +130,12 @@ public class Buckets extends Resource {
       return name;
    }
 
-   public Date getTimeCreated() {
-      return timeCreated;
-   }
-
-   public Long getMetageneration() {
-      return metageneration;
-   }
-
    public Set<BucketAccessControls> getAcl() {
       return acl;
    }
 
-   public Set<BucketAccessControls> getDefaultObjectAcl() {
-      return defaultObjectAcl;
+   public Set<ObjectAccessControls> getDefaultObjectAccessControls() {
+      return defaultObjectAccessControls;
    }
 
    public Owner getOwner() {
@@ -148,158 +170,19 @@ public class Buckets extends Resource {
       return storageClass;
    }
 
-   @Override
-   public boolean equals(Object obj) {
-      if (this == obj)
-         return true;
-      if (obj == null || getClass() != obj.getClass())
-         return false;
-      Buckets that = Buckets.class.cast(obj);
-      return equal(this.kind, that.kind) && equal(this.name, that.name)
-               && equal(this.projectNumber, that.projectNumber);
-
-   }
-
-   protected Objects.ToStringHelper string() {
-      return super.string().omitNullValues().add("name", name).add("timeCreated", timeCreated)
-               .add("projectNumber", projectNumber).add("metageneration", metageneration).add("acl", acl)
-               .add("defaultObjectAcl", defaultObjectAcl).add("owner", owner).add("location", location)
-               .add("website", website).add("logging", logging).add("versioning", versioning).add("cors", cors)
-               .add("lifeCycle", lifeCycle).add("storageClass", storageClass);
-
-   }
-
-   @Override
-   public String toString() {
-      return string().toString();
-   }
-
    public static Builder builder() {
       return new Builder();
    }
 
-   public Builder toBuilder() {
-      return new Builder().fromBucket(this);
+   public static BucketsTemplate fromBucketsTemplate(BucketsTemplate bucketsTemplate) {
+      return Builder.fromBucketsTemplate(bucketsTemplate);
    }
 
-   public static final class Builder extends Resource.Builder<Builder> {
+   public static class Builder {
 
-      private String name;
-      private Long projectNumber;
-      private Date timeCreated;
-      private Long metageneration;
-      private ImmutableSet.Builder<BucketAccessControls> acl = ImmutableSet.builder();
-      private ImmutableSet.Builder<BucketAccessControls> defaultObjectAcl = ImmutableSet.builder();
-      private Owner owner;
-      private Location location;
-      private Website website;
-      private Logging logging;
-      private Versioning versioning;
-      private ImmutableSet.Builder<Cors> cors = ImmutableSet.builder();
-      private LifeCycle lifeCycle;
-      private StorageClass storageClass;
-
-      public Builder name(String name) {
-         this.name = name;
-         return this;
-      }
-
-      public Builder projectNumber(Long projectNumber) {
-         this.projectNumber = projectNumber;
-         return this;
-
-      }
-
-      public Builder timeCreated(Date timeCreated) {
-         this.timeCreated = timeCreated;
-         return this;
-      }
-
-      public Builder metageneration(Long metageneration) {
-         this.metageneration = metageneration;
-         return this;
-      }
-
-      public Builder owner(Owner owner) {
-         this.owner = owner;
-         return this;
-      }
-
-      public Builder location(Location location) {
-         this.location = location;
-         return this;
-      }
-
-      public Builder website(Website website) {
-         this.website = website;
-         return this;
-      }
-
-      public Builder logging(Logging logging) {
-         this.logging = logging;
-         return this;
-      }
-
-      public Builder versioning(Versioning versioning) {
-         this.versioning = versioning;
-         return this;
-      }
-
-      public Builder lifeCycle(LifeCycle lifeCycle) {
-         this.lifeCycle = lifeCycle;
-         return this;
-      }
-
-      public Builder storageClass(StorageClass storageClass) {
-         this.storageClass = storageClass;
-         return this;
-      }
-
-      public Builder addAcl(BucketAccessControls bucketAccessControls) {
-         this.acl.add(bucketAccessControls);
-         return this;
-      }
-
-      public Builder acl(Set<BucketAccessControls> acl) {
-         this.acl.addAll(acl);
-         return this;
-      }
-
-      public Builder addDefaultObjectAcl(BucketAccessControls bucketAccessControls) {
-         this.defaultObjectAcl.add(bucketAccessControls);
-         return this;
-      }
-
-      public Builder defaultObjectAcl(Set<BucketAccessControls> defaultObjectAcl) {
-         this.defaultObjectAcl.addAll(defaultObjectAcl);
-         return this;
-      }
-
-      public Builder addCORS(Cors cors) {
-         this.cors.add(cors);
-         return this;
-      }
-
-      public Builder cors(Set<Cors> cors) {
-         this.cors.addAll(cors);
-         return this;
-      }
-
-      @Override
-      protected Builder self() {
-         return this;
-      }
-
-      public Buckets build() {
-         return new Buckets(super.id, super.selfLink, name, super.etag, projectNumber, timeCreated, metageneration,
-                  acl.build(), defaultObjectAcl.build(), owner, location, website, logging, versioning, cors.build(),
-                  lifeCycle, storageClass);
-      }
-
-      public Builder fromBucket(Buckets in) {
-         return super.fromResource(in).name(in.getName()).projectNumber(in.getProjectNumber())
-                  .timeCreated(in.getTimeCreated()).metageneration(in.getMetageneration()).acl(in.getAcl())
-                  .defaultObjectAcl(in.getDefaultObjectAcl()).owner(in.getOwner()).location(in.getLocation())
+      public static BucketsTemplate fromBucketsTemplate(BucketsTemplate in) {
+         return new BucketsTemplate().name(in.getName()).projectNumber(in.getProjectNumber()).acl(in.getAcl())
+                  .defaultObjectAccessControls(in.getDefaultObjectAccessControls()).owner(in.getOwner()).location(in.getLocation())
                   .website(in.getWebsite()).logging(in.getLogging()).versioning(in.getVersioning()).cors(in.getCors())
                   .lifeCycle(in.getLifeCycle()).storageClass(in.getStorageClass());
       }

@@ -128,7 +128,7 @@ public class BucketAccessControlsApiExpectTest extends BaseGoogleCloudStorageApi
    }
 
    // Test deleteBucketAccessControls
-   public void testDeleteBucketacleResponseIs2xx() throws Exception {
+   public void testDeleteBucketaclResponseIs2xx() throws Exception {
       HttpRequest delete = HttpRequest.builder().method("DELETE")
                .endpoint("https://www.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allAuthenticatedUsers")
                .addHeader("Accept", "application/json").addHeader("Authorization", "Bearer " + TOKEN).build();

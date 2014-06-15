@@ -33,6 +33,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
 import org.jclouds.googlecloudstorage.domain.Buckets;
+import org.jclouds.googlecloudstorage.domain.BucketsTemplate;
 import org.jclouds.googlecloudstorage.domain.ListPage;
 import org.jclouds.googlecloudstorage.handlers.BucketsBinder;
 import org.jclouds.googlecloudstorage.options.DeleteBucketsOptions;
@@ -125,7 +126,7 @@ public interface BucketsApi {
    @Path("/b")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @MapBinder(BucketsBinder.class)
-   Buckets createBuckets(@QueryParam("project") String projectId, @PayloadParam("bucket") Buckets bucket);
+   Buckets createBuckets(@QueryParam("project") String projectId, @PayloadParam("template") BucketsTemplate bucket);
 
    /**
     * Creates a new bucket
@@ -148,7 +149,7 @@ public interface BucketsApi {
    @Path("/b")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @MapBinder(BucketsBinder.class)
-   Buckets createBuckets(@QueryParam("project") String projectNumber, @PayloadParam("bucket") Buckets bucket,
+   Buckets createBuckets(@QueryParam("project") String projectNumber, @PayloadParam("template") BucketsTemplate bucket,
             InsertBucketsOptions options);
 
    /**
@@ -244,7 +245,8 @@ public interface BucketsApi {
    @Path("/b/{bucket}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
-   Buckets updateBuckets(@PathParam("bucket") String bucketName, @BinderParam(BindToJsonPayload.class) Buckets bucket);
+   Buckets updateBuckets(@PathParam("bucket") String bucketName,
+            @BinderParam(BindToJsonPayload.class) BucketsTemplate bucketsTemplate);
 
    /**
     * Updates a bucket
@@ -265,8 +267,8 @@ public interface BucketsApi {
    @Path("/b/{bucket}/acl/{entity}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
-   Buckets updateBuckets(@PathParam("bucket") String bucketName, @BinderParam(BindToJsonPayload.class) Buckets buckets,
-            UpdateBucketsOptions options);
+   Buckets updateBuckets(@PathParam("bucket") String bucketName,
+            @BinderParam(BindToJsonPayload.class) BucketsTemplate bucketsTemplate, UpdateBucketsOptions options);
 
    /**
     * Updates a bucket.This method supports patch semantics.
@@ -274,7 +276,7 @@ public interface BucketsApi {
     * @param bucketName
     *           In the request body, supply a bucket resource with acl[]
     * 
-    * @param bucket
+    * @param bucketTemplate
     *           In the request body, supply the relevant portions of a bucket resource, according to the rules of patch
     *           semantics
     * 
@@ -288,7 +290,8 @@ public interface BucketsApi {
    @Path("/b/{bucket}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
-   Buckets patchBuckets(@PathParam("bucket") String bucketName, @BinderParam(BindToJsonPayload.class) Buckets bucket);
+   Buckets patchBuckets(@PathParam("bucket") String bucketName,
+            @BinderParam(BindToJsonPayload.class) BucketsTemplate bucketTemplate);
 
    /**
     * Updates a bucket.This method supports patch semantics.
@@ -299,7 +302,7 @@ public interface BucketsApi {
     * @param options
     *           Supply {@link UpdateBucketsOptions} with optional query parameters
     * 
-    * @param bucket
+    * @param bucketTemplate
     *           In the request body, supply the relevant portions of a bucket resource, according to the rules of patch
     *           semantics
     * 
@@ -313,6 +316,6 @@ public interface BucketsApi {
    @Path("/b/{bucket}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
-   Buckets patchBuckets(@PathParam("bucket") String bucketName, @BinderParam(BindToJsonPayload.class) Buckets bucket,
-            UpdateBucketsOptions options);
+   Buckets patchBuckets(@PathParam("bucket") String bucketName,
+            @BinderParam(BindToJsonPayload.class) BucketsTemplate bucketTemplate, UpdateBucketsOptions options);
 }

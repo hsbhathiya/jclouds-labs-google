@@ -61,7 +61,7 @@ public class Resource {
    @ConstructorProperties({ "kind", "id", "selfLink", "etag" })
    protected Resource(Kind kind, String id, URI selfLink, String etag) {
       this.kind = checkNotNull(kind, "kind");
-      this.id = checkNotNull(id, "id");
+      this.id = id;
       this.selfLink = selfLink;
       this.etag = etag;
    }

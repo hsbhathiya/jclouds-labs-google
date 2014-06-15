@@ -29,7 +29,9 @@ import javax.ws.rs.core.MediaType;
 
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls.Role;
+import org.jclouds.googlecloudstorage.features.ApiResourceRefferences.Projection;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiExpectTest;
+import org.jclouds.googlecloudstorage.options.GetBucketsOptions;
 import org.jclouds.googlecloudstorage.parse.BucketaclGetTest;
 import org.jclouds.googlecloudstorage.parse.BucketaclInsertTest;
 import org.jclouds.googlecloudstorage.parse.BucketaclListTest;
@@ -53,6 +55,11 @@ public class BucketsApiExpectTest extends BaseGoogleCloudStorageApiExpectTest {
    public static final HttpRequest GET_BUCKET_REQUEST = HttpRequest.builder().method("GET")
             .endpoint("https://www.googleapis.com/storage/v1/b/bhashbucket").addHeader("Accept", "application/json")
             .addHeader("Authorization", "Bearer " + TOKEN).build();
+
+   public static final HttpRequest GET_BUCKET_REQUEST_WITHOPTIONS = HttpRequest.builder().method("GET")
+            .endpoint("https://www.googleapis.com/storage/v1/b/bhashbucket")
+            .addQueryParam("ifMetagenerationNotMatch", "100").addQueryParam("projection", "full")
+            .addHeader("Accept", "application/json").addHeader("Authorization", "Bearer " + TOKEN).build();
 
    public static final HttpResponse GET_BUCKET_RESPONSE = HttpResponse.builder().statusCode(200)
             .payload(staticPayloadFromResource("/noAcl_bucket_get.json")).build();
@@ -84,7 +91,16 @@ public class BucketsApiExpectTest extends BaseGoogleCloudStorageApiExpectTest {
                GET_BUCKET_REQUEST, getResponse).getBucketsApi();
 
       assertNull("404", api.getBuckets(EXPECTED_TEST_BUCKET));
+   }
 
+   // Test getBucket with options
+   public void testGetBucketWithOptionsResponseIs2xx() throws Exception {
+
+      BucketsApi api = requestsSendResponses(requestForScopes(STORAGE_READONLY_SCOPE), TOKEN_RESPONSE,
+               GET_BUCKET_REQUEST_WITHOPTIONS, GET_BUCKET_RESPONSE).getBucketsApi();
+      
+      GetBucketsOptions options = new  GetBucketsOptions().ifMetagenerationNotMatch(Long.valueOf(100)).projection(Projection.full);
+      assertEquals(api.getBuckets(EXPECTED_TEST_BUCKET , options), new NoAclBucketGetTest().expected());
    }
 
    // Test listBucket without options

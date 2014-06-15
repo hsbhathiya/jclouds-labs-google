@@ -24,74 +24,87 @@ import static org.testng.Assert.assertTrue;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jclouds.collect.IterableWithMarker;
-import org.jclouds.collect.PagedIterable;
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls.Role;
 import org.jclouds.googlecloudstorage.domain.Buckets;
+import org.jclouds.googlecloudstorage.domain.Buckets.Location;
 import org.jclouds.googlecloudstorage.domain.Buckets.StorageClass;
-import org.jclouds.googlecloudstorage.domain.ListBucketAccessControls;
+import org.jclouds.googlecloudstorage.domain.BucketsTemplate;
+import org.jclouds.googlecloudstorage.domain.BucketsTemplate.Cors;
+import org.jclouds.googlecloudstorage.domain.BucketsTemplate.Logging;
+import org.jclouds.googlecloudstorage.domain.BucketsTemplate.Versioning;
 import org.jclouds.googlecloudstorage.domain.ListPage;
+import org.jclouds.googlecloudstorage.domain.ObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.Resource.Kind;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiLiveTest;
 import org.jclouds.http.HttpResponse;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.core.LogbackException;
-import ch.qos.logback.core.spi.LogbackLock;
 
 /**
  * @author Bhathiya Supun
  */
 public class BucketsApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
+   protected static final String BUCKET_NAME = "jcloudtestbucket" + (int) (Math.random() * 10000);
+
    private BucketsApi api() {
       return api.getBucketsApi();
    }
 
-  /* @Test(groups = "live")
-   public void testCreateBucketacl() {
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
-               .role(Role.READER).build();
-      BucketAccessControls response = api().createBucketAccessControls(BUCKET_NAME, bucketacl);
+   @Test(groups = "live")
+   public void testCreateBucket() {
+
+      BucketAccessControls acl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers").role(Role.OWNER)
+               .build();
+      ObjectAccessControls oac = ObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
+               .role(org.jclouds.googlecloudstorage.domain.ObjectAccessControls.Role.OWNER).build();
+      Cors cors = Cors.builder().addOrigin("http://example.appspot.com").addMethod("GET").addMethod("HEAD")
+               .addResponseHeader("x-meta-goog-custom").maxAgeSeconds(10).build();
+      Versioning version = Versioning.builder().enalbled(true).build();
+      Logging log = new Logging("bhashbucket", BUCKET_NAME);
+
+      BucketsTemplate template = new BucketsTemplate().name(BUCKET_NAME).addAcl(acl)
+               .addDefaultObjectAccessControls(oac).versioning(version).location(Location.US_CENTRAL2).logging(log)
+               .storageClass(StorageClass.DURABLE_REDUCED_AVAILABILITY).addCORS(cors);
+
+      Buckets response = api().createBuckets(PROJECT_NUMBER, template);
 
       assertNotNull(response);
-      assertEquals(response.getId(), BUCKET_NAME + "/allUsers");
+      assertNotNull(response.getCors());
+      assertEquals(response.getKind(), Kind.bucket);
+      assertEquals(response.getName(), BUCKET_NAME);
+      assertEquals(response.getLocation(), Location.US_CENTRAL2);
+      assertTrue(response.getVersioning().isEnabled());
    }
 
-   @Test(groups = "live", dependsOnMethods = "testCreateBucketacl")
-   public void testUpdateBucketacl() {
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
-               .role(Role.WRITER).build();
-      BucketAccessControls response = api().updateBucketAccessControls(BUCKET_NAME, "allUsers", bucketacl);
+   @Test(groups = "live", dependsOnMethods = "testCreateBucket")
+   public void testUpdateBucket() {
+      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allAuthenticatedUsers")
+               .role(Role.OWNER).build();
+      BucketsTemplate template = new BucketsTemplate().name(BUCKET_NAME).addAcl(bucketacl);
+      Buckets response = api().updateBuckets(BUCKET_NAME, template);
 
       assertNotNull(response);
-      assertEquals(response.getId(), BUCKET_NAME + "/allUsers");
-      assertEquals(response.getRole(), Role.WRITER);
-   }*/
+      assertEquals(response.getName(), BUCKET_NAME);
+      assertNotNull(response.getAcl());
+   }
 
-   @Test(groups = "live")
+   @Test(groups = "live", dependsOnMethods = "testCreateBucket")
    public void testGetBucket() {
-      Buckets response = api().getBuckets("jcloudtestbucket");
+      Buckets response = api().getBuckets(BUCKET_NAME);
 
       assertNotNull(response);
-      assertEquals(response.getName(), "jcloudtestbucket" );
-      assertEquals(response.getKind(), Kind.bucket );
-      assertEquals(response.getStorageClass(), StorageClass.STANDARD );
-     // assertEquals(response.getOwner().getEntity(),"project-owners-1082289308625" );
-       assertEquals(response.getMetageneration(), Long.valueOf(9) );
-     //assertEquals(response.getProjectNumber(),Long.valueOf("1082289308625"));
-      
+      assertEquals(response.getName(), BUCKET_NAME);
+      assertEquals(response.getKind(), Kind.bucket);
+
    }
 
-   @Test(groups = "live")
-   public void testListBucketacl() {
-      ListPage<Buckets> buckets = api().listBuckets("1082289308625");
-      
+   @Test(groups = "live", dependsOnMethods = "testCreateBucket")
+   public void testListBucket() {
+      ListPage<Buckets> buckets = api().listBuckets(PROJECT_NUMBER);
+
       Iterator<Buckets> pageIterator = buckets.iterator();
       assertTrue(pageIterator.hasNext());
 
@@ -101,26 +114,26 @@ public class BucketsApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertNotNull(singlePageIterator);
       assertSame(bucketAsList.size(), 1);
 
-     
    }
 
- /*@Test(groups = "live", dependsOnMethods = "testUpdateBucketacl")
-   public void testPatchBucketacl() {
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
-               .role(Role.READER).build();
-      BucketAccessControls response = api().patchBucketAccessControls(BUCKET_NAME, "allUsers", bucketacl);
+   @Test(groups = "live", dependsOnMethods = "testCreateBucket")
+   public void testPatchBucket() {
+      Logging logging = new Logging("bhashbuck", BUCKET_NAME);
+      BucketsTemplate template = new BucketsTemplate().name(BUCKET_NAME).logging(logging);
+
+      Buckets response = api().patchBuckets(BUCKET_NAME, template);
 
       assertNotNull(response);
-      assertEquals(response.getId(), BUCKET_NAME + "/allUsers");
-      assertEquals(response.getRole(), Role.READER);
+      assertEquals(response.getName(), BUCKET_NAME);
+      assertEquals(response.getLogging().getLogBucket(), "bhashbuck");
    }
-   
-   @Test(groups = "live", dependsOnMethods = "testPatchBucketacl")
-   public void testDeleteBucketacl() {
 
-      HttpResponse response = api().deleteBucketAccessControls(BUCKET_NAME, "allUsers");
+   @Test(groups = "live", dependsOnMethods = { "testListBucket", "testGetBucket", "testUpdateBucket" })
+   public void testDeleteBucket() {
+      HttpResponse response = api().deleteBuckets(BUCKET_NAME);
 
       assertNotNull(response);
       assertEquals(response.getStatusCode(), 204);
-   }*/
+   }
+
 }

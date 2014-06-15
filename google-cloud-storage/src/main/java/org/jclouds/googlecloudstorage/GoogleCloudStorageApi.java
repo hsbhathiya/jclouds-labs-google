@@ -22,6 +22,7 @@ import javax.ws.rs.Path;
 
 import org.jclouds.googlecloudstorage.features.BucketAccessControlsApi;
 import org.jclouds.googlecloudstorage.features.BucketsApi;
+import org.jclouds.googlecloudstorage.features.ObjectAccessControlsApi;
 import org.jclouds.rest.annotations.Delegate;
 
 /**
@@ -33,8 +34,7 @@ import org.jclouds.rest.annotations.Delegate;
 
 public interface GoogleCloudStorageApi extends Closeable {
    
-   boolean BucketInsert(String bucketName, String ProjectID);
-   /**
+  /**
     * Provides access to Bucket Access Control features
     */
    @Delegate
@@ -47,6 +47,13 @@ public interface GoogleCloudStorageApi extends Closeable {
    @Delegate
    @Path("")
    BucketsApi getBucketsApi();  
+   
+   /**
+    * Provides access to Object Access Control features
+    */
+   @Delegate
+   @Path("")
+   ObjectAccessControlsApi getObjectAccessControlsApi();  
    
    
 }

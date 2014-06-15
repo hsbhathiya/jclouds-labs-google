@@ -18,8 +18,11 @@ package org.jclouds.googlecloudstorage.features;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls.Role;
+import org.jclouds.googlecloudstorage.domain.Buckets;
+import org.jclouds.googlecloudstorage.domain.BucketsTemplate;
 import org.jclouds.googlecloudstorage.domain.ListBucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.Resource.Kind;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiLiveTest;
@@ -29,14 +32,26 @@ import org.testng.annotations.Test;
 /**
  * @author Bhathiya Supun
  */
+
 public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
+
+   protected static final String BUCKET_NAME = "jcloudtestbucketacl" + (int) (Math.random() * 10000);
 
    private BucketAccessControlsApi api() {
       return api.getBucketAccessControlsApi();
    }
 
+   private void createBucket(String BucketName) {
+
+      BucketsTemplate template = new BucketsTemplate().name(BucketName);
+      Buckets response = api.getBucketsApi().createBuckets(PROJECT_NUMBER, template);
+      assertNotNull(response);
+   }
+
    @Test(groups = "live")
    public void testCreateBucketacl() {
+
+      createBucket(BUCKET_NAME);
       BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
                .role(Role.READER).build();
       BucketAccessControls response = api().createBucketAccessControls(BUCKET_NAME, bucketacl);
@@ -84,13 +99,19 @@ public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLi
       assertEquals(response.getId(), BUCKET_NAME + "/allUsers");
       assertEquals(response.getRole(), Role.READER);
    }
-   
-   @Test(groups = "live", dependsOnMethods = "testPatchBucketacl")
+
+   @Test(groups =  "live", dependsOnMethods = "testPatchBucketacl")
    public void testDeleteBucketacl() {
 
       HttpResponse response = api().deleteBucketAccessControls(BUCKET_NAME, "allUsers");
-
       assertNotNull(response);
       assertEquals(response.getStatusCode(), 204);
+      
+      deleteBucket(BUCKET_NAME);
+   }
+
+   
+   private void deleteBucket(String BucketName) {
+      api.getBucketsApi().deleteBuckets(BucketName);
    }
 }

@@ -22,6 +22,7 @@ import javax.inject.Inject;
 
 import org.jclouds.googlecloudstorage.domain.Buckets;
 import org.jclouds.googlecloudstorage.domain.BucketsTemplate;
+import org.jclouds.googlecloudstorage.domain.ObjectAccessControlsTemplate;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.rest.MapBinder;
 import org.jclouds.rest.binders.BindToJsonPayload;
@@ -29,14 +30,14 @@ import org.jclouds.rest.binders.BindToJsonPayload;
 /**
  * @author Bhathiya Supun
  */
-public class BucketsBinder implements MapBinder {
+public class ObjectAccessControlsBinder implements MapBinder {
 
    @Inject
    private BindToJsonPayload jsonBinder;
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) {
-      BucketsTemplate postBucket = (BucketsTemplate) postParams.get("template");
+      ObjectAccessControlsTemplate postBucket = (ObjectAccessControlsTemplate) postParams.get("template");
       return bindToRequest(request, postBucket);
    }
 

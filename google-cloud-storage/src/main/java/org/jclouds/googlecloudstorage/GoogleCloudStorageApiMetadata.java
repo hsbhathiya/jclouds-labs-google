@@ -57,7 +57,7 @@ public class GoogleCloudStorageApiMetadata extends BaseHttpApiMetadata<GoogleClo
       properties.put(AUDIENCE, "https://accounts.google.com/o/oauth2/token");
       properties.put(SIGNATURE_OR_MAC_ALGORITHM, "RS256");
       properties.put(PROPERTY_SESSION_INTERVAL, 3600);
-      properties.put(OPERATION_COMPLETE_INTERVAL, 500);
+      properties.put(OPERATION_COMPLETE_INTERVAL, 2000);
       properties.put(OPERATION_COMPLETE_TIMEOUT, 600000);
       return properties;
    }

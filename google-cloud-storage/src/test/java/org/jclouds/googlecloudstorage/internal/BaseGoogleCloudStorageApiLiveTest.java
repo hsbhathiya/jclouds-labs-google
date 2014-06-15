@@ -33,11 +33,11 @@ public class BaseGoogleCloudStorageApiLiveTest extends BaseApiLiveTest<GoogleClo
 
    protected static final String API_URL_PREFIX = "https://www.googleapis.com/storage/v1/b/";
    
-   protected static final String BUCKET_NAME = System.getProperty("test.google-cloud-storage.bucket");
+  //System.getProperty("test.google-cloud-storage.bucket");
    protected static final String PROJECT_NUMBER = "1082289308625";
-   protected static final String BUCKETACL_API_URL_SUFFIX = BUCKET_NAME + "/acl/";
 
-   protected static final String PROJECT_NAME = "JcloudTest";
+
+   protected static final String PROJECT_NAME = "local-turbine-511";
 
    public BaseGoogleCloudStorageApiLiveTest() {
       provider = "google-cloud-storage";
