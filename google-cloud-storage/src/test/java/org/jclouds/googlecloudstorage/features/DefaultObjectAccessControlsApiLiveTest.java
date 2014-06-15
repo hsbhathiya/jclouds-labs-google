@@ -21,6 +21,8 @@ import static org.testng.Assert.assertNotNull;
 
 import org.jclouds.googlecloudstorage.domain.Buckets;
 import org.jclouds.googlecloudstorage.domain.BucketsTemplate;
+import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls;
+import org.jclouds.googlecloudstorage.domain.ListDefaultObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.ListObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.ObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.ObjectAccessControlsTemplate;
@@ -34,13 +36,13 @@ import org.testng.annotations.Test;
  * @author Bhathiya Supun
  */
 
-public class ObjectAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
+public class DefaultObjectAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
-   protected static final String BUCKET_NAME = "jcloudtestbucketoacl"; // + (int) (Math.random() * 10000);
-   protected static final String OBJECT_NAME = "jcloudtestdoc.txt";
+ protected static final String BUCKET_NAME = "jcloudtestbucketdefaultoacl" + (int) (Math.random() * 10000);
+   
 
-   private ObjectAccessControlsApi api() {
-      return api.getObjectAccessControlsApi();
+   private DefaultObjectAccessControlsApi api() {
+      return api.getDefaultObjectAccessControlsApi();
    }
 
    private void createBucket(String BucketName) {
@@ -50,90 +52,75 @@ public class ObjectAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLi
       assertNotNull(response);
    }
 
-   private void uploadObject(String ObjectName) {
-      /** Upload foo.txt */
-   }
+  @Test(groups = "live")
+   public void testCreateDefaultObjectacl() {
 
-   @Test(groups = "live")
-   public void testCreateObjectacl() {
-
-    //  createBucket(BUCKET_NAME);
-      uploadObject(OBJECT_NAME);
+      createBucket(BUCKET_NAME);      
       ObjectAccessControlsTemplate template = new ObjectAccessControlsTemplate().entity("allUsers").role(Role.READER);
       
-      ObjectAccessControls response = api().createObjectAccessControls(BUCKET_NAME, OBJECT_NAME, template);
+      DefaultObjectAccessControls response = api().createDefaultObjectAccessControls(BUCKET_NAME, template);
 
       assertNotNull(response);
-      assertEquals(response.getBucket(), BUCKET_NAME);
-      assertEquals(response.getObject(), OBJECT_NAME);
       assertEquals(response.getEntity(), "allUsers");
-      assertEquals(response.getRole(), Role.READER);
-      
+      assertEquals(response.getRole(), Role.READER);      
       
    }
 
-   @Test(groups = "live", dependsOnMethods = "testCreateObjectacl")
-   public void testUpdateObjectacl() {
-      ObjectAccessControls objectacl = ObjectAccessControls.builder().bucket(BUCKET_NAME).object(OBJECT_NAME).entity("allUsers")
+   @Test(groups = "live", dependsOnMethods = "testCreateDefaultObjectacl")
+   public void testUpdateDefaultObjectacl() {
+      DefaultObjectAccessControls defaultObjectacl = DefaultObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
                .role(Role.OWNER).build();
-      ObjectAccessControls response = api().updateObjectAccessControls(BUCKET_NAME, OBJECT_NAME, "allUsers", objectacl);
+      DefaultObjectAccessControls response = api().updateDefaultObjectAccessControls(BUCKET_NAME,  "allUsers", defaultObjectacl);
 
-      assertNotNull(response);
-      assertEquals(response.getBucket(), BUCKET_NAME);
-      assertEquals(response.getObject(), OBJECT_NAME);
+      assertNotNull(response);      
       assertEquals(response.getEntity(), "allUsers");
       assertEquals(response.getRole(),Role.OWNER);
    }
 
-   @Test(groups = "live", dependsOnMethods = "testUpdateObjectacl")
-   public void testGetBucketacl() {
-      ObjectAccessControls response = api().getObjectAccessControls(BUCKET_NAME,OBJECT_NAME,"allUsers");
+   @Test(groups = "live", dependsOnMethods = "testUpdateDefaultObjectacl")
+   public void testGetDefaultObjectacl() {
+      DefaultObjectAccessControls response = api().getDefaultObjectAccessControls(BUCKET_NAME,"allUsers");
 
       assertNotNull(response);
-      assertEquals(response.getBucket(), BUCKET_NAME);
-      assertEquals(response.getObject(), OBJECT_NAME);
+      //assertEquals(response.getBucket(), BUCKET_NAME);
       assertEquals(response.getEntity(), "allUsers");
       assertEquals(response.getRole(),Role.OWNER);
    }
 
-   @Test(groups = "live", dependsOnMethods = "testUpdateObjectacl")
-   public void testListObjectacl() {
-      ListObjectAccessControls response = api().listObjectAccessControls(BUCKET_NAME,OBJECT_NAME);
+   @Test(groups = "live", dependsOnMethods = "testUpdateDefaultObjectacl")
+   public void testListDefaultObjectacl() {
+      ListDefaultObjectAccessControls response = api().listDefaultObjectAccessControls(BUCKET_NAME);
 
       assertNotNull(response);
       assertEquals(response.getKind(), Kind.objectAccessControls);
       assertNotNull(response.getItems());
    }
 
-   @Test(groups = "live", dependsOnMethods = "testUpdateObjectacl")
-   public void testPatchObjectacl() {
-      ObjectAccessControls objectacl = ObjectAccessControls.builder().bucket(BUCKET_NAME).object(OBJECT_NAME).entity("allUsers")
+   @Test(groups = "live", dependsOnMethods = "testUpdateDefaultObjectacl")
+   public void testPatchDefaultObjectacl() {
+      DefaultObjectAccessControls defaultObjectacl = DefaultObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
                .role(Role.READER).build();
-      ObjectAccessControls response = api().patchObjectAccessControls(BUCKET_NAME, OBJECT_NAME ,"allUsers", objectacl);
+      DefaultObjectAccessControls response = api().patchObjectAccessControls(BUCKET_NAME, "allUsers", defaultObjectacl);
 
       assertNotNull(response);
-      assertEquals(response.getBucket(), BUCKET_NAME);
-      assertEquals(response.getObject(), OBJECT_NAME);
+      //assertEquals(response.getBucket(), BUCKET_NAME);
       assertEquals(response.getEntity(), "allUsers");
       assertEquals(response.getRole(),Role.READER);
    }
 
-   @Test(groups = "live", dependsOnMethods = "testPatchObjectacl")
-   public void testDeleteObjectacl() {
+   @Test(groups = "live", dependsOnMethods = "testPatchDefaultObjectacl")
+   public void testDeleteBucketacl() {
 
-      HttpResponse response = api().deleteObjectAccessControls(BUCKET_NAME,OBJECT_NAME, "allUsers");
+      HttpResponse response = api().deleteDefaultObjectAccessControls(BUCKET_NAME,"allUsers");
       
       assertNotNull(response);
       assertEquals(response.getStatusCode(), 204);
       
-     // deleteBucket(BUCKET_NAME);
-       deleteObject(OBJECT_NAME); 
+      deleteBucket(BUCKET_NAME);       
       
    }
 
-   private void deleteObject(String objectName) {
-     //Delete the uploaded object
-   }
+
    private void deleteBucket(String bucketName) {
       api.getBucketsApi().deleteBuckets(bucketName);
    }
