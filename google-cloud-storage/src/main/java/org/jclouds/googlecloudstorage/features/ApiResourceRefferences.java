@@ -14,26 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage;
+package org.jclouds.googlecloudstorage.features;
 
-import java.io.Closeable;
+import com.google.common.base.CaseFormat;
 
-import javax.ws.rs.Path;
+public final class ApiResourceRefferences {
 
-import org.jclouds.googlecloudstorage.features.DefaultObjectAccessControlsApi;
-import org.jclouds.rest.annotations.Delegate;
+   private ApiResourceRefferences() {
+   }
 
-/**
- * Provide access to GoogleCloudStorage.
- * @see <a href="https://developers.google.com/storage/docs/json_api/v1/">api doc /a>
- */
+   public enum Projection {
+      noAcl, full
+   }
 
-public interface GoogleCloudStorageApi extends Closeable {
+   public enum PredefinedAcl {
+      AUTHENTICATED_READ, PRIVATE, PROJEECT_PRIVATE, PUBLIC_READ, PUBLIC_READ_WRITE;
 
-   /**
-    * Provides access to Default Object Access Control features on bucket
-    */
-   @Delegate
-   @Path("")
-   DefaultObjectAccessControlsApi getDefaultObjectAccessControlsApi();
+      public String value() {
+         return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name());
+      }
+
+      @Override
+      public String toString() {
+         return value();
+      }
+
+      public static PredefinedAcl fromValue(String predefinedAcl) {
+         return valueOf(CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, predefinedAcl));
+      }
+   }
 }
