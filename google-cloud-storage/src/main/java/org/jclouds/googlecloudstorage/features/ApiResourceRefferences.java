@@ -23,8 +23,25 @@ public final class ApiResourceRefferences {
    private ApiResourceRefferences() {
    }
 
+   public enum ObjectRole {
+      READER, OWNER
+   }
+
    public enum Projection {
-      noAcl, full
+      NO_ACL, FULL;
+
+      public String value() {
+         return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name());
+      }
+
+      @Override
+      public String toString() {
+         return value();
+      }
+
+      public static Projection fromValue(String projection) {
+         return valueOf(CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, projection));
+      }
    }
 
    public enum PredefinedAcl {

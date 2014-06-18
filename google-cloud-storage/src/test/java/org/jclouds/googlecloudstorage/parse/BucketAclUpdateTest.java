@@ -16,34 +16,27 @@
  */
 package org.jclouds.googlecloudstorage.parse;
 
+import java.net.URI;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
-import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls;
-import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls.ProjectTeam;
-import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls.ProjectTeam.Team;
-import org.jclouds.googlecloudstorage.domain.ListDefaultObjectAccessControls;
-import org.jclouds.googlecloudstorage.domain.ObjectRole;
-import org.jclouds.googlecloudstorage.domain.Resource.Kind;
+import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
+import org.jclouds.googlecloudstorage.domain.BucketAccessControls.Role;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageParseTest;
 
-import com.google.common.collect.ImmutableSet;
-
-public class DefaultObjectaclListTest extends BaseGoogleCloudStorageParseTest<ListDefaultObjectAccessControls> {
-
-   private DefaultObjectAccessControls item_1 = DefaultObjectAccessControls.builder()
-            .entity("project-owners-1082289308625").role(ObjectRole.OWNER)
-            .projectTeam(new ProjectTeam("1082289308625", Team.owners)).etag("CAk=").build();
+public class BucketAclUpdateTest extends BaseGoogleCloudStorageParseTest<BucketAccessControls> {
 
    @Override
    public String resource() {
-      return "/default_objectacl_list.json";
+      return "/bucketacl_update_response.json";
    }
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
-   public ListDefaultObjectAccessControls expected() {
-      return ListDefaultObjectAccessControls.builder().kind(Kind.objectAccessControls).items(ImmutableSet.of(item_1))
-               .build();
+   public BucketAccessControls expected() {
+      return BucketAccessControls.builder().id("jcloudtestbucket/allUsers")
+               .selfLink(URI.create("https://content.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allUsers"))
+               .bucket("jcloudtestbucket").entity("allUsers").role(Role.OWNER).etag("CAg=").build();
    }
 }

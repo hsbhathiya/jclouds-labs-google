@@ -20,22 +20,20 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls;
-import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls.ProjectTeam;
-import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls.ProjectTeam.Team;
-import org.jclouds.googlecloudstorage.domain.ObjectRole;
+import org.jclouds.googlecloudstorage.features.ApiResourceRefferences.ObjectRole;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageParseTest;
 
-public class DefaultObjectaclGetTest extends BaseGoogleCloudStorageParseTest<DefaultObjectAccessControls> {
+public class DefaultObjectAclInsertTest extends BaseGoogleCloudStorageParseTest<DefaultObjectAccessControls> {
 
    @Override
    public String resource() {
-      return "/default_objectacl_get.json";
+      return "/default_objectacl_insert_response.json";
    }
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
    public DefaultObjectAccessControls expected() {
-      return DefaultObjectAccessControls.builder().entity("project-owners-1082289308625").role(ObjectRole.OWNER)
-               .etag("CAk=").projectTeam(new ProjectTeam("1082289308625", Team.owners)).build();
+      return DefaultObjectAccessControls.builder().entity("allUsers").role(ObjectRole.OWNER).etag("CAo=").build();
+
    }
 }

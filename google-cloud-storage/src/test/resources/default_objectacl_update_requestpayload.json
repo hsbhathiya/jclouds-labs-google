@@ -1,5 +1,5 @@
 {
- "kind": "storage#objectAccessControl",
-  "entity": "allUsers",
- "role": "OWNER" 
+   "kind": "storage#objectAccessControl",
+   "entity": "allUsers",
+   "role": "OWNER"
 }

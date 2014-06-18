@@ -27,6 +27,7 @@ import static org.jclouds.crypto.Pems.privateKeySpec;
 import static org.jclouds.crypto.Pems.publicKeySpec;
 import static org.jclouds.crypto.PemsTest.PRIVATE_KEY;
 import static org.jclouds.crypto.PemsTest.PUBLIC_KEY;
+
 import java.io.IOException;
 import java.net.URI;
 import java.security.KeyFactory;
@@ -47,16 +48,16 @@ import org.jclouds.crypto.Crypto;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.http.HttpResponse;
 import org.jclouds.io.Payload;
+import org.jclouds.io.payloads.ByteSourcePayload;
 import org.jclouds.oauth.v2.OAuthConstants;
 import org.jclouds.oauth.v2.config.OAuthProperties;
 import org.jclouds.rest.internal.BaseRestApiExpectTest;
 import org.jclouds.ssh.SshKeys;
-import org.jclouds.util.Strings2;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.io.ByteSource;
+import com.google.common.io.Resources;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
@@ -142,7 +143,7 @@ public class BaseGoogleCloudStorageExpectTest<T> extends BaseRestApiExpectTest<T
    protected HttpRequestComparisonType compareHttpRequestAsType(HttpRequest input) {
       HttpRequestComparisonType reqType = HttpRequestComparisonType.DEFAULT;
       if (input.getPayload() != null) {
-         if (input.getPayload().getContentMetadata().getContentType().equals(MediaType.APPLICATION_JSON)) {
+         if (MediaType.APPLICATION_JSON.toString().equals(input.getPayload().getContentMetadata().getContentType())) {
             reqType = HttpRequestComparisonType.JSON;
          }
       }
@@ -163,13 +164,8 @@ public class BaseGoogleCloudStorageExpectTest<T> extends BaseRestApiExpectTest<T
                .payload(payloadFromStringWithContentType(payload, "application/x-www-form-urlencoded")).build();
    }
 
-   protected static Payload staticPayloadFromResource(String resource) {
-      try {
-         return payloadFromString(Strings2.toStringAndClose(BaseGoogleCloudStorageExpectTest.class
-                  .getResourceAsStream(resource)));
-      } catch (IOException e) {
-         throw propagate(e);
-      }
+   protected Payload staticPayloadFromResource(String resource) {
+      return new ByteSourcePayload(Resources.asByteSource(Resources.getResource(getClass(), resource)));
    }
 
 }
