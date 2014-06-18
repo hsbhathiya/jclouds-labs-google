@@ -20,14 +20,15 @@ import java.io.Closeable;
 
 import javax.ws.rs.Path;
 
+import org.jclouds.googlecloudstorage.features.BucketAccessControlsApi;
 import org.jclouds.googlecloudstorage.features.DefaultObjectAccessControlsApi;
 import org.jclouds.rest.annotations.Delegate;
 
 /**
- * Provide access to GoogleCloudStorage.
+ * Provide access to GoogleCloudStorage
+ * 
  * @see <a href="https://developers.google.com/storage/docs/json_api/v1/">api doc /a>
  */
-
 public interface GoogleCloudStorageApi extends Closeable {
 
    /**
@@ -36,4 +37,11 @@ public interface GoogleCloudStorageApi extends Closeable {
    @Delegate
    @Path("")
    DefaultObjectAccessControlsApi getDefaultObjectAccessControlsApi();
+
+   /**
+    * Provides access to Bucket Access Control features
+    */
+   @Delegate
+   @Path("")
+   BucketAccessControlsApi getBucketAccessControlsApi();
 }

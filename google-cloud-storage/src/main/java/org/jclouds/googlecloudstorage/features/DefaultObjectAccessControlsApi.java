@@ -34,7 +34,7 @@ import org.jclouds.Fallbacks.NullOnNotFoundOr404;
 import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.ListDefaultObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControlsTemplate;
-import org.jclouds.googlecloudstorage.domain.ObjectRole;
+import org.jclouds.googlecloudstorage.features.ApiResourceRefferences.ObjectRole;
 import org.jclouds.googlecloudstorage.handlers.DefaultObjectAccessControlsBinder;
 import org.jclouds.http.HttpResponse;
 import org.jclouds.javax.annotation.Nullable;
@@ -51,6 +51,7 @@ import org.jclouds.rest.binders.BindToJsonPayload;
 
 /**
  * Provides access to DefaultObjectAccessControl entities via their REST API.
+ *
  * @see <a href = " https://developers.google.com/storage/docs/json_api/v1/defaultObjectAccessControls"/>
  */
 
@@ -60,13 +61,13 @@ public interface DefaultObjectAccessControlsApi {
 
    /**
     * Returns the ACL entry for the specified entity on the specified object.
-    * 
+    *
     * @param bucketName
     *           Name of the bucket which contains the object
     * @param entity
     *           The entity holding the permission. Can be user-userId, user-emailAddress, group-groupId,
     *           group-emailAddress, allUsers, or allAuthenticatedUsers
-    * 
+    *
     * @return an DefaultObjectAccessControls resource
     */
 
@@ -82,11 +83,11 @@ public interface DefaultObjectAccessControlsApi {
 
    /**
     * Creates a new ACL entry for specified object
-    * 
+    *
     * @param bucketName
     *           Name of the bucket of that ACL to be created In the request body, supply a DefaultObjectAccessControls
     *           resource with the following properties
-    * 
+    *
     * @return If successful, this method returns a DefaultObjectAccessControls resource
     */
 
@@ -102,13 +103,13 @@ public interface DefaultObjectAccessControlsApi {
 
    /**
     * Permanently deletes the DefaultObjectAcessControl entry for the specified entity on the specified bucket.
-    * 
+    *
     * @param bucketName
     *           Name of the bucket which contains the object
     * @param entity
     *           The entity holding the permission. Can be user-userId, user-emailAddress, group-groupId,
     *           group-emailAddress, allUsers, or allAuthenticatedUsers
-    * 
+    *
     * @return If successful, this method returns an empty response body
     */
 
@@ -124,16 +125,16 @@ public interface DefaultObjectAccessControlsApi {
 
    /**
     * Retrieves ACL entries on a specified object
-    * 
+    *
     * @param bucketName
     *           Name of the bucket which contains the object
     * @param objectName
     *           Name of the bucket of that ACL is related
     * @param generation
     *           If present, selects a specific revision of this object
-    * 
+    *
     * @return ListObjectAccessControls resource
-    * 
+    *
     */
 
    @Named("DefaultObjectAccessControls:list")
@@ -148,14 +149,14 @@ public interface DefaultObjectAccessControlsApi {
 
    /**
     * Retrieves ACL entries on a specified object
-    * 
+    *
     * @param bucketName
     *           Name of the bucket which contains the object
     * @param generation
     *           If present, selects a specific revision of this object
-    * 
+    *
     * @return DefaultObjectAccessControls resource
-    * 
+    *
     */
 
    @Named("DefaultObjectAccessControls:update")
@@ -168,16 +169,17 @@ public interface DefaultObjectAccessControlsApi {
    DefaultObjectAccessControls updateDefaultObjectAccessControls(@PathParam("bucket") String bucketName,
             @PathParam("entity") String entity,
             @BinderParam(BindToJsonPayload.class) DefaultObjectAccessControls payload);
+
    /**
     * Retrieves ACL entries on a specified object
-    * 
+    *
     * @param bucketName
     *           Name of the bucket which contains the object
     * @param generation
     *           If present, selects a specific revision of this object
-    * 
+    *
     * @return DefaultObjectAccessControls resource
-    * 
+    *
     */
 
    @Named("DefaultObjectAccessControls:update")
@@ -189,18 +191,19 @@ public interface DefaultObjectAccessControlsApi {
    @Fallback(NullOnNotFoundOr404.class)
    DefaultObjectAccessControls updateDefaultObjectAccessControls(@PathParam("bucket") String bucketName,
             @PathParam("entity") String entity,
-            @BinderParam(BindToJsonPayload.class) DefaultObjectAccessControls payload , @QueryParam("role") ObjectRole role);
+            @BinderParam(BindToJsonPayload.class) DefaultObjectAccessControls payload,
+            @QueryParam("role") ObjectRole role);
 
    /**
     * Retrieves ACL entries on a specified object
-    * 
+    *
     * @param bucketName
     *           Name of the bucket which contains the object
     * @param generation
     *           If present, selects a specific revision of this object
-    * 
+    *
     * @return DefaultObjectAccessControls resource
-    * 
+    *
     */
 
    @Named("DefaultObjectAccessControls:patch")
@@ -212,6 +215,5 @@ public interface DefaultObjectAccessControlsApi {
    @Fallback(NullOnNotFoundOr404.class)
    DefaultObjectAccessControls patchDefaultObjectAccessControls(@PathParam("bucket") String bucketName,
             @PathParam("entity") String entity,
-            @BinderParam(BindToJsonPayload.class) DefaultObjectAccessControls payload);   
+            @BinderParam(BindToJsonPayload.class) DefaultObjectAccessControls payload);
 }
-

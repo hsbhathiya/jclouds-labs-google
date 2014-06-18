@@ -16,24 +16,28 @@
  */
 package org.jclouds.googlecloudstorage.parse;
 
+import java.net.URI;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
-import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls;
-import org.jclouds.googlecloudstorage.features.ApiResourceRefferences.ObjectRole;
+import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
+import org.jclouds.googlecloudstorage.domain.BucketAccessControls.Role;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageParseTest;
 
-public class DefaultObjectAclInsertTest extends BaseGoogleCloudStorageParseTest<DefaultObjectAccessControls> {
+public class BucketAclGetTest extends BaseGoogleCloudStorageParseTest<BucketAccessControls> {
 
    @Override
    public String resource() {
-      return "/default_objectacl_insert_response.json";
+      return "/bucketacl_get.json";
    }
 
    @Override
    @Consumes(MediaType.APPLICATION_JSON)
-   public DefaultObjectAccessControls expected() {
-      return DefaultObjectAccessControls.builder().entity("allUsers").role(ObjectRole.OWNER).etag("CAo=").build();
-
+   public BucketAccessControls expected() {
+      return BucketAccessControls.builder().bucket("jcloudtestbucket").entity("allUsers").role(Role.READER)
+               .etag("CAM=")
+               .selfLink(URI.create("https://content.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allUsers"))
+               .id("jcloudtestbucket/allUsers").build();
    }
 }

@@ -14,8 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage.domain;
+package org.jclouds.googlecloudstorage.parse;
 
-public enum ObjectRole {
-   READER, OWNER
+import javax.ws.rs.Consumes;
+import javax.ws.rs.core.MediaType;
+
+import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls;
+import org.jclouds.googlecloudstorage.features.ApiResourceRefferences.ObjectRole;
+import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageParseTest;
+
+public class DefaultObjectAclInsertTest extends BaseGoogleCloudStorageParseTest<DefaultObjectAccessControls> {
+
+   @Override
+   public String resource() {
+      return "/default_objectacl_insert_response.json";
+   }
+
+   @Override
+   @Consumes(MediaType.APPLICATION_JSON)
+   public DefaultObjectAccessControls expected() {
+      return DefaultObjectAccessControls.builder().entity("allUsers").role(ObjectRole.OWNER).etag("CAo=").build();
+
+   }
 }

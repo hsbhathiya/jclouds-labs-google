@@ -16,8 +16,11 @@
  */
 package org.jclouds.googlecloudstorage.domain;
 
+import org.jclouds.googlecloudstorage.features.ApiResourceRefferences.ObjectRole;
+
 /**
- * Represents a Object Access Control Resource.
+ * Represents a Object Access Control Resource
+ *
  * @see <a href= "https://developers.google.com/storage/docs/json_api/v1/objectAccessControls"/>
  */
 public class DefaultObjectAccessControlsTemplate {
