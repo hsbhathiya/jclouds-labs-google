@@ -29,7 +29,7 @@ import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageParseTest;
 
 import com.google.common.collect.ImmutableSet;
 
-public class DefaultObjectaclListTest extends BaseGoogleCloudStorageParseTest<ListDefaultObjectAccessControls> {
+public class DefaultObjectAclListTest extends BaseGoogleCloudStorageParseTest<ListDefaultObjectAccessControls> {
 
    private DefaultObjectAccessControls item_1 = DefaultObjectAccessControls.builder()
             .entity("project-owners-1082289308625").role(ObjectRole.OWNER)
