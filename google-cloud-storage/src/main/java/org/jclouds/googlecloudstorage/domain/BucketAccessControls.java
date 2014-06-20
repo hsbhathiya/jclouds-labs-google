@@ -23,33 +23,35 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.beans.ConstructorProperties;
 import java.net.URI;
 
-import org.jclouds.googlecloudstorage.features.ApiResourceRefferences.ObjectRole;
-
 import com.google.common.base.Objects;
 
 /**
- * Represents a DefaultObjectAccessControls Resource
+ * Represents a BucketAccessControls Resource
  * 
- * @see <a href= "https://developers.google.com/storage/docs/json_api/v1/defaultObjectAccessControls"/>
+ * @see <a href= "https://developers.google.com/storage/docs/json_api/v1/bucketAccessControls" />
  */
-public class DefaultObjectAccessControls extends Resource {
+public class BucketAccessControls extends Resource {
+
+   public enum Role {
+      READER, WRITER, OWNER
+   }
 
    protected final String bucket;
    protected final String entity;
-   protected final ObjectRole role;
+   protected final Role role;
    protected final String email;
-   protected final String entityId;
    protected final String domain;
+   protected final String entityId;
    protected final ProjectTeam projectTeam;
 
-   protected DefaultObjectAccessControls(String id, URI selfLink, String etag, String bucket, String entity,
-            String entityId, ObjectRole role, String email, String domain, ProjectTeam projectTeam) {
-      super(Kind.OBJECT_ACCESS_CONTROL, id, selfLink, etag);
+   protected BucketAccessControls(String id, URI selfLink, String etag, String bucket, String entity, String entityId,
+            Role role, String email, String domain, ProjectTeam projectTeam) {
+      super(Kind.BUCKET_ACCESS_CONTROL, id == null ? (bucket + "/" + entity) : id, selfLink, etag);
 
-      this.bucket = bucket;
+      this.bucket = checkNotNull(bucket, "bucket");
       this.entity = checkNotNull(entity, "entity");
       this.entityId = entityId;
-      this.role = checkNotNull(role, "role");
+      this.role = role;
       this.email = email;
       this.domain = domain;
       this.projectTeam = projectTeam;
@@ -63,7 +65,7 @@ public class DefaultObjectAccessControls extends Resource {
       return entity;
    }
 
-   public ObjectRole getRole() {
+   public Role getRole() {
       return role;
    }
 
@@ -161,8 +163,8 @@ public class DefaultObjectAccessControls extends Resource {
          return true;
       if (obj == null || getClass() != obj.getClass())
          return false;
-      DefaultObjectAccessControls that = DefaultObjectAccessControls.class.cast(obj);
-      return equal(this.kind, that.kind) && equal(this.entity, that.entity) && equal(this.role, that.role);
+      BucketAccessControls that = BucketAccessControls.class.cast(obj);
+      return equal(this.kind, that.kind) && equal(this.bucket, that.bucket) && equal(this.entity, that.entity);
    }
 
    protected Objects.ToStringHelper string() {
@@ -172,7 +174,7 @@ public class DefaultObjectAccessControls extends Resource {
 
    @Override
    public int hashCode() {
-      return Objects.hashCode(kind, entity);
+      return Objects.hashCode(kind, bucket, entity);
    }
 
    @Override
@@ -185,7 +187,7 @@ public class DefaultObjectAccessControls extends Resource {
    }
 
    public Builder toBuilder() {
-      return new Builder().fromObjectAccessControls(this);
+      return new Builder().fromBucketACL(this);
    }
 
    public static final class Builder extends Resource.Builder<Builder> {
@@ -193,7 +195,7 @@ public class DefaultObjectAccessControls extends Resource {
       protected String bucket;
       protected String entity;
       protected String entityId;
-      protected ObjectRole role;
+      protected Role role;
       protected String email;
       protected String domain;
       protected ProjectTeam projectTeam;
@@ -213,7 +215,7 @@ public class DefaultObjectAccessControls extends Resource {
          return this;
       }
 
-      public Builder role(ObjectRole role) {
+      public Builder role(Role role) {
          this.role = role;
          return this;
       }
@@ -233,14 +235,15 @@ public class DefaultObjectAccessControls extends Resource {
          return this;
       }
 
-      public DefaultObjectAccessControls build() {
-         return new DefaultObjectAccessControls(super.id, super.selfLink, super.etag, bucket, entity, entityId, role,
-                  email, domain, projectTeam);
+      public BucketAccessControls build() {
+         return new BucketAccessControls(super.id, super.selfLink, super.etag, bucket, entity, entityId, role, email,
+                  domain, projectTeam);
       }
 
-      public Builder fromObjectAccessControls(DefaultObjectAccessControls in) {
-         return super.fromResource(in).bucket(in.getBucket()).entity(in.getEntity()).entityId(in.getEntityId())
-                  .role(in.getRole()).email(in.getEmail()).domain(in.getDomain()).projectTeam(in.getProjectTeam());
+      public Builder fromBucketACL(BucketAccessControls bACL) {
+         return super.fromResource(bACL).bucket(bACL.getBucket()).entity(bACL.getEntity()).entityId(bACL.getEntityId())
+                  .role(bACL.getRole()).email(bACL.getEmail()).domain(bACL.getDomain())
+                  .projectTeam(bACL.getProjectTeam());
       }
 
       @Override
