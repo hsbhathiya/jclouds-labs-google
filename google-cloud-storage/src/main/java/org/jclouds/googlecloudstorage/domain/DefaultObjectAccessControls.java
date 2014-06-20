@@ -29,7 +29,7 @@ import com.google.common.base.Objects;
 
 /**
  * Represents a DefaultObjectAccessControls Resource
- * 
+ *
  * @see <a href= "https://developers.google.com/storage/docs/json_api/v1/defaultObjectAccessControls"/>
  */
 public class DefaultObjectAccessControls extends Resource {
