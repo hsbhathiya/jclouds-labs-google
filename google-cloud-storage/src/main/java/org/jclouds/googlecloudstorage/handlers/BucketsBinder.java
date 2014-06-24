@@ -14,27 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage.internal;
+package org.jclouds.googlecloudstorage.handlers;
 
-import java.util.Properties;
+import java.util.Map;
 
-import org.jclouds.apis.BaseApiLiveTest;
-import org.jclouds.googlecloudstorage.GoogleCloudStorageApi;
+import javax.inject.Inject;
 
-import com.google.inject.Injector;
-import com.google.inject.Module;
+import org.jclouds.googlecloudstorage.domain.BucketsTemplate;
+import org.jclouds.http.HttpRequest;
+import org.jclouds.rest.MapBinder;
+import org.jclouds.rest.binders.BindToJsonPayload;
 
-public class BaseGoogleCloudStorageApiLiveTest extends BaseApiLiveTest<GoogleCloudStorageApi> {
+public class BucketsBinder implements MapBinder {
 
-   protected static final String PROJECT_NUMBER = System.getProperty("test.google-cloud-storage.project-number");
+   @Inject
+   private BindToJsonPayload jsonBinder;
 
-   public BaseGoogleCloudStorageApiLiveTest() {
-      provider = "google-cloud-storage";
+   @Override
+   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) {
+      BucketsTemplate postBucket = (BucketsTemplate) postParams.get("template");
+      return bindToRequest(request, postBucket);
    }
 
-   protected GoogleCloudStorageApi create(Properties props, Iterable<Module> modules) {
-      Injector injector = newBuilder().modules(modules).overrides(props).buildInjector();
-      return injector.getInstance(GoogleCloudStorageApi.class);
+   @Override
+   public <R extends HttpRequest> R bindToRequest(R request, Object input) {
+      return jsonBinder.bindToRequest(request, input);
    }
-
 }
