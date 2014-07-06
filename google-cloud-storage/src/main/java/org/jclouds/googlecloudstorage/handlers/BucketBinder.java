@@ -16,6 +16,8 @@
  */
 package org.jclouds.googlecloudstorage.handlers;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -32,8 +34,9 @@ public class BucketBinder implements MapBinder {
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) {
-      BucketTemplate postBucket = (BucketTemplate) postParams.get("template");
-      return bindToRequest(request, postBucket);
+      BucketTemplate postBucket = (BucketTemplate) postParams.get("template");      
+      postBucket.name(checkNotNull(postBucket.getName(), "BucketName").toString());      
+      return bindToRequest(request, postBucket);      
    }
 
    @Override

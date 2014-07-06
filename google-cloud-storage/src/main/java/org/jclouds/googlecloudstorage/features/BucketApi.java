@@ -72,7 +72,6 @@ public interface BucketApi {
     *
     * @return a {@link Bucket} resource
     */
-
    @Named("Bucket:get")
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
@@ -81,7 +80,7 @@ public interface BucketApi {
    @OAuthScopes(STORAGE_READONLY_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   Bucket getBuckets(@PathParam("bucket") String bucketName);
+   Bucket getBucket(@PathParam("bucket") String bucketName);
 
    /**
     * Returns metadata for the specified bucket
@@ -93,7 +92,6 @@ public interface BucketApi {
     *
     * @return a {@link Bucket} resource
     */
-
    @Named("Bucket:get")
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
@@ -102,7 +100,7 @@ public interface BucketApi {
    @OAuthScopes(STORAGE_READONLY_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   Bucket getBuckets(@PathParam("bucket") String bucketName, GetBucketOptions options);
+   Bucket getBucket(@PathParam("bucket") String bucketName, GetBucketOptions options);
 
    /**
     * Creates a new bucket
@@ -114,15 +112,13 @@ public interface BucketApi {
     *
     * @return If successful, this method returns a {@link Bucket} resource in the response body
     */
-
    @Named("Bucket:insert")
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/b")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @MapBinder(BucketBinder.class)
-   Bucket createBuckets(@QueryParam("project") String projectId,
-            @PayloadParam("template") BucketTemplate bucketTemplate);
+   Bucket createBucket(@QueryParam("project") String projectId, @PayloadParam("template") BucketTemplate bucketTemplate);
 
    /**
     * Creates a new Bucket
@@ -137,25 +133,23 @@ public interface BucketApi {
     *
     * @return If successful, this method returns a {@link Bucket} resource in the response body
     */
-
    @Named("Bucket:insert")
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/b")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @MapBinder(BucketBinder.class)
-   Bucket createBuckets(@QueryParam("project") String projectNumber,
+   Bucket createBucket(@QueryParam("project") String projectNumber,
             @PayloadParam("template") BucketTemplate bucketTemplate, InsertBucketOptions options);
 
    /**
-    * Permanently deletes an empty Bucket
+    * Permanently deletes an empty Bucket.If bucket is not empty 409 error to indicate the conflict
     *
     * @param bucketName
     *           Name of the bucket
     *
     * @return If successful, this method returns an empty response body
     */
-
    @Named("Bucket:delete")
    @DELETE
    @Consumes(MediaType.APPLICATION_JSON)
@@ -163,10 +157,10 @@ public interface BucketApi {
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   HttpResponse deleteBuckets(@PathParam("bucket") String bucketName);
+   HttpResponse deleteBucket(@PathParam("bucket") String bucketName);
 
    /**
-    * Permanently deletes an empty Bucket
+    * Permanently deletes an empty Bucket.If bucket is not empty 409 error to indicate the conflict
     *
     * @param bucketName
     *           Name of the bucket
@@ -175,7 +169,6 @@ public interface BucketApi {
     *
     * @return If successful, this method returns an empty response body.
     */
-
    @Named("Bucket:delete")
    @DELETE
    @Consumes(MediaType.APPLICATION_JSON)
@@ -183,7 +176,7 @@ public interface BucketApi {
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   HttpResponse deleteBuckets(@PathParam("bucket") String bucketName, DeleteBucketOptions options);
+   HttpResponse deleteBucket(@PathParam("bucket") String bucketName, DeleteBucketOptions options);
 
    /**
     * Retrieves a list of buckets for a given project
@@ -193,7 +186,6 @@ public interface BucketApi {
     *
     * @return a {@link ListPage<Bucket>}
     */
-
    @Named("Bucket:list")
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
@@ -202,7 +194,7 @@ public interface BucketApi {
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   ListPage<Bucket> listBuckets(@QueryParam("project") String project);
+   ListPage<Bucket> listBucket(@QueryParam("project") String project);
 
    /**
     * Retrieves a list of buckets for a given project
@@ -211,10 +203,7 @@ public interface BucketApi {
     *           Name of the project to retrieve the buckets
     * @param options
     *           Supply {@link ListOptions} with optional query parameters
-    *
-    *
     */
-
    @Named("Bucket:list")
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
@@ -223,7 +212,7 @@ public interface BucketApi {
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   ListPage<Bucket> listBuckets(@QueryParam("project") String project, ListOptions options);
+   ListPage<Bucket> listBucket(@QueryParam("project") String project, ListOptions options);
 
    /**
     * Updates a bucket
@@ -233,9 +222,8 @@ public interface BucketApi {
     * @param bucket
     *           In the request body, supply a bucket resource with list of {@link BucketAccessControls}
     *
-    * @return If successful, this method returns a {@link Bucket} resource in the response body
+    * @return If successful, this method returns the updated {@link Bucket} resource in the response body
     */
-
    @Named("Bucket:update")
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
@@ -243,7 +231,7 @@ public interface BucketApi {
    @Path("/b/{bucket}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
-   Bucket updateBuckets(@PathParam("bucket") String bucketName,
+   Bucket updateBucket(@PathParam("bucket") String bucketName,
             @BinderParam(BindToJsonPayload.class) BucketTemplate bucketTemplate);
 
    /**
@@ -254,9 +242,8 @@ public interface BucketApi {
     * @param options
     *           Supply {@link UpdateBucketOptions} with optional query parameters
     *
-    * @return If successful,this method returns a {@link Bucket} resource in the response body
+    * @return If successful,this method returns the updated {@link Bucket} resource in the response body
     */
-
    @Named("Bucket:update")
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
@@ -264,7 +251,7 @@ public interface BucketApi {
    @Path("/b/{bucket}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
-   Bucket updateBuckets(@PathParam("bucket") String bucketName,
+   Bucket updateBucket(@PathParam("bucket") String bucketName,
             @BinderParam(BindToJsonPayload.class) BucketTemplate bucketTemplate, UpdateBucketOptions options);
 
    /**
@@ -275,9 +262,8 @@ public interface BucketApi {
     * @param bucketTemplate
     *           In the request body, supply the relevant portions of a bucket resource
     *
-    * @return If successful, this method returns a {@link Bucket} resource in the response body
+    * @return If successful, this method returns the updated {@link Bucket} resource in the response body
     */
-
    @Named("Bucket:patch")
    @PATCH
    @Consumes(MediaType.APPLICATION_JSON)
@@ -285,11 +271,13 @@ public interface BucketApi {
    @Path("/b/{bucket}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
-   Bucket patchBuckets(@PathParam("bucket") String bucketName,
+   Bucket patchBucket(@PathParam("bucket") String bucketName,
             @BinderParam(BindToJsonPayload.class) BucketTemplate bucketTemplate);
 
    /**
     * Updates a bucket supporting patch semantics.
+    *
+    * @see <a href = "https://developers.google.com/storage/docs/json_api/v1/how-tos/performance#patch"/>
     *
     * @param bucketName
     *           In the request body, supply a bucket resource with list of {@link BucketAccessControls} (acl[])
@@ -298,9 +286,8 @@ public interface BucketApi {
     * @param options
     *           Supply {@link UpdateBucketOptions} with optional query parameters
     *
-    * @return If successful, this method returns a {@link Bucket} resource in the response body
+    * @return If successful, this method returns the updated {@link Bucket} resource in the response body
     */
-
    @Named("Bucket:patch")
    @PATCH
    @Consumes(MediaType.APPLICATION_JSON)
@@ -308,6 +295,6 @@ public interface BucketApi {
    @Path("/b/{bucket}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
-   Bucket patchBuckets(@PathParam("bucket") String bucketName,
+   Bucket patchBucket(@PathParam("bucket") String bucketName,
             @BinderParam(BindToJsonPayload.class) BucketTemplate bucketTemplate, UpdateBucketOptions options);
 }
