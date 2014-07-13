@@ -85,4 +85,21 @@ public final class DomainResourceRefferences {
          return valueOf(CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, predefinedAcl));
       }
    }
+   
+   public enum UploadType{
+      MEDIA ,MULTIPART, RESUMABLE;
+      
+      public String value() {
+         return name().toLowerCase();       
+      }
+
+      @Override
+      public String toString() {
+         return value();
+      }
+
+      public static UploadType fromValue(String uploadType) {
+         return valueOf(uploadType.toUpperCase());      
+      }
+   }
 }

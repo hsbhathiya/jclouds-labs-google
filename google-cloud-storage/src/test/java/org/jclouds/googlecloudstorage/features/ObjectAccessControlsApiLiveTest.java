@@ -97,7 +97,7 @@ public class ObjectAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLi
       ListObjectAccessControls response = api().listObjectAccessControls(BUCKET_NAME,OBJECT_NAME);
 
       assertNotNull(response);
-      assertEquals(response.getKind(), Kind.BUCKET_ACCESS_CONTROLS);
+      assertEquals(response.getKind(), Kind.OBJECT_ACCESS_CONTROLS);
       assertNotNull(response.getItems());
    }
 
