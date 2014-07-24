@@ -35,7 +35,7 @@ import com.google.common.collect.ImmutableSet;
  *
  * @see <a href = "https://developers.google.com/storage/docs/json_api/v1/Objects"/>
  */
-public class GCSObject extends Resource {
+public class WatchAllTemplate extends Resource {
 
    private final String name;
    private final String bucket;
@@ -58,7 +58,7 @@ public class GCSObject extends Resource {
    private final String crc32c;
    private final Integer componentCount;
 
-   private GCSObject(String id, URI selfLink, String etag, String name, String bucket, Long generation,
+   public WatchAllTemplate(String id, URI selfLink, String etag, String name, String bucket, Long generation,
             Long metageneration, String contentType, Date updated, Date timeDeleted, StorageClass storageClass,
             Long size, String md5Hash, String mediaLink, Metadata metadata, String contentEncoding,
             String contentDisposition, String contentLanguage, String cacheControl, Set<ObjectAccessControls> acl,
@@ -172,7 +172,7 @@ public class GCSObject extends Resource {
          return true;
       if (obj == null || getClass() != obj.getClass())
          return false;
-      GCSObject that = GCSObject.class.cast(obj);
+      WatchAllTemplate that = WatchAllTemplate.class.cast(obj);
       return equal(this.kind, that.kind) && equal(this.name, that.name) && equal(this.bucket, that.bucket);
 
    }
@@ -334,13 +334,13 @@ public class GCSObject extends Resource {
          return this;
       }
 
-      public GCSObject build() {
-         return new GCSObject(super.id, super.selfLink, super.etag, name, bucket, generation, metageneration,
+      public WatchAllTemplate build() {
+         return new WatchAllTemplate(super.id, super.selfLink, super.etag, name, bucket, generation, metageneration,
                   contentType, updated, timeDeleted, storageClass, size, md5Hash, mediaLink, metadata, contentEncoding,
                   contentDisposition, contentLanguage, cacheControl, acl.build(), owner, crc32c, componentCount);
       }
 
-      public Builder fromGCSObject(GCSObject in) {
+      public Builder fromGCSObject(WatchAllTemplate in) {
          return super.fromResource(in).name(in.getName()).bucket(in.getBucket()).generation(in.getGeneration())
                   .metageneration(in.getMetageneration()).contentEncoding(in.getContentEncoding())
                   .contentDisposition(in.getContentDisposition()).contentLanguage(in.getContentLanguage())

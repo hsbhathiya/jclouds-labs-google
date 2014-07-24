@@ -32,29 +32,30 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
-import org.jclouds.googlecloudstorage.domain.Bucket;
-import org.jclouds.googlecloudstorage.domain.BucketTemplate;
+import org.jclouds.googlecloudstorage.domain.ComposeObjectTemplate;
 import org.jclouds.googlecloudstorage.domain.GCSObject;
 import org.jclouds.googlecloudstorage.domain.ListPage;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.UploadType;
 import org.jclouds.googlecloudstorage.domain.ObjectTemplate;
+import org.jclouds.googlecloudstorage.domain.WatchAllTemplate;
+import org.jclouds.googlecloudstorage.handlers.ComposeObjectBinder;
 import org.jclouds.googlecloudstorage.handlers.ObjectBinder;
-import org.jclouds.googlecloudstorage.options.DeleteBucketOptions;
-import org.jclouds.googlecloudstorage.options.GetBucketOptions;
-import org.jclouds.googlecloudstorage.options.InsertBucketOptions;
-import org.jclouds.googlecloudstorage.options.ListOptions;
-import org.jclouds.googlecloudstorage.options.UpdateBucketOptions;
+import org.jclouds.googlecloudstorage.options.ComposeObjectOptions;
+import org.jclouds.googlecloudstorage.options.CopyObjectOptions;
+import org.jclouds.googlecloudstorage.options.DeleteObjectOptions;
+import org.jclouds.googlecloudstorage.options.GetObjectOptions;
+import org.jclouds.googlecloudstorage.options.InsertObjectOptions;
+import org.jclouds.googlecloudstorage.options.ListObjectOptions;
+import org.jclouds.googlecloudstorage.options.UpdateObjectOptions;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.oauth.v2.config.OAuthScopes;
 import org.jclouds.oauth.v2.filters.OAuthAuthenticator;
-import org.jclouds.rest.annotations.BinderParam;
 import org.jclouds.rest.annotations.Fallback;
 import org.jclouds.rest.annotations.MapBinder;
 import org.jclouds.rest.annotations.PATCH;
 import org.jclouds.rest.annotations.PayloadParam;
 import org.jclouds.rest.annotations.RequestFilters;
 import org.jclouds.rest.annotations.SkipEncoding;
-import org.jclouds.rest.binders.BindToJsonPayload;
 
 /**
  * Provides access to Object entities via their REST API.
@@ -80,7 +81,7 @@ public interface ObjectApi {
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/b/{bucket}/o/{object}")
+   @Path("storage/v1/b/{bucket}/o/{object}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
@@ -93,7 +94,6 @@ public interface ObjectApi {
     *           Name of the bucket in which the object resides
     * @param objectName
     *           Name of the object
-    * 
     * @param options
     *           Supply {@link GetObjectOptions} with optional query parameters
     * 
@@ -103,12 +103,12 @@ public interface ObjectApi {
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/b/{bucket}/o/{object}")
+   @Path("storage/v1/b/{bucket}/o/{object}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   GCSObject getBucket(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
-            GetBucketOptions options); // Change to GetObjectOptions
+   GCSObject getObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
+            GetObjectOptions options);
 
    /**
     * Stores a new object and metadata
@@ -125,8 +125,9 @@ public interface ObjectApi {
    @Named("Object:insert")
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
+   @Produces(MediaType.APPLICATION_JSON)
    @Path("/upload/storage/v1/b/{bucket}/o")
-   @OAuthScopes(STORAGE_WRITEONLY_SCOPE)
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @MapBinder(ObjectBinder.class)
    GCSObject insertObject(@PathParam("bucket") String bucketName, @QueryParam("uploadType") UploadType uploadType,
             @PayloadParam("template") ObjectTemplate objectTemplate);
@@ -141,7 +142,7 @@ public interface ObjectApi {
     * @param objectTemplate
     *           Supply {@link ObjectTemplate} with optional query parameters.
     * @param options
-    *           Supply {@link DeleteBucketOptions} with optional query parameters.
+    *           Supply {@link InsertObjectOptions} with optional query parameters.
     * 
     * @return If successful, this method returns a {@link GCSObject} resource.
     */
@@ -149,15 +150,13 @@ public interface ObjectApi {
    @POST
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/upload/storage/v1/b/{bucket}/o")
-   @OAuthScopes(STORAGE_WRITEONLY_SCOPE)
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @MapBinder(ObjectBinder.class)
    GCSObject insertObject(@PathParam("bucket") String bucketName, @QueryParam("uploadType") UploadType uploadType,
-            @PayloadParam("template") ObjectTemplate objectTemplate, InsertBucketOptions options); // change to
-                                                                                                   // InsertObjectOptions
+            @PayloadParam("template") ObjectTemplate objectTemplate, InsertObjectOptions options);
 
    /**
-    * Deletes an object and its metadata. Deletions are permanent if versioning is not enabled for the bucket, or if the
-    * generation parameter is used.
+    * Deletes an object and its metadata. Deletions are permanent if versioning is not enabled.
     * 
     * @param bucketName
     *           Name of the bucket in which the object to be deleted resides
@@ -167,7 +166,7 @@ public interface ObjectApi {
    @Named("Object:delete")
    @DELETE
    @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/b/{bucket}/o/{object}")
+   @Path("storage/v1/b/{bucket}/o/{object}")
    @OAuthScopes(STORAGE_WRITEONLY_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
@@ -187,12 +186,12 @@ public interface ObjectApi {
    @Named("Object:delete")
    @DELETE
    @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/b/{bucket}/o/{object}")
+   @Path("storage/v1/b/{bucket}/o/{object}")
    @OAuthScopes(STORAGE_WRITEONLY_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   void delete(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
-            DeleteBucketOptions options);
+   void deleteObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
+            DeleteObjectOptions options);
 
    /**
     * Retrieves a list of objects matching the criteria.
@@ -206,11 +205,11 @@ public interface ObjectApi {
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/b/{bucket}/o")
+   @Path("storage/v1/b/{bucket}/o")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   ListPage<GCSObject> listObject(@PathParam("bucket") String bucketName);
+   ListPage<GCSObject> listObjects(@PathParam("bucket") String bucketName);
 
    /**
     * Retrieves a list of objects matching the criteria.
@@ -224,11 +223,11 @@ public interface ObjectApi {
    @GET
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/b/{bucket}/o")
+   @Path("storage/v1/b/{bucket}/o")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   ListPage<GCSObject> listObject(@PathParam("bucket") String bucketName, ListOptions options); // ListOptions not right
+   ListPage<GCSObject> listObjects(@PathParam("bucket") String bucketName, ListObjectOptions options);
 
    /**
     * Updates an object
@@ -240,13 +239,13 @@ public interface ObjectApi {
     * @param objectTemplate
     *           Supply {@link ObjectTemplate} with optional query parameters
     * 
-    * @return If successful, this method returns the updated {@link Bucket} resource.
+    * @return If successful, this method returns the updated {@link GCSObject} resource.
     */
    @Named("Object:update")
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/b/{bucket}/o/{object}")
+   @Path("storage/v1/b/{bucket}/o/{object}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    GCSObject updateObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
@@ -264,39 +263,20 @@ public interface ObjectApi {
     * @param options
     *           Supply {@link UpdateObjectOptions} with optional query parameters
     * 
-    * @return If successful,this method returns the updated {@link Bucket} resource in the response body
+    * @return If successful,this method returns the updated {@link GCSObject} resource.
     */
-   @Named("Bucket:update")
+   @Named("Object:update")
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/b/{bucket}")
+   @Path("storage/v1/b/{bucket}/o/{object}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    GCSObject updateObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
-            @PayloadParam("template") ObjectTemplate objectTemplate, UpdateBucketOptions options); //Create and change to UpdateObjectOptions
+            @PayloadParam("template") ObjectTemplate objectTemplate, UpdateObjectOptions options);
 
    /**
-    * Updates a bucket supporting patch semantics.
-    * 
-    * @param bucketName
-    *           In the request body, supply a bucket resource with list of {@link BucketAccessControls} (acl[])
-    * @param bucketTemplate
-    *           In the request body, supply the relevant portions of a bucket resource
-    * 
-    * @return If successful, this method returns the updated {@link Bucket} resource in the response body
-    */
-   @Named("Bucket:patch")
-   @PATCH
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Produces(MediaType.APPLICATION_JSON)
-   @Path("/b/{bucket}")
-   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @Fallback(NullOnNotFoundOr404.class)
-   Bucket patchBucket(@PathParam("bucket") String bucketName,
-            @BinderParam(BindToJsonPayload.class) BucketTemplate bucketTemplate);
-   /**
-    * Updates an object supporting patch semantics
+    * Updates an object
     * 
     * @param bucketName
     *           Name of the bucket in which the object resides
@@ -305,20 +285,20 @@ public interface ObjectApi {
     * @param objectTemplate
     *           Supply {@link ObjectTemplate} with optional query parameters
     * 
-    * @return If successful, this method returns the updated {@link Bucket} resource.
+    * @return If successful, this method returns the updated {@link GCSObject} resource.
     */
    @Named("Object:patch")
    @PATCH
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/b/{bucket}/o/{object}")
+   @Path("storage/v1/b/{bucket}/o/{object}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    GCSObject patchObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
             @PayloadParam("template") ObjectTemplate objectTemplate);
 
    /**
-    * Updates an object supporting patch semantics
+    * Updates an object according to patch semantics
     * 
     * @param bucketName
     *           Name of the bucket in which the object resides
@@ -329,15 +309,137 @@ public interface ObjectApi {
     * @param options
     *           Supply {@link UpdateObjectOptions} with optional query parameters
     * 
-    * @return If successful,this method returns the updated {@link Bucket} resource in the response body
+    * @return If successful,this method returns the updated {@link GCSObject} resource.
     */
-   @Named("Bucket:update")
-   @PATCH
+   @Named("Object:patch")
+   @PUT
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
-   @Path("/b/{bucket}")
+   @Path("storage/v1/b/{bucket}/o/{object}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    GCSObject patchObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
-            @PayloadParam("template") ObjectTemplate objectTemplate, UpdateBucketOptions options); //Create and change to UpdateObjectOptions
+            @PayloadParam("template") ObjectTemplate objectTemplate, UpdateObjectOptions options);
+
+   /**
+    * Concatenates a list of existing objects into a new object in the same bucket.
+    * 
+    * @param destinationBucket
+    *           Name of the bucket in which the object to be stored
+    * @param destinationObject
+    *           The type of upload request.
+    * @param composeObjectTemplate
+    *           Supply a {@link ComposeObjectTemplate}
+    * 
+    * @return If successful, this method returns a {@link GCSObject} resource.
+    */
+   @Named("Object:compose")
+   @POST
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Path("storage/v1/b/{destinationBucket}/o/{destinationObject}/compose")
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
+   @MapBinder(ComposeObjectBinder.class)
+   GCSObject composeObjects(@PathParam("destinationBucket") String destinationBucket,
+            @PathParam("destinationObject") String destinationObject,
+            @PayloadParam("template") ComposeObjectTemplate composeObjectTemplate);
+
+   /**
+    * Concatenates a list of existing objects into a new object in the same bucket.
+    * 
+    * @param destinationBucket
+    *           Name of the bucket in which the object to be stored
+    * @param destinationObject
+    *           The type of upload request.
+    * @param composeObjectTemplate
+    *           Supply a {@link ComposeObjectTemplate}
+    * @param options
+    *           Supply {@link ComposeObjectOptions} with optional query parameters
+    * 
+    * @return If successful, this method returns a {@link GCSObject} resource.
+    */
+   @Named("Object:compose")
+   @POST
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Path("storage/v1/b/{destinationBucket}/o/{destinationObject}/compose")
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
+   @MapBinder(ComposeObjectBinder.class)
+   GCSObject composeObjects(@PathParam("destinationBucket") String destinationBucket,
+            @PathParam("destinationObject") String destinationObject,
+            @PayloadParam("template") ComposeObjectTemplate composeObjectTemplate, ComposeObjectOptions options);
+
+   /**
+    * Copies an object to a specified location. Optionally overrides metadata.
+    * 
+    * @param destinationBucket
+    *           Name of the bucket in which to store the new object
+    * @param destinationObject
+    *           Name of the new object.
+    * @param sourceBucket
+    *           Name of the bucket in which to find the source object
+    * @param sourceObject
+    *           Name of the source object
+    * @param objectTemplate
+    *           Supply an {@link ObjectTemplate}
+    * 
+    * @return If successful, this method returns a {@link GCSObject} resource.
+    */
+   @Named("Object:copy")
+   @POST
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Path("/storage/v1/b/{sourceBucket}/o/{sourceObject}/copyTo/b/{destinationBucket}/o/{destinationObject}")
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
+   GCSObject copyObject(@PathParam("destinationBucket") String destinationBucket,
+            @PathParam("destinationObject") String destinationObject, @PathParam("sourceBucket") String sourceBucket,
+            @PathParam("sourceObject") String sourceObject);
+
+   /**
+    * Copies an object to a specified location. Optionally overrides metadata.
+    * 
+    * @param destinationBucket
+    *           Name of the bucket in which to store the new object
+    * @param destinationObject
+    *           Name of the new object.
+    * @param sourceBucket
+    *           Name of the bucket in which to find the source object
+    * @param sourceObject
+    *           Name of the source object
+    * @param objectTemplate
+    *           Supply an {@link ObjectTemplate}
+    * @param options
+    *           Supply {@link CopyObjectOptions} with optional query parameters
+    * 
+    * @return If successful, this method returns a {@link GCSObject} resource.
+    */
+   @Named("Object:copy")
+   @POST
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Path("/storage/v1/b/{sourceBucket}/o/{sourceObject}/copyTo/b/{destinationBucket}/o/{destinationObject}")
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
+   GCSObject copyObject(@PathParam("destinationBucket") String destinationBucket,
+            @PathParam("destinationObject") String destinationObject, @PathParam("sourceBucket") String sourceBucket,
+            @PathParam("sourceObject") String sourceObject, CopyObjectOptions options);
+
+   /**
+    * Retrieves a list of objects matching the criteria.
+    * 
+    * @param bucketName
+    *           Name of the bucket in which to look for objects.
+    * @param watchAlltemplate
+    *           Supply an {@link WatchAllTemplate}
+    * @param options
+    *           Supply {@link ListObjectOptions} with optional query parameters
+    * 
+    * @return a {@link WatchAllTemplate}
+    */
+   @Named("Object:list")
+   @POST
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Produces(MediaType.APPLICATION_JSON)
+   @Path("storage/v1/b/{bucket}/o")
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
+   @Fallback(NullOnNotFoundOr404.class)
+   @Nullable
+   WatchAllTemplate watchAllObjects(@PathParam("bucket") String bucketName,
+            @PayloadParam("template") WatchAllTemplate watchAlltemplate, ListObjectOptions options);
+
 }

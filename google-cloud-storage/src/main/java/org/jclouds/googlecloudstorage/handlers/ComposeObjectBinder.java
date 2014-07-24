@@ -18,33 +18,26 @@ package org.jclouds.googlecloudstorage.handlers;
 
 import java.util.Map;
 
-import org.jclouds.googlecloudstorage.domain.ObjectTemplate;
+import javax.inject.Inject;
+
+import org.jclouds.googlecloudstorage.domain.ComposeObjectTemplate;
 import org.jclouds.http.HttpRequest;
-import org.jclouds.io.Payload;
 import org.jclouds.rest.MapBinder;
+import org.jclouds.rest.binders.BindToJsonPayload;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+public class ComposeObjectBinder implements MapBinder {
 
-public class ObjectBinder implements MapBinder {
+   @Inject
+   private BindToJsonPayload jsonBinder;
 
    @Override
-   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams)
-            throws IllegalArgumentException {
-      ObjectTemplate postObject = (ObjectTemplate) postParams.get("template");
-      Payload payload = postObject.getPayload();
-
-      String contentType = checkNotNull(postObject.getContentType(), "contentType");
-      Long lenght = checkNotNull(postObject.getSize(), "contetLength");
-
-      request.toBuilder().removeHeader("Content-Type").addHeader("Content-Type", contentType)
-               .addHeader("Content-Length", lenght.toString()).build();
-      request.getPayload().getContentMetadata().setContentType(contentType);
-      request.setPayload(payload);
-      return bindToRequest(request, payload);
+   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) throws IllegalArgumentException{
+      ComposeObjectTemplate postCompose = (ComposeObjectTemplate) postParams.get("template");      
+      return bindToRequest(request, postCompose);      
    }
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Object input) {
-      return request;
+      return jsonBinder.bindToRequest(request, input);
    }
 }

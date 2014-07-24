@@ -19,173 +19,157 @@ package org.jclouds.googlecloudstorage.domain;
 
 import java.util.Set;
 
-import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Location;
-import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.StorageClass;
-import org.jclouds.googlecloudstorage.domain.internal.BucketCors;
-import org.jclouds.googlecloudstorage.domain.internal.BucketLifeCycle;
-import org.jclouds.googlecloudstorage.domain.internal.Logging;
-import org.jclouds.googlecloudstorage.domain.internal.Owner;
-import org.jclouds.googlecloudstorage.domain.internal.Versioning;
-import org.jclouds.googlecloudstorage.domain.internal.Website;
+import org.jclouds.googlecloudstorage.domain.internal.Metadata;
+import org.jclouds.http.internal.PayloadEnclosingImpl;
 
 import com.google.common.collect.Sets;
+import com.google.common.hash.HashCode;
+import com.google.common.net.MediaType;
 
-public class ObjectTemplate {
+public class ObjectTemplate extends PayloadEnclosingImpl {
 
    protected String name;
-   protected Long projectNumber;
-   protected Set<BucketAccessControls> acl = Sets.newHashSet();
-   protected Set<DefaultObjectAccessControls> defaultObjectAccessControls = Sets.newHashSet();
-   protected Owner owner;
-   protected Location location;
-   protected Website website;
-   protected Logging logging;
-   protected Versioning versioning;
-   protected Set<BucketCors> cors = Sets.newHashSet();
-   protected BucketLifeCycle lifeCycle;
-   protected StorageClass storageClass;
+   protected Long size;
+   protected String cacheControl;
+   protected String contentDisposition;
+   protected String contentEncoding;
+   protected String contentLanguage;
+   protected String contentType;
+   protected String crc32c;
+   protected String md5Hash;
+   protected Metadata metadata;
+   protected Set<ObjectAccessControls> acl = Sets.newHashSet();
 
    public ObjectTemplate name(String name) {
       this.name = name;
       return this;
    }
-
-   public ObjectTemplate projectNumber(Long projectNumber) {
-      this.projectNumber = projectNumber;
+   
+   public ObjectTemplate size(Long size) {
+      this.size = size;
       return this;
    }
 
-   public ObjectTemplate owner(Owner owner) {
-      this.owner = owner;
+   public ObjectTemplate cacheControl(String cacheControl) {
+      this.cacheControl = cacheControl;
       return this;
    }
 
-   public ObjectTemplate location(Location location) {
-      this.location = location;
+   public ObjectTemplate contentDisposition(String contentDisposition) {
+      this.contentDisposition = contentDisposition;
       return this;
    }
 
-   public ObjectTemplate website(Website website) {
-      this.website = website;
+   public ObjectTemplate contentEncoding(String contentEncoding) {
+      this.contentEncoding = contentEncoding;
       return this;
    }
 
-   public ObjectTemplate logging(Logging logging) {
-      this.logging = logging;
+   public ObjectTemplate contentLanguage(String contentLanguage) {
+      this.contentLanguage = contentLanguage;
+      return this;
+   }
+   
+   public ObjectTemplate contentType(MediaType contentType) {
+      this.contentType = contentType.toString();
       return this;
    }
 
-   public ObjectTemplate versioning(Versioning versioning) {
-      this.versioning = versioning;
+   public ObjectTemplate contentType(String contentType) {
+      this.contentType = contentType;
       return this;
    }
 
-   public ObjectTemplate lifeCycle(BucketLifeCycle lifeCycle) {
-      this.lifeCycle = lifeCycle;
+   public ObjectTemplate metadata(Metadata metadata) {
+      this.metadata = metadata;
       return this;
    }
 
-   public ObjectTemplate storageClass(StorageClass storageClass) {
-      this.storageClass = storageClass;
+   public ObjectTemplate crc32c(String crc32c) {
+      this.crc32c = crc32c;
+      return this;
+   }
+   
+   public ObjectTemplate md5Hash(HashCode md5Hash) {
+      this.md5Hash = md5Hash.toString();
       return this;
    }
 
-   public ObjectTemplate addAcl(BucketAccessControls bucketAccessControls) {
-      this.acl.add(bucketAccessControls);
+   public ObjectTemplate md5Hash(String md5Hash) {
+      this.md5Hash = md5Hash;
       return this;
    }
 
-   public ObjectTemplate acl(Set<BucketAccessControls> acl) {
+   public ObjectTemplate addAcl(ObjectAccessControls acl) {
+      this.acl.add(acl);
+      return this;
+   }
 
+   public ObjectTemplate acl(Set<ObjectAccessControls> acl) {
       this.acl.addAll(acl);
       return this;
    }
 
-   public ObjectTemplate addDefaultObjectAccessControls(DefaultObjectAccessControls oac) {
-      this.defaultObjectAccessControls.add(oac);
-      return this;
+   public String getCacheControl() {
+      return cacheControl;
    }
 
-   public ObjectTemplate defaultObjectAccessControls(Set<DefaultObjectAccessControls> defaultObjectAcl) {
-      this.defaultObjectAccessControls.addAll(defaultObjectAcl);
-      return this;
+   public String getContentDisposition() {
+      return contentDisposition;
    }
 
-   public ObjectTemplate addCORS(BucketCors cors) {
-      this.cors.add(cors);
-      return this;
+   public String getContentEncoding() {
+      return contentEncoding;
    }
 
-   public ObjectTemplate cors(Set<BucketCors> cors) {
-      this.cors.addAll(cors);
-      return this;
+   public String getContentLanguage() {
+      return contentLanguage;
    }
 
-   public Long getProjectNumber() {
-      return projectNumber;
+   public String getContentType() {
+      return contentType;
+   }
+
+   public String getCrc32c() {
+      return crc32c;
+   }
+
+   public String getMd5Hash() {
+      return md5Hash;
+   }
+
+   public Metadata getMetadata() {
+      return metadata;
    }
 
    public String getName() {
       return name;
    }
 
-   public Set<BucketAccessControls> getAcl() {
+   public Long getSize() {
+      return size;
+   }
+   public Set<ObjectAccessControls> getAcl() {
       return acl;
-   }
-
-   public Set<DefaultObjectAccessControls> getDefaultObjectAccessControls() {
-      return defaultObjectAccessControls;
-   }
-
-   public Owner getOwner() {
-      return owner;
-   }
-
-   public Location getLocation() {
-      return location;
-   }
-
-   public Website getWebsite() {
-      return website;
-   }
-
-   public Logging getLogging() {
-      return logging;
-   }
-
-   public Versioning getVersioning() {
-      return versioning;
-   }
-
-   public Set<BucketCors> getCors() {
-      return cors;
-   }
-
-   public BucketLifeCycle getLifeCycle() {
-      return lifeCycle;
-   }
-
-   public StorageClass getStorageClass() {
-      return storageClass;
    }
 
    public static Builder builder() {
       return new Builder();
    }
 
-   public static ObjectTemplate fromBucketsTemplate(ObjectTemplate bucketTemplate) {
-      return Builder.fromBucketsTemplate(bucketTemplate);
+   public static ObjectTemplate fromObjectTemplate(ObjectTemplate objectTemplate) {
+      return Builder.fromObjectTemplate(objectTemplate);
    }
 
+   
    public static class Builder {
 
-      public static ObjectTemplate fromBucketsTemplate(ObjectTemplate in) {
-         return new ObjectTemplate().name(in.getName()).projectNumber(in.getProjectNumber()).acl(in.getAcl())
-                  .defaultObjectAccessControls(in.getDefaultObjectAccessControls()).owner(in.getOwner())
-                  .location(in.getLocation()).website(in.getWebsite()).logging(in.getLogging())
-                  .versioning(in.getVersioning()).cors(in.getCors()).lifeCycle(in.getLifeCycle())
-                  .storageClass(in.getStorageClass());
-      }
+      public static ObjectTemplate fromObjectTemplate(ObjectTemplate in) {
+         return new ObjectTemplate().name(in.getName()).size(in.getSize()).acl(in.getAcl()).cacheControl(in.getCacheControl())
+                  .contentDisposition(in.getContentDisposition()).contentEncoding(in.getContentEncoding())
+                  .contentLanguage(in.getContentLanguage()).contentType(in.getContentType()).md5Hash(in.getMd5Hash())
+                  .metadata(in.getMetadata()).crc32c(in.getCrc32c());
 
+      }
    }
 }
