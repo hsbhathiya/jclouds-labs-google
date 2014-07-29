@@ -39,7 +39,11 @@ import com.google.common.collect.Iterables;
 public class Resource {
 
    public enum Kind {
-      BUCKET_ACCESS_CONTROL, BUCKET_ACCESS_CONTROLS, BUCKET, BUCKETS, OBJECT_ACCESS_CONTROL, OBJECT_ACCESS_CONTROLS, OBJECT;
+      BUCKET_ACCESS_CONTROL,BUCKET_ACCESS_CONTROLS, 
+      BUCKET, BUCKETS, 
+      OBJECT_ACCESS_CONTROL, OBJECT_ACCESS_CONTROLS, 
+      OBJECT, OBJECTS,
+      COMPOSE_REQUEST;
 
       public String value() {
          return Joiner.on("#").join("storage", CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name()));

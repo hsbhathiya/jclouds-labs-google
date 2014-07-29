@@ -50,6 +50,10 @@ public class ListPage<T> extends IterableWithMarker<T> {
    public Kind getKind() {
       return kind;
    }
+   
+   public String getNextPageToken() {
+      return nextPageToken;
+   }
 
    @Override
    public Optional<Object> nextMarker() {
