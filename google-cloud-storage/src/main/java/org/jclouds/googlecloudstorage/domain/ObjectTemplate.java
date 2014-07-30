@@ -30,7 +30,7 @@ import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteSource;
 import com.google.common.net.MediaType;
 
-public class ObjectTemplate extends PayloadEnclosingImpl {
+public class ObjectTemplate {
 
    protected String name;
    protected Long size;

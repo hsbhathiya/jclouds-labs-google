@@ -18,29 +18,33 @@ package org.jclouds.googlecloudstorage.handlers;
 
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
+
+import org.jclouds.googlecloudstorage.domain.BucketTemplate;
 import org.jclouds.googlecloudstorage.domain.ObjectTemplate;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.io.Payload;
 import org.jclouds.rest.MapBinder;
+import org.jclouds.rest.binders.BindToJsonPayload;
 
 import com.google.common.hash.HashCode;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class SimpleUploadBinder implements MapBinder {
+public class ResumableUploadBinder implements MapBinder {
+
+   @Inject
+   private BindToJsonPayload jsonBinder;
 
    @Override
-   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams)
-            throws IllegalArgumentException {
-      Payload payload = (Payload) postParams.get("payload");
-
-      request.getPayload().getContentMetadata().setContentType(payload.getContentMetadata().getContentType());
-      request.setPayload(payload);
-      return bindToRequest(request, payload);
+   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) throws IllegalArgumentException {
+      ObjectTemplate template = (ObjectTemplate) postParams.get("template");   
+      return bindToRequest(request, template);      
    }
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Object input) {
-      return request;
+      return jsonBinder.bindToRequest(request, input);
    }
 }

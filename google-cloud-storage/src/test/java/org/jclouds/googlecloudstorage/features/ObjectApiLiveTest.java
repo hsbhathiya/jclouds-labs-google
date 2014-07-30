@@ -42,6 +42,11 @@ import org.jclouds.googlecloudstorage.options.GetObjectOptions;
 import org.jclouds.googlecloudstorage.options.InsertObjectOptions;
 import org.jclouds.googlecloudstorage.options.ListObjectOptions;
 import org.jclouds.googlecloudstorage.options.UpdateObjectOptions;
+import org.jclouds.http.internal.PayloadEnclosingImpl;
+import org.jclouds.io.Payloads;
+import org.jclouds.io.payloads.ByteArrayPayload;
+import org.jclouds.io.payloads.ByteSourcePayload;
+import org.jclouds.io.payloads.StringPayload;
 import org.testng.annotations.Test;
 
 import com.beust.jcommander.internal.Sets;
@@ -70,30 +75,81 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       return api.getObjectApi();
    }
 
+   /*
+    * @Test(groups = "live") public void testSimpleUpload() throws IOException {
+    * 
+    * ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
+    * .role(ObjectRole.OWNER).build();
+    * 
+    * /* File file = new File( getClass().getResource("/" + UPLOAD_OBJECT_NAME).getFile()); FileInputStream fis= new
+    * FileInputStream(file);
+    * 
+    * 
+    * String data = "Payload data";
+    * 
+    * InsertObjectOptions options = new InsertObjectOptions().name(UPLOAD_OBJECT_NAME);
+    * 
+    * ObjectTemplate template = new ObjectTemplate(); template.setPayload(data);
+    * template.contentType("text/plain").addAcl(oacl)
+    * .size(template.getPayload().getContentMetadata().getContentLength());
+    * 
+    * assertNotNull(template); assertNotNull(template.getPayload());
+    * 
+    * GCSObject gcsObject = api().simpleUpload(BUCKET_NAME, template, options);
+    * 
+    * assertNotNull(gcsObject); assertEquals(gcsObject.getBucket(), BUCKET_NAME); assertEquals(gcsObject.getName(),
+    * UPLOAD_OBJECT_NAME);
+    * 
+    * }
+    * 
+    * 
+    * 
+    * /* @Test(groups = "live") public void testSimpleJpegUpload() throws IOException {
+    * 
+    * ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
+    * .role(ObjectRole.OWNER).build();
+    * 
+    * // ByteSourcePayload data= new //
+    * ByteSourcePayload(Resources.asByteSource(Resources.getResource(getClass(),"/objectOperation.txt")));
+    * 
+    * ByteSource byteSource = Files.asByteSource(new File(Resources.getResource(getClass(), "/jcloudslogo.jpg")
+    * .getPath()));
+    * 
+    * HashFunction hf = Hashing.md5(); hc = hf.newHasher().putBytes(byteSource.read()).hash(); //HashCode hc2 =
+    * hf.newHasher().putBytes(new byte[128]).hash();
+    * 
+    * // String data = "Payload data"; // FileInputStream is = new
+    * FileInputStream(Resources.getResource(getClass(),"/objectOperation.jpg").getPath());
+    * 
+    * InsertObjectOptions options = new InsertObjectOptions().name(UPLOAD_OBJECT_NAME2);
+    * 
+    * ObjectTemplate template = new ObjectTemplate(); template.setPayload(byteSource.read());
+    * template.contentType("image/jpeg").addAcl(oacl).size(Long.valueOf(byteSource.read().length + "")).md5Hash(hc);
+    * 
+    * 
+    * assertNotNull(template); assertNotNull(template.getPayload());
+    * 
+    * GCSObject gcsObject = api().simpleUpload(BUCKET_NAME, template, options);
+    * 
+    * assertNotNull(gcsObject); assertEquals(gcsObject.getBucket(), BUCKET_NAME); assertEquals(gcsObject.getName(),
+    * UPLOAD_OBJECT_NAME2); assertEquals(gcsObject.getMd5Hash(), template.getMd5Hash()); //
+    * assertEquals(gcsObject.getCrc32c() , template.getCrc32c());
+    * 
+    * }
+    */
+
    @Test(groups = "live")
    public void testSimpleUpload() throws IOException {
 
-      ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
-               .role(ObjectRole.OWNER).build();
-
-      /*
-       * File file = new File( getClass().getResource("/" + UPLOAD_OBJECT_NAME).getFile()); FileInputStream fis= new
-       * FileInputStream(file);
-       */
-
       String data = "Payload data";
+
+      PayloadEnclosingImpl payload = new PayloadEnclosingImpl();
+      payload.setPayload(data);
 
       InsertObjectOptions options = new InsertObjectOptions().name(UPLOAD_OBJECT_NAME);
 
-      ObjectTemplate template = new ObjectTemplate();
-      template.setPayload(data);
-      template.contentType("text/plain").addAcl(oacl)
-               .size(template.getPayload().getContentMetadata().getContentLength());
-
-      assertNotNull(template);
-      assertNotNull(template.getPayload());
-
-      GCSObject gcsObject = api().simpleUpload(BUCKET_NAME, template, options);
+      GCSObject gcsObject = api().simpleUpload(BUCKET_NAME, "text/plain",
+               payload.getPayload().getContentMetadata().getContentLength() + "", payload.getPayload(), options);
 
       assertNotNull(gcsObject);
       assertEquals(gcsObject.getBucket(), BUCKET_NAME);
@@ -104,41 +160,57 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    @Test(groups = "live")
    public void testSimpleJpegUpload() throws IOException {
 
+      ByteSource byteSource = Files.asByteSource(new File(Resources.getResource(getClass(), "/jcloudslogo.jpg")
+               .getPath()));
+
+      HashFunction hf = Hashing.md5();
+      hc = hf.newHasher().putBytes(byteSource.read()).hash();
+
+      ByteSourcePayload payload = Payloads.newByteSourcePayload(byteSource);
+      InsertObjectOptions options = new InsertObjectOptions().name(UPLOAD_OBJECT_NAME2);
+
+      GCSObject gcsObject = api().simpleUpload(BUCKET_NAME, "image/jpeg", byteSource.read().length + "", payload,
+               options);
+
+      assertNotNull(gcsObject);
+      assertEquals(gcsObject.getBucket(), BUCKET_NAME);
+      assertEquals(gcsObject.getName(), UPLOAD_OBJECT_NAME2);
+      // assertEquals(gcsObject.getMd5Hash(), );
+      // assertEquals(gcsObject.getCrc32c() , template.getCrc32c());
+
+   }
+
+/**   @Test(groups = "live")
+   public void tesMultipartJpegUpload() throws IOException {
+
       ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
                .role(ObjectRole.OWNER).build();
-
-      // ByteSourcePayload data= new
-      // ByteSourcePayload(Resources.asByteSource(Resources.getResource(getClass(),"/objectOperation.txt")));
 
       ByteSource byteSource = Files.asByteSource(new File(Resources.getResource(getClass(), "/jcloudslogo.jpg")
                .getPath()));
 
       HashFunction hf = Hashing.md5();
       hc = hf.newHasher().putBytes(byteSource.read()).hash();
-      //HashCode hc2 = hf.newHasher().putBytes(new byte[128]).hash();
-
-      // String data = "Payload data";
-      // FileInputStream is = new FileInputStream(Resources.getResource(getClass(),"/objectOperation.jpg").getPath());
-
-      InsertObjectOptions options = new InsertObjectOptions().name(UPLOAD_OBJECT_NAME2);
 
       ObjectTemplate template = new ObjectTemplate();
-      template.setPayload(byteSource.read());
-      template.contentType("image/jpeg").addAcl(oacl).size(Long.valueOf(byteSource.read().length + "")).md5Hash(hc);
-               
+      template.contentType("image/jpeg").addAcl(oacl).size(Long.valueOf(byteSource.read().length + ""))
+               .name(DESTINATION_BUCKET_NAME).md5Hash(hc).contentLanguage("en").contentDisposition("attachment");
 
-      assertNotNull(template);
-      assertNotNull(template.getPayload());
+      ByteSourcePayload payload = Payloads.newByteSourcePayload(byteSource);
 
-      GCSObject gcsObject = api().simpleUpload(BUCKET_NAME, template, options);
+      // InsertObjectOptions options = new InsertObjectOptions().name(UPLOAD_OBJECT_NAME2);
+
+      GCSObject gcsObject = api().multipartUpload(DESTINATION_BUCKET_NAME, template, payload);
 
       assertNotNull(gcsObject);
-      assertEquals(gcsObject.getBucket(), BUCKET_NAME);
+      assertEquals(gcsObject.getBucket(), DESTINATION_BUCKET_NAME);
       assertEquals(gcsObject.getName(), UPLOAD_OBJECT_NAME2);
       assertEquals(gcsObject.getMd5Hash(), template.getMd5Hash());
-    //  assertEquals(gcsObject.getCrc32c() , template.getCrc32c());
 
-   }
+      // assertEquals(gcsObject.getMd5Hash(), );
+      // assertEquals(gcsObject.getCrc32c() , template.getCrc32c());
+
+   }*/
 
    @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
    public void testGetObject() {
@@ -151,7 +223,7 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
       assertEquals(gcsObject.getBucket(), BUCKET_NAME);
       assertEquals(gcsObject.getName(), UPLOAD_OBJECT_NAME);
-      assertEquals(gcsObject.getContentType(), "text/plain");      
+      assertEquals(gcsObject.getContentType(), "text/plain");
    }
 
    @Test(groups = "live", dependsOnMethods = "testGetObject")

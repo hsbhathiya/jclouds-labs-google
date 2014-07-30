@@ -27,16 +27,27 @@ import com.google.common.hash.HashCode;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class SimpleUploadBinder implements MapBinder {
+public class SimpleUploadBinder2 implements MapBinder {
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams)
             throws IllegalArgumentException {
-      Payload payload = (Payload) postParams.get("payload");
+  /*    ObjectTemplate postObject = (ObjectTemplate) postParams.get("template");
+      Payload payload = postObject.getPayload();
 
-      request.getPayload().getContentMetadata().setContentType(payload.getContentMetadata().getContentType());
-      request.setPayload(payload);
-      return bindToRequest(request, payload);
+      String contentType = checkNotNull(postObject.getContentType(), "contentType");
+      Long lenght = checkNotNull(postObject.getSize(), "contetLength");
+      String md5 = postObject.getMd5Hash();
+
+      request.toBuilder().removeHeader("Content-Type").addHeader("Content-Type", contentType)
+               .addHeader("Content-Length", lenght.toString()).build();
+      if(md5 != null){
+         request.toBuilder().addHeader("Content-MD5", md5);
+      }
+      
+      request.getPayload().getContentMetadata().setContentType(contentType);
+      request.setPayload(payload);*/
+      return request;//bindToRequest(request, payload);
    }
 
    @Override
