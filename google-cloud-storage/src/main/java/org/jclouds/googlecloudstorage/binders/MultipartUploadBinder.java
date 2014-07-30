@@ -14,27 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage.handlers;
+package org.jclouds.googlecloudstorage.binders;
 
 import java.util.Map;
 
-import javax.ws.rs.core.MediaType;
-
-import org.jclouds.googlecloudstorage.domain.ObjectTemplate;
+import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.io.Payload;
-import org.jclouds.json.Json;
 import org.jclouds.rest.MapBinder;
 import org.jclouds.rest.binders.BindToJsonPayload;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MultipartUploadBinder implements MapBinder {
-   
+      
+   //Not functioning
    @Inject
    private BindToJsonPayload jsonBinder;
   
@@ -49,9 +45,7 @@ public class MultipartUploadBinder implements MapBinder {
            
       String contentType = checkNotNull(postObject.getContentType(), "contentType");
       Long lenght = checkNotNull(postObject.getSize(), "contetLength");
-    //  Payload payload = postObject.getPayload();
-      
-
+    
       //HeaderPart
       request.toBuilder().removeHeader("Content-Type").addHeader("Content-Type", "Multipart/related; boundary= "+ BOUNDARY_HEADER )
                .addHeader("Content-Length", lenght.toString()).build();

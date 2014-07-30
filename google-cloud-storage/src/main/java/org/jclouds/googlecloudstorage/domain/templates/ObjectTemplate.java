@@ -15,19 +15,18 @@
  * limitations under the License.
  */
 
-package org.jclouds.googlecloudstorage.domain;
+package org.jclouds.googlecloudstorage.domain.templates;
 
 import java.util.Set;
 
+import org.jclouds.googlecloudstorage.domain.ObjectAccessControls;
 import org.jclouds.googlecloudstorage.reference.Crc32c;
-import org.jclouds.http.internal.PayloadEnclosingImpl;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.hash.HashCode;
 import com.google.common.io.BaseEncoding;
-import com.google.common.io.ByteSource;
 import com.google.common.net.MediaType;
 
 public class ObjectTemplate {
@@ -93,14 +92,14 @@ public class ObjectTemplate {
       this.metadata = metadata;
       return this;
    }
-   
-   //Remove??
-   private ObjectTemplate crc32c(String encodedString ) {      
+
+   // Remove??
+   private ObjectTemplate crc32c(String encodedString) {
       this.crc32c = encodedString;
       return this;
    }
 
-   public ObjectTemplate crc32c(byte[] bArray ) {      
+   public ObjectTemplate crc32c(byte[] bArray) {
       this.crc32c = calcCrc32c(bArray);
       return this;
    }
@@ -110,9 +109,8 @@ public class ObjectTemplate {
       crc32c.update(bArray, 0, bArray.length);
       long crcValue = crc32c.getValue();
       
-      byte[] encodedByte = String.valueOf(crcValue).getBytes();
       String encodedString = BaseEncoding.base64().encode(String.valueOf(crcValue).getBytes());
-      
+
       return encodedString;
    }
 
@@ -156,8 +154,8 @@ public class ObjectTemplate {
    }
 
    public String getMd5Hash() {
-     // String stringMd5 = new String(BaseEncoding.base64().decode(md5Hash));
-     // HashCode hash = HashCode.fromString(stringMd5);
+      // String stringMd5 = new String(BaseEncoding.base64().decode(md5Hash));
+      // HashCode hash = HashCode.fromString(stringMd5);
       return md5Hash;
    }
 
@@ -191,11 +189,12 @@ public class ObjectTemplate {
 
    public static class Builder {
 
-     public static ObjectTemplate fromObjectTemplate(ObjectTemplate in) {
-         return new ObjectTemplate().name(in.getName()).size(in.getSize()).acl(in.getAcl()).cacheControl(in.getCacheControl())
-                  .contentDisposition(in.getContentDisposition()).contentEncoding(in.getContentEncoding())
-                  .contentLanguage(in.getContentLanguage()).contentType(in.getContentType()).md5Hash(HashCode.fromString(in.getMd5Hash()))
-                 .customMetadata(in.getAllCustomMetadata()).crc32c(in.getCrc32c());
+      public static ObjectTemplate fromObjectTemplate(ObjectTemplate in) {
+         return new ObjectTemplate().name(in.getName()).size(in.getSize()).acl(in.getAcl())
+                  .cacheControl(in.getCacheControl()).contentDisposition(in.getContentDisposition())
+                  .contentEncoding(in.getContentEncoding()).contentLanguage(in.getContentLanguage())
+                  .contentType(in.getContentType()).md5Hash(HashCode.fromString(in.getMd5Hash()))
+                  .customMetadata(in.getAllCustomMetadata()).crc32c(in.getCrc32c());
 
       }
    }

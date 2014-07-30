@@ -14,40 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage.handlers;
+package org.jclouds.googlecloudstorage.binders;
 
 import java.util.Map;
 
-import org.jclouds.googlecloudstorage.domain.ObjectTemplate;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.io.Payload;
 import org.jclouds.rest.MapBinder;
 
-import com.google.common.hash.HashCode;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public class SimpleUploadBinder2 implements MapBinder {
+public class SimpleUploadBinder implements MapBinder {
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams)
             throws IllegalArgumentException {
-  /*    ObjectTemplate postObject = (ObjectTemplate) postParams.get("template");
-      Payload payload = postObject.getPayload();
+      Payload payload = (Payload) postParams.get("payload");
 
-      String contentType = checkNotNull(postObject.getContentType(), "contentType");
-      Long lenght = checkNotNull(postObject.getSize(), "contetLength");
-      String md5 = postObject.getMd5Hash();
-
-      request.toBuilder().removeHeader("Content-Type").addHeader("Content-Type", contentType)
-               .addHeader("Content-Length", lenght.toString()).build();
-      if(md5 != null){
-         request.toBuilder().addHeader("Content-MD5", md5);
-      }
-      
-      request.getPayload().getContentMetadata().setContentType(contentType);
-      request.setPayload(payload);*/
-      return request;//bindToRequest(request, payload);
+      request.getPayload().getContentMetadata().setContentType(payload.getContentMetadata().getContentType());
+      request.setPayload(payload);
+      return bindToRequest(request, payload);
    }
 
    @Override

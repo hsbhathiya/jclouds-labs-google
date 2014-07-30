@@ -21,20 +21,17 @@ import static org.testng.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRole;
+import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
 import org.jclouds.googlecloudstorage.domain.ObjectAccessControls;
-import org.jclouds.googlecloudstorage.domain.ObjectTemplate;
-import org.jclouds.googlecloudstorage.domain.ResumableUploadResponse;
+import org.jclouds.googlecloudstorage.handlers.ResumableUploadResponseDecoder;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiLiveTest;
 import org.jclouds.http.HttpResponse;
 import org.jclouds.io.Payloads;
 import org.jclouds.io.payloads.ByteSourcePayload;
 import org.testng.annotations.Test;
 
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
@@ -68,7 +65,7 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
       assertEquals(initResponse.getStatusCode(), 200);
       assertNotNull(initResponse.getFirstHeaderOrNull("Location"));
       
-      ResumableUploadResponse decoder = new ResumableUploadResponse(initResponse);
+      ResumableUploadResponseDecoder decoder = new ResumableUploadResponseDecoder(initResponse);
       
       assertNotNull(decoder.getUploadId());
       String uploadId = decoder.getUploadId();

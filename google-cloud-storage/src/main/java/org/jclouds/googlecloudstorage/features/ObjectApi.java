@@ -32,15 +32,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
-import org.jclouds.googlecloudstorage.domain.ComposeObjectTemplate;
+import org.jclouds.googlecloudstorage.binders.ComposeObjectBinder;
+import org.jclouds.googlecloudstorage.binders.MultipartUploadBinder;
+import org.jclouds.googlecloudstorage.binders.SimpleUploadBinder;
 import org.jclouds.googlecloudstorage.domain.GCSObject;
 import org.jclouds.googlecloudstorage.domain.ListPage;
-import org.jclouds.googlecloudstorage.domain.ObjectTemplate;
 import org.jclouds.googlecloudstorage.domain.WatchAllTemplate;
-import org.jclouds.googlecloudstorage.handlers.ComposeObjectBinder;
-import org.jclouds.googlecloudstorage.handlers.MultipartUploadBinder;
-import org.jclouds.googlecloudstorage.handlers.SimpleUploadBinder;
-import org.jclouds.googlecloudstorage.handlers.SimpleUploadBinder2;
+import org.jclouds.googlecloudstorage.domain.templates.ComposeObjectTemplate;
+import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
 import org.jclouds.googlecloudstorage.options.ComposeObjectOptions;
 import org.jclouds.googlecloudstorage.options.CopyObjectOptions;
 import org.jclouds.googlecloudstorage.options.DeleteObjectOptions;
@@ -58,13 +57,12 @@ import org.jclouds.rest.annotations.MapBinder;
 import org.jclouds.rest.annotations.PATCH;
 import org.jclouds.rest.annotations.PayloadParam;
 import org.jclouds.rest.annotations.RequestFilters;
-import org.jclouds.rest.annotations.ResponseParser;
 import org.jclouds.rest.annotations.SkipEncoding;
 import org.jclouds.rest.annotations.QueryParams;
 import org.jclouds.rest.binders.BindToJsonPayload;
 
-/*Multipart Upload , Resumable Upload 
- * Simple upload with HeaderParams?
+/*Multipart Upload 
+ * 
  * Separate watchAllTemaplete and Watch All, add params to watchAll 
  */
 
@@ -122,31 +120,7 @@ public interface ObjectApi {
             GetObjectOptions options);
 
    /**
-    * Stores a new object and metadata
-    * 
-    * @see https://developers.google.com/storage/docs/json_api/v1/how-tos/upload#simple
-    * 
-    * @param bucketName
-    *           Name of the bucket in which the object to be stored
-    * @param objectTemplate
-    *           Supply {@link ObjectTemplate} with optional query parameters.
-    * @param options
-    *           Supply {@link InsertObjectOptions} with optional query parameters. 'name' is mandatory.
-    * 
-    * @return If successful, this method returns a {@link GCSObject} resource.
-    */
-   @Named("Object:simpleUpload")
-   @POST
-   @QueryParams(keys = "uploadType", values = "media")
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Path("/upload/storage/v1/b/{bucket}/o")
-   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @MapBinder(SimpleUploadBinder2.class)
-   GCSObject simpleUpload(@PathParam("bucket") String bucketName,
-            @PayloadParam("template") ObjectTemplate objectTemplate, InsertObjectOptions Options);
-
-   /**
-    * Stores a new object 
+    * Stores a new object
     * 
     * @see https://developers.google.com/storage/docs/json_api/v1/how-tos/upload#simple
     * 
@@ -167,9 +141,10 @@ public interface ObjectApi {
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @MapBinder(SimpleUploadBinder.class)
    GCSObject simpleUpload(@PathParam("bucket") String bucketName, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Content-Length") String contentLength, @PayloadParam("payload") Payload payload ,InsertObjectOptions Options);
+            @HeaderParam("Content-Length") String contentLength, @PayloadParam("payload") Payload payload,
+            InsertObjectOptions Options);
 
-   // Not Functioning
+   // Not Functioning. Add ResponseParser ?
    /**
     * Stores a new object with metadata
     * 
@@ -186,16 +161,17 @@ public interface ObjectApi {
     * 
     * @return If successful, this method returns a {@link GCSObject} resource.
     */
+   
    @Named("Object:multipartUpload")
    @POST
    @QueryParams(keys = "uploadType", values = "multipart")
- //  @Consumes("multipart/related")
-   @Consumes(MediaType.APPLICATION_JSON)   
+   //@Consumes("multipart/related")
+   @Consumes(MediaType.APPLICATION_JSON)
    @Path("/upload/storage/v1/b/{bucket}/o")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @MapBinder(MultipartUploadBinder.class)
    GCSObject multipartUpload(@PathParam("bucket") String bucketName,
-            @PayloadParam("template") ObjectTemplate objectTemplate, @PayloadParam("payload") Payload payload );
+            @PayloadParam("template") ObjectTemplate objectTemplate, @PayloadParam("payload") Payload payload);
 
    /**
     * Deletes an object and its metadata. Deletions are permanent if versioning is not enabled.

@@ -14,33 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage.handlers;
+package org.jclouds.googlecloudstorage.binders;
 
 import java.util.Map;
 
-import org.jclouds.googlecloudstorage.domain.ObjectTemplate;
+import javax.inject.Inject;
+
+import org.jclouds.googlecloudstorage.domain.templates.BucketTemplate;
 import org.jclouds.http.HttpRequest;
-import org.jclouds.io.Payload;
 import org.jclouds.rest.MapBinder;
+import org.jclouds.rest.binders.BindToJsonPayload;
 
-import com.google.common.hash.HashCode;
+public class BucketBinder implements MapBinder {
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public class SimpleUploadBinder implements MapBinder {
+   @Inject
+   private BindToJsonPayload jsonBinder;
 
    @Override
-   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams)
-            throws IllegalArgumentException {
-      Payload payload = (Payload) postParams.get("payload");
-
-      request.getPayload().getContentMetadata().setContentType(payload.getContentMetadata().getContentType());
-      request.setPayload(payload);
-      return bindToRequest(request, payload);
+   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) throws IllegalArgumentException {
+      BucketTemplate postBucket = (BucketTemplate) postParams.get("template");      
+      return bindToRequest(request, postBucket);      
    }
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Object input) {
-      return request;
+      return jsonBinder.bindToRequest(request, input);
    }
 }

@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.jclouds.googlecloudstorage.domain;
+package org.jclouds.googlecloudstorage.domain.templates;
 
 import java.util.Set;
 
+import org.jclouds.googlecloudstorage.domain.GCSObject;
 import org.jclouds.googlecloudstorage.domain.Resource.Kind;
 
 import com.google.common.collect.Sets;

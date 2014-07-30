@@ -16,10 +16,7 @@
  */
 package org.jclouds.googlecloudstorage.reference;
 
-import java.io.IOException;
 import java.util.zip.Checksum;
-
-import com.google.common.io.ByteSource;
 
 /**
  * This class generates a CRC32C checksum, defined by rfc3720 section B.4.

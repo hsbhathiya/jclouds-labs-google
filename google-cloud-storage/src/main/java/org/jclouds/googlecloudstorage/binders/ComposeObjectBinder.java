@@ -14,33 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage.handlers;
+package org.jclouds.googlecloudstorage.binders;
 
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
 
-import org.jclouds.googlecloudstorage.domain.BucketTemplate;
-import org.jclouds.googlecloudstorage.domain.ObjectTemplate;
+import org.jclouds.googlecloudstorage.domain.templates.ComposeObjectTemplate;
 import org.jclouds.http.HttpRequest;
-import org.jclouds.io.Payload;
 import org.jclouds.rest.MapBinder;
 import org.jclouds.rest.binders.BindToJsonPayload;
 
-import com.google.common.hash.HashCode;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public class ResumableUploadBinder implements MapBinder {
+public class ComposeObjectBinder implements MapBinder {
 
    @Inject
    private BindToJsonPayload jsonBinder;
 
    @Override
-   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) throws IllegalArgumentException {
-      ObjectTemplate template = (ObjectTemplate) postParams.get("template");   
-      return bindToRequest(request, template);      
+   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) throws IllegalArgumentException{
+      ComposeObjectTemplate postCompose = (ComposeObjectTemplate) postParams.get("template");      
+      return bindToRequest(request, postCompose);      
    }
 
    @Override

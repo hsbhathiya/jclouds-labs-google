@@ -14,39 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage.domain;
+package org.jclouds.googlecloudstorage.handlers;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.core.UriBuilder;
-
 import org.jclouds.http.HttpResponse;
-import org.jclouds.http.UriTemplates;
-import org.jclouds.io.Payload;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import ch.qos.logback.classic.pattern.RelativeTimeConverter;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.Multimap;
-
-public class ResumableUploadResponse {
+public class ResumableUploadResponseDecoder {
 
    private String session_uri;
    private String contentLength;
    private String range;
    private String contentRange;
 
-   public ResumableUploadResponse(HttpResponse response) {
+   public ResumableUploadResponseDecoder(HttpResponse response) {
       this.session_uri = response.getFirstHeaderOrNull("Location");
       this.contentLength = response.getFirstHeaderOrNull("Content-Length");
       this.range = response.getFirstHeaderOrNull("Range");
       this.contentRange = response.getFirstHeaderOrNull("Content-Range");
    }
 
-   
+   //Return the Id of the Upload
    public  String getUploadId() {  
       String query = session_uri;
        String[] params = query.split("&");  
@@ -59,8 +48,6 @@ public class ResumableUploadResponse {
        }  
        return map.get("upload_id");  
    }  
-
-
    
    public Long getContentLength() {
       if (this.contentLength != null) {

@@ -29,8 +29,6 @@ import org.jclouds.googlecloudstorage.domain.internal.Owner;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
 
 /**
  * This class represent an object in a Google Cloud Storage Bucket.

@@ -22,10 +22,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.net.URI;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.inject.Key;
 
 /**
  * This class represent an object in a Google Cloud Storage Bucket.
