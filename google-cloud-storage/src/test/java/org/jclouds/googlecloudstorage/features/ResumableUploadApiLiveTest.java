@@ -22,12 +22,16 @@ import static org.testng.Assert.assertNotNull;
 import java.io.File;
 import java.io.IOException;
 
+import javax.ws.rs.core.MediaType;
+
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRole;
 import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
 import org.jclouds.googlecloudstorage.domain.ObjectAccessControls;
 import org.jclouds.googlecloudstorage.handlers.ResumableUploadResponseDecoder;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiLiveTest;
+import org.jclouds.http.HttpException;
 import org.jclouds.http.HttpResponse;
+import org.jclouds.http.HttpResponseException;
 import org.jclouds.io.Payloads;
 import org.jclouds.io.payloads.ByteSourcePayload;
 import org.testng.annotations.Test;
@@ -40,6 +44,7 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
 
    private static final String DESTINATION_BUCKET_NAME = "jcloudsresumableupload";
    private static final String UPLOAD_OBJECT_NAME = "jcloudslogo.jpg";
+   private static final String CHUNKED_OBJECT_NAME = "jclouds.pdf";
 
    private ResumableUploadApi api() {
       return api.getResumableUploadApi();
@@ -48,11 +53,13 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
    @Test(groups = "live")
    public void testResumableJpegUpload() throws IOException {
 
-      ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(DESTINATION_BUCKET_NAME).entity("allUsers")
-               .role(ObjectRole.OWNER).build();
-
+      // Read Object
       ByteSource byteSource = Files.asByteSource(new File(Resources.getResource(getClass(), "/jcloudslogo.jpg")
                .getPath()));
+
+      // Initialize resumableUpload with metadata. ObjectTemaplete must provide the name
+      ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(DESTINATION_BUCKET_NAME).entity("allUsers")
+               .role(ObjectRole.OWNER).build();
 
       ObjectTemplate template = new ObjectTemplate();
       template.contentType("image/jpeg").addAcl(oacl).size(Long.valueOf(byteSource.read().length + ""))
@@ -64,18 +71,94 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
       assertNotNull(initResponse);
       assertEquals(initResponse.getStatusCode(), 200);
       assertNotNull(initResponse.getFirstHeaderOrNull("Location"));
-      
+
+      // Get the upload_id for the session
       ResumableUploadResponseDecoder decoder = new ResumableUploadResponseDecoder(initResponse);
-      
+
       assertNotNull(decoder.getUploadId());
       String uploadId = decoder.getUploadId();
 
+      // Upload the payload
       ByteSourcePayload payload = Payloads.newByteSourcePayload(byteSource);
-      HttpResponse uploadResponse = api().upload(DESTINATION_BUCKET_NAME, uploadId, "image/jpeg", byteSource.read().length + "",
-               payload);
-      
+      HttpResponse uploadResponse = api().upload(DESTINATION_BUCKET_NAME, uploadId, "image/jpeg",
+               byteSource.read().length + "", payload);
+
       assertEquals(uploadResponse.getStatusCode(), 200);
 
+      // CheckStatus
+      HttpResponse status = api().checkStatus(DESTINATION_BUCKET_NAME, uploadId, "bytes */*");
+
+      int code = status.getStatusCode();
+      assert (code != 308);
+
+   }
+
+   @Test(groups = "live")
+   public void testResumableChunkedUpload() throws IOException, InterruptedException {
+
+      // Read Object
+      ByteSource byteSource = Files.asByteSource(new File(Resources.getResource(getClass(), "/jclouds.pdf")
+               .getPath()));
+
+      // Initialize resumableUpload with metadata. ObjectTemaplete must provide the name
+      ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(DESTINATION_BUCKET_NAME).entity("allUsers")
+               .role(ObjectRole.OWNER).build();
+
+      ObjectTemplate template = new ObjectTemplate();
+      template.contentType("application/pdf").addAcl(oacl).size(Long.valueOf(byteSource.read().length + ""))
+               .name(CHUNKED_OBJECT_NAME).contentLanguage("en").contentDisposition("attachment");
+
+      HttpResponse initResponse = api().initResumableUpload(DESTINATION_BUCKET_NAME, "application/pdf",
+               byteSource.read().length + "", template);
+
+      assertNotNull(initResponse);
+      assertEquals(initResponse.getStatusCode(), 200);
+      assertNotNull(initResponse.getFirstHeaderOrNull("Location"));
+
+      // Get the upload_id for the session
+      ResumableUploadResponseDecoder decoder = new ResumableUploadResponseDecoder(initResponse);
+
+      assertNotNull(decoder.getUploadId());
+      String uploadId = decoder.getUploadId();
+
+      // Upload the payload
+
+
+      //Check the  status first          
+      HttpResponse status = api().checkStatus(DESTINATION_BUCKET_NAME, uploadId, "bytes */*");
+      int code = status.getStatusCode();
+      assertEquals(code, 308);
+      
+      ///Uploads in 2 chunks.
+      long totalSize = byteSource.read().length;
+      long offset = 0;
+      //Size of the first chunk
+      long chunkSize = 256*1000*5; //Min allowed size for a chunk = 256*1000 ; 
+    
+      //Uploading First chunk
+      ByteSourcePayload payload = Payloads.newByteSourcePayload(byteSource.slice(offset, chunkSize));
+      long length = byteSource.slice(offset, chunkSize).size();
+      String Content_Range = "bytes " + 0 + "-" + length + "/" + totalSize;
+      
+      HttpResponse uploadResponse = api().chunkUpload(DESTINATION_BUCKET_NAME, uploadId, "application/pdf",
+               length + "", Content_Range, payload);
+      int code2 = uploadResponse.getStatusCode();      
+      assertEquals(code2, 308);
+      
+      //Read uploaded length 
+      long uploaded = new ResumableUploadResponseDecoder(uploadResponse).getUpperLimitFromRange();
+      
+      long resumeLength = totalSize - (uploaded+1); //byteSource.slice(uploaded+1, byteSource.read().length-uploaded-1).size();
+      //2nd chunk
+      ByteSourcePayload payload2 = Payloads.newByteSourcePayload(byteSource.slice(uploaded+1, byteSource.read().length-uploaded-1));
+      //Upload the 2nd chunk
+      String Content_Range2 = "bytes " + (uploaded+1) + "-" + (totalSize-1) + "/" + totalSize;
+      HttpResponse resumeResponse = api().chunkUpload(DESTINATION_BUCKET_NAME, uploadId, "application/pdf",
+               resumeLength + "", Content_Range2, payload2);
+      
+      int code3 = resumeResponse.getStatusCode();      
+      assert(code3 == 200 || code3 == 201);    //200 or 201 if upload succeeded  
+ 
    }
 
 }

@@ -35,20 +35,19 @@ public class ResumableUploadResponseDecoder {
       this.contentRange = response.getFirstHeaderOrNull("Content-Range");
    }
 
-   //Return the Id of the Upload
-   public  String getUploadId() {  
+   // Return the Id of the Upload
+   public String getUploadId() {
       String query = session_uri;
-       String[] params = query.split("&");  
-       Map<String, String> map = new HashMap<String, String>();  
-       for (String param : params)  
-       {  
-           String name = param.split("=")[0];  
-           String value = param.split("=")[1];  
-           map.put(name, value);  
-       }  
-       return map.get("upload_id");  
-   }  
-   
+      String[] params = query.split("&");
+      Map<String, String> map = new HashMap<String, String>();
+      for (String param : params) {
+         String name = param.split("=")[0];
+         String value = param.split("=")[1];
+         map.put(name, value);
+      }
+      return map.get("upload_id");
+   }
+
    public Long getContentLength() {
       if (this.contentLength != null) {
          return Long.valueOf(contentLength);
@@ -62,5 +61,12 @@ public class ResumableUploadResponseDecoder {
 
    public String getContentRange() {
       return this.contentRange;
+   }
+
+   public long getUpperLimitFromRange() {
+      String range308 = this.range;
+      String upperLimit = range308.split("-")[1];
+      return Long.parseLong(upperLimit);
+
    }
 }

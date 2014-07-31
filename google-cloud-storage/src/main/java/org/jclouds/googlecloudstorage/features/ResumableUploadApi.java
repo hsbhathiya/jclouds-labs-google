@@ -20,6 +20,7 @@ import static org.jclouds.googlecloudstorage.reference.GoogleCloudStorageConstan
 
 import javax.inject.Named;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -39,9 +40,9 @@ import org.jclouds.oauth.v2.config.OAuthScopes;
 import org.jclouds.oauth.v2.filters.OAuthAuthenticator;
 import org.jclouds.rest.annotations.MapBinder;
 import org.jclouds.rest.annotations.PayloadParam;
+import org.jclouds.rest.annotations.QueryParams;
 import org.jclouds.rest.annotations.RequestFilters;
 import org.jclouds.rest.annotations.SkipEncoding;
-import org.jclouds.rest.annotations.QueryParams;
 
 /**
  * Provides Resumable Upload support via Rest API
@@ -104,5 +105,54 @@ public interface ResumableUploadApi {
    HttpResponse upload(@PathParam("bucket") String bucketName ,@QueryParam("upload_id") String uploadId,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Content-Length") String contentLength,
             @PayloadParam("payload") Payload payload);
+   
+   /**
+    * Stores a new object
+    * 
+    * @see https://developers.google.com/storage/docs/json_api/v1/how-tos/upload#simple
+    * 
+    * @param bucketName
+    *           Name of the bucket in which the object to be stored
+    * @param objectTemplate
+    *           Supply {@link ObjectTemplate} with optional query parameters.
+    * @param options
+    *           Supply {@link InsertObjectOptions} with optional query parameters. 'name' is mandatory.
+    * 
+    * @return If successful, this method returns a {@link GCSObject} resource.
+    */
+   @Named("Object:Upload")
+   @PUT
+   @Consumes(MediaType.APPLICATION_JSON)
+   @QueryParams(keys = "uploadType", values = "resumable")
+   @Path("/upload/storage/v1/b/{bucket}/o")
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
+   @MapBinder(SimpleUploadBinder.class)
+   HttpResponse chunkUpload(@PathParam("bucket") String bucketName ,@QueryParam("upload_id") String uploadId,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Content-Length") String contentLength,
+            @HeaderParam("Content-Range") String contentRange , @PayloadParam("payload") Payload payload);
+   
+   /**
+    * Stores a new object
+    * 
+    * @see https://developers.google.com/storage/docs/json_api/v1/how-tos/upload#simple
+    * 
+    * @param bucketName
+    *           Name of the bucket in which the object to be stored
+    * @param objectTemplate
+    *           Supply {@link ObjectTemplate} with optional query parameters.
+    * @param options
+    *           Supply {@link InsertObjectOptions} with optional query parameters. 'name' is mandatory.
+    * 
+    * @return If successful, this method returns a {@link GCSObject} resource.
+    */
+   @Named("Object:Upload")
+   @PUT
+   @Consumes(MediaType.APPLICATION_JSON)
+   @DefaultValue("0")
+   @QueryParams(keys = "uploadType", values = "resumable")
+   @Path("/upload/storage/v1/b/{bucket}/o")
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
+   HttpResponse checkStatus(@PathParam("bucket") String bucketName ,@QueryParam("upload_id") String uploadId,
+            @HeaderParam("Content-Range") String contentRange );
 
 }

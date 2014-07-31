@@ -22,6 +22,7 @@ import javax.inject.Singleton;
 
 import org.jclouds.http.HttpCommand;
 import org.jclouds.http.HttpErrorHandler;
+import org.jclouds.http.HttpRequest;
 import org.jclouds.http.HttpResponse;
 import org.jclouds.http.HttpResponseException;
 import org.jclouds.rest.AuthorizationException;
@@ -38,31 +39,35 @@ public class GoogleCloudStorageErrorHandler implements HttpErrorHandler {
       String message = data != null ? new String(data) : null;
 
       Exception exception = message != null ? new HttpResponseException(command, response, message)
-              : new HttpResponseException(command, response);
+               : new HttpResponseException(command, response);
       message = message != null ? message : String.format("%s -> %s", command.getCurrentRequest().getRequestLine(),
-              response.getStatusLine());
-      
+               response.getStatusLine());
+
       String message411 = "MissingContentLength: You must provide the Content-Length HTTP header.\n";
       String message412 = "PreconditionFailed: At least one of the pre-conditions you specified did not hold.\n";
 
       switch (response.getStatusCode()) {
-         case 401:
-         case 403:
-            exception = new AuthorizationException(message, exception);
-            break;
-         case 404:            
-             exception = new ResourceNotFoundException(message, exception);           
-             break;
-         case 409:
-            exception = new IllegalStateException(message, exception);
-            break;
-         case 411: 
-            exception = new IllegalStateException(message411 + message, exception);
-            break;
-         case 412: 
-            exception = new IllegalStateException(message412 + message, exception);
-            break;
+      case 308:
+         return;
+      case 401:
+      case 403:
+         exception = new AuthorizationException(message, exception);
+         break;
+      case 404:
+         exception = new ResourceNotFoundException(message, exception);
+         break;
+      case 409:
+         exception = new IllegalStateException(message, exception);
+         break;
+      case 411:
+         exception = new IllegalStateException(message411 + message, exception);
+         break;
+      case 412:
+         exception = new IllegalStateException(message412 + message, exception);
+         break;
       }
       command.setException(exception);
+
    }
+
 }
