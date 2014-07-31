@@ -42,7 +42,7 @@ import com.google.common.io.Resources;
 
 public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
-   private static final String DESTINATION_BUCKET_NAME = "jcloudsresumableupload";
+   private static final String DESTINATION_BUCKET_NAME = "jcloudsresumableuploadbucket";
    private static final String UPLOAD_OBJECT_NAME = "jcloudslogo.jpg";
    private static final String CHUNKED_OBJECT_NAME = "jclouds.pdf";
 
@@ -157,7 +157,7 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
                resumeLength + "", Content_Range2, payload2);
       
       int code3 = resumeResponse.getStatusCode();      
-      assert(code3 == 200 || code3 == 201);    //200 or 201 if upload succeeded  
+      assert(code3 == 200 || code3 == 201);    //200 or 201 if upload succeeded 
  
    }
 
