@@ -22,16 +22,11 @@ import static org.testng.Assert.assertNotNull;
 import java.io.File;
 import java.io.IOException;
 
-import javax.ws.rs.core.MediaType;
-
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRole;
+import org.jclouds.googlecloudstorage.domain.InitResumbleUpload;
 import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
 import org.jclouds.googlecloudstorage.domain.ObjectAccessControls;
-import org.jclouds.googlecloudstorage.handlers.ResumableUploadResponseDecoder;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiLiveTest;
-import org.jclouds.http.HttpException;
-import org.jclouds.http.HttpResponse;
-import org.jclouds.http.HttpResponseException;
 import org.jclouds.io.Payloads;
 import org.jclouds.io.payloads.ByteSourcePayload;
 import org.testng.annotations.Test;
@@ -65,28 +60,28 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
       template.contentType("image/jpeg").addAcl(oacl).size(Long.valueOf(byteSource.read().length + ""))
                .name(UPLOAD_OBJECT_NAME).contentLanguage("en").contentDisposition("attachment");
 
-      HttpResponse initResponse = api().initResumableUpload(DESTINATION_BUCKET_NAME, "image/jpeg",
+      InitResumbleUpload initResponse = api().initResumableUpload(DESTINATION_BUCKET_NAME, "image/jpeg",
                byteSource.read().length + "", template);
 
       assertNotNull(initResponse);
-      assertEquals(initResponse.getStatusCode(), 200);
-      assertNotNull(initResponse.getFirstHeaderOrNull("Location"));
+      assertEquals(initResponse.getStatusCode().intValue(), 200);
+      assertNotNull(initResponse.getUpload_id());
 
       // Get the upload_id for the session
-      ResumableUploadResponseDecoder decoder = new ResumableUploadResponseDecoder(initResponse);
+     // ResumableUploadResponseDecoder decoder = new ResumableUploadResponseDecoder(initResponse);
 
-      assertNotNull(decoder.getUploadId());
-      String uploadId = decoder.getUploadId();
+      //assertNotNull(decoder.getUploadId());
+      String uploadId = initResponse.getUpload_id();
 
       // Upload the payload
       ByteSourcePayload payload = Payloads.newByteSourcePayload(byteSource);
-      HttpResponse uploadResponse = api().upload(DESTINATION_BUCKET_NAME, uploadId, "image/jpeg",
+      InitResumbleUpload uploadResponse = api().upload(DESTINATION_BUCKET_NAME, uploadId, "image/jpeg",
                byteSource.read().length + "", payload);
 
-      assertEquals(uploadResponse.getStatusCode(), 200);
+      assertEquals(uploadResponse.getStatusCode().intValue(), 200);
 
       // CheckStatus
-      HttpResponse status = api().checkStatus(DESTINATION_BUCKET_NAME, uploadId, "bytes */*");
+      InitResumbleUpload status = api().checkStatus(DESTINATION_BUCKET_NAME, uploadId, "bytes */*");
 
       int code = status.getStatusCode();
       assert (code != 308);
@@ -108,24 +103,24 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
       template.contentType("application/pdf").addAcl(oacl).size(Long.valueOf(byteSource.read().length + ""))
                .name(CHUNKED_OBJECT_NAME).contentLanguage("en").contentDisposition("attachment");
 
-      HttpResponse initResponse = api().initResumableUpload(DESTINATION_BUCKET_NAME, "application/pdf",
+      InitResumbleUpload initResponse = api().initResumableUpload(DESTINATION_BUCKET_NAME, "application/pdf",
                byteSource.read().length + "", template);
 
       assertNotNull(initResponse);
-      assertEquals(initResponse.getStatusCode(), 200);
-      assertNotNull(initResponse.getFirstHeaderOrNull("Location"));
+      assertEquals(initResponse.getStatusCode().intValue(), 200);
+      assertNotNull(initResponse.getUpload_id());
 
       // Get the upload_id for the session
-      ResumableUploadResponseDecoder decoder = new ResumableUploadResponseDecoder(initResponse);
+      //ResumableUploadResponseDecoder decoder = new ResumableUploadResponseDecoder(initResponse);
 
-      assertNotNull(decoder.getUploadId());
-      String uploadId = decoder.getUploadId();
+     // assertNotNull(decoder.getUploadId());
+      String uploadId = initResponse.getUpload_id();
 
       // Upload the payload
 
 
       //Check the  status first          
-      HttpResponse status = api().checkStatus(DESTINATION_BUCKET_NAME, uploadId, "bytes */*");
+      InitResumbleUpload status = api().checkStatus(DESTINATION_BUCKET_NAME, uploadId, "bytes */*");
       int code = status.getStatusCode();
       assertEquals(code, 308);
       
@@ -140,20 +135,22 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
       long length = byteSource.slice(offset, chunkSize).size();
       String Content_Range = "bytes " + 0 + "-" + length + "/" + totalSize;
       
-      HttpResponse uploadResponse = api().chunkUpload(DESTINATION_BUCKET_NAME, uploadId, "application/pdf",
+      InitResumbleUpload uploadResponse = api().chunkUpload(DESTINATION_BUCKET_NAME, uploadId, "application/pdf",
                length + "", Content_Range, payload);
+      
       int code2 = uploadResponse.getStatusCode();      
       assertEquals(code2, 308);
       
       //Read uploaded length 
-      long uploaded = new ResumableUploadResponseDecoder(uploadResponse).getUpperLimitFromRange();
+      long uploaded = uploadResponse.getRangeUpperValue();
       
       long resumeLength = totalSize - (uploaded+1); //byteSource.slice(uploaded+1, byteSource.read().length-uploaded-1).size();
+      
       //2nd chunk
       ByteSourcePayload payload2 = Payloads.newByteSourcePayload(byteSource.slice(uploaded+1, byteSource.read().length-uploaded-1));
       //Upload the 2nd chunk
       String Content_Range2 = "bytes " + (uploaded+1) + "-" + (totalSize-1) + "/" + totalSize;
-      HttpResponse resumeResponse = api().chunkUpload(DESTINATION_BUCKET_NAME, uploadId, "application/pdf",
+      InitResumbleUpload resumeResponse = api().chunkUpload(DESTINATION_BUCKET_NAME, uploadId, "application/pdf",
                resumeLength + "", Content_Range2, payload2);
       
       int code3 = resumeResponse.getStatusCode();      

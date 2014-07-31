@@ -24,7 +24,6 @@ import org.jclouds.http.HttpRetryHandler;
 import org.jclouds.http.annotation.ClientError;
 import org.jclouds.http.annotation.Redirection;
 import org.jclouds.http.annotation.ServerError;
-import org.jclouds.http.handlers.BackoffLimitedRetryHandler;
 import org.jclouds.rest.ConfiguresHttpApi;
 import org.jclouds.rest.config.HttpApiModule;
 
@@ -47,7 +46,7 @@ public class GoogleCloudStorageHttpApiModule extends HttpApiModule<GoogleCloudSt
    protected void bindRetryHandlers() {
       super.bindRetryHandlers();
       bind(HttpRetryHandler.class).annotatedWith(Redirection.class).to(GoogleCloudStorageRedirectRetryHandler.class);
-     // bind(HttpRetryHandler.class).annotatedWith(ServerError.class).to(BackoffLimitedRetryHandler.class);
+
    }
 
 }

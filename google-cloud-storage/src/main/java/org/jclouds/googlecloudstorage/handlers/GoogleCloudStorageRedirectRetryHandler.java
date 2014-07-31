@@ -16,20 +16,12 @@
  */
 package org.jclouds.googlecloudstorage.handlers;
 
-import static org.jclouds.http.HttpUtils.closeClientButKeepContentStream;
-
 import javax.inject.Singleton;
 
 import org.jclouds.http.HttpCommand;
-import org.jclouds.http.HttpErrorHandler;
-import org.jclouds.http.HttpRequest;
 import org.jclouds.http.HttpResponse;
-import org.jclouds.http.HttpResponseException;
 import org.jclouds.http.handlers.BackoffLimitedRetryHandler;
 import org.jclouds.http.handlers.RedirectionRetryHandler;
-import org.jclouds.rest.AuthorizationException;
-import org.jclouds.rest.ResourceNotFoundException;
-
 import com.google.inject.Inject;
 
 /**

@@ -68,7 +68,8 @@ public class ParseToResumableUpload implements Function<HttpResponse, InitResumb
    }
 
    private long getLowerLimitFromRange(String range) {
-      String lowerLimit = range.split("-")[0];
+      String removeByte =  range.split("=")[1];
+      String lowerLimit = removeByte.split("-")[0];
       return Long.parseLong(lowerLimit);
 
    }
