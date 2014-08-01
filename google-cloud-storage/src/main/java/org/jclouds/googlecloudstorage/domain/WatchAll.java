@@ -21,33 +21,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.net.URI;
 
+import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.DeliveryType;
+
 import com.google.common.base.Objects;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 
 /**
- * This class represent an object in a Google Cloud Storage Bucket.
- * 
+ * This supports object change notification settings
+ *
  * @see <a href = "https://developers.google.com/storage/docs/json_api/v1/objects/watchAll"/>
  */
-public class WatchAllTemplate {
-
-   public enum DeliveryType {
-      WEB_HOOK;
-
-      public String value() {
-         return name().toLowerCase();
-      }
-
-      @Override
-      public String toString() {
-         return value();
-      }
-
-      public static DeliveryType fromValue(String type) {
-         return valueOf(type.toUpperCase());
-      }
-   }
+public class WatchAll {
 
    private final String kind;
    private final String id;
@@ -61,7 +46,7 @@ public class WatchAllTemplate {
    private final Multimap <String,String> params;
    
 
-   private WatchAllTemplate(String id, String resourceId, URI resourceUri, DeliveryType type, URI address, String token,
+   private WatchAll(String id, String resourceId, URI resourceUri, DeliveryType type, URI address, String token,
             Long expiration, Boolean payload , Multimap<String, String> params ) {
 
       this.kind = "api#channel";
@@ -141,7 +126,7 @@ public class WatchAllTemplate {
          return false;
       if (getClass() != obj.getClass())
          return false;
-      WatchAllTemplate other = (WatchAllTemplate) obj;
+      WatchAll other = (WatchAll) obj;
       if (address == null) {
          if (other.address != null)
             return false;
@@ -269,11 +254,11 @@ public class WatchAllTemplate {
       }
       
 
-      public WatchAllTemplate build() {
-         return new WatchAllTemplate(id, resourceId, resourceUri, type, address, token, expiration, payload, params);
+      public WatchAll build() {
+         return new WatchAll(id, resourceId, resourceUri, type, address, token, expiration, payload, params);
       }
 
-      public Builder fromWatchAll(WatchAllTemplate in) {
+      public Builder fromWatchAll(WatchAll in) {
          return this.id(in.getId()).resourceId(in.getResourceId()).resourceUri(in.getResourceUri())
                   .address(in.getAddress()).expiration(in.getExpiration()).payload(in.getPayload()).type(in.getType())
                   .token(in.getToken());

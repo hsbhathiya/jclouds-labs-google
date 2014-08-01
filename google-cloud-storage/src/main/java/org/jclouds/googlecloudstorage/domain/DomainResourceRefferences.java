@@ -119,4 +119,21 @@ public final class DomainResourceRefferences {
          return valueOf(uploadType.toUpperCase());      
       }
    }
+
+   public enum DeliveryType {
+      WEB_HOOK;
+
+      public String value() {
+         return name().toLowerCase();
+      }
+
+      @Override
+      public String toString() {
+         return value();
+      }
+
+      public static DeliveryType fromValue(String type) {
+         return valueOf(type.toUpperCase());
+      }
+   }
 }
