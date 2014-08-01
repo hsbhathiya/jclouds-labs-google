@@ -21,14 +21,21 @@ import static org.testng.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRole;
-import org.jclouds.googlecloudstorage.domain.InitResumbleUpload;
+import org.jclouds.googlecloudstorage.domain.Bucket;
+import org.jclouds.googlecloudstorage.domain.ResumableUpload;
+import org.jclouds.googlecloudstorage.domain.templates.BucketTemplate;
 import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
 import org.jclouds.googlecloudstorage.domain.ObjectAccessControls;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiLiveTest;
 import org.jclouds.io.Payloads;
 import org.jclouds.io.payloads.ByteSourcePayload;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import com.google.common.io.ByteSource;
@@ -37,30 +44,36 @@ import com.google.common.io.Resources;
 
 public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
-   private static final String DESTINATION_BUCKET_NAME = "jcloudsresumableuploadbucket";
+   private static final String BUCKET_NAME = "resumableuploadbucket" + UUID.randomUUID();
    private static final String UPLOAD_OBJECT_NAME = "jcloudslogo.jpg";
    private static final String CHUNKED_OBJECT_NAME = "jclouds.pdf";
 
    private ResumableUploadApi api() {
       return api.getResumableUploadApi();
    }
+   @BeforeClass
+   private void createBucket() {
+      BucketTemplate template = new BucketTemplate().name(BUCKET_NAME);
+      Bucket bucket = api.getBucketApi().createBucket(PROJECT_NUMBER, template);
+      assertNotNull(bucket);
+   }
 
    @Test(groups = "live")
-   public void testResumableJpegUpload() throws IOException {
+   public void testResumableJpegUpload() throws IOException {    
 
       // Read Object
       ByteSource byteSource = Files.asByteSource(new File(Resources.getResource(getClass(), "/jcloudslogo.jpg")
                .getPath()));
 
       // Initialize resumableUpload with metadata. ObjectTemaplete must provide the name
-      ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(DESTINATION_BUCKET_NAME).entity("allUsers")
+      ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
                .role(ObjectRole.OWNER).build();
 
       ObjectTemplate template = new ObjectTemplate();
       template.contentType("image/jpeg").addAcl(oacl).size(Long.valueOf(byteSource.read().length + ""))
                .name(UPLOAD_OBJECT_NAME).contentLanguage("en").contentDisposition("attachment");
 
-      InitResumbleUpload initResponse = api().initResumableUpload(DESTINATION_BUCKET_NAME, "image/jpeg",
+      ResumableUpload initResponse = api().initResumableUpload(BUCKET_NAME, "image/jpeg",
                byteSource.read().length + "", template);
 
       assertNotNull(initResponse);
@@ -75,13 +88,13 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
 
       // Upload the payload
       ByteSourcePayload payload = Payloads.newByteSourcePayload(byteSource);
-      InitResumbleUpload uploadResponse = api().upload(DESTINATION_BUCKET_NAME, uploadId, "image/jpeg",
+      ResumableUpload uploadResponse = api().upload(BUCKET_NAME, uploadId, "image/jpeg",
                byteSource.read().length + "", payload);
 
       assertEquals(uploadResponse.getStatusCode().intValue(), 200);
 
       // CheckStatus
-      InitResumbleUpload status = api().checkStatus(DESTINATION_BUCKET_NAME, uploadId, "bytes */*");
+      ResumableUpload status = api().checkStatus(BUCKET_NAME, uploadId, "bytes */*");
 
       int code = status.getStatusCode();
       assert (code != 308);
@@ -92,18 +105,18 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
    public void testResumableChunkedUpload() throws IOException, InterruptedException {
 
       // Read Object
-      ByteSource byteSource = Files.asByteSource(new File(Resources.getResource(getClass(), "/jclouds.pdf")
+      ByteSource byteSource = Files.asByteSource(new File(Resources.getResource(getClass(), "/" +CHUNKED_OBJECT_NAME)
                .getPath()));
 
       // Initialize resumableUpload with metadata. ObjectTemaplete must provide the name
-      ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(DESTINATION_BUCKET_NAME).entity("allUsers")
+      ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
                .role(ObjectRole.OWNER).build();
 
       ObjectTemplate template = new ObjectTemplate();
       template.contentType("application/pdf").addAcl(oacl).size(Long.valueOf(byteSource.read().length + ""))
                .name(CHUNKED_OBJECT_NAME).contentLanguage("en").contentDisposition("attachment");
 
-      InitResumbleUpload initResponse = api().initResumableUpload(DESTINATION_BUCKET_NAME, "application/pdf",
+      ResumableUpload initResponse = api().initResumableUpload(BUCKET_NAME, "application/pdf",
                byteSource.read().length + "", template);
 
       assertNotNull(initResponse);
@@ -111,16 +124,10 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
       assertNotNull(initResponse.getUpload_id());
 
       // Get the upload_id for the session
-      //ResumableUploadResponseDecoder decoder = new ResumableUploadResponseDecoder(initResponse);
-
-     // assertNotNull(decoder.getUploadId());
       String uploadId = initResponse.getUpload_id();
 
-      // Upload the payload
-
-
       //Check the  status first          
-      InitResumbleUpload status = api().checkStatus(DESTINATION_BUCKET_NAME, uploadId, "bytes */*");
+      ResumableUpload status = api().checkStatus(BUCKET_NAME, uploadId, "bytes */*");
       int code = status.getStatusCode();
       assertEquals(code, 308);
       
@@ -135,7 +142,7 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
       long length = byteSource.slice(offset, chunkSize).size();
       String Content_Range = "bytes " + 0 + "-" + length + "/" + totalSize;
       
-      InitResumbleUpload uploadResponse = api().chunkUpload(DESTINATION_BUCKET_NAME, uploadId, "application/pdf",
+      ResumableUpload uploadResponse = api().chunkUpload(BUCKET_NAME, uploadId, "application/pdf",
                length + "", Content_Range, payload);
       
       int code2 = uploadResponse.getStatusCode();      
@@ -150,12 +157,20 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
       ByteSourcePayload payload2 = Payloads.newByteSourcePayload(byteSource.slice(uploaded+1, byteSource.read().length-uploaded-1));
       //Upload the 2nd chunk
       String Content_Range2 = "bytes " + (uploaded+1) + "-" + (totalSize-1) + "/" + totalSize;
-      InitResumbleUpload resumeResponse = api().chunkUpload(DESTINATION_BUCKET_NAME, uploadId, "application/pdf",
+      ResumableUpload resumeResponse = api().chunkUpload(BUCKET_NAME, uploadId, "application/pdf",
                resumeLength + "", Content_Range2, payload2);
       
       int code3 = resumeResponse.getStatusCode();      
       assert(code3 == 200 || code3 == 201);    //200 or 201 if upload succeeded 
- 
+      
+      
+   }
+   
+   @AfterClass
+   private void deleteObjectsandBucket() {
+      api.getObjectApi().deleteObject(BUCKET_NAME, UPLOAD_OBJECT_NAME);
+      api.getObjectApi().deleteObject(BUCKET_NAME, CHUNKED_OBJECT_NAME);
+      api.getBucketApi().deleteBucket(BUCKET_NAME);
    }
 
 }

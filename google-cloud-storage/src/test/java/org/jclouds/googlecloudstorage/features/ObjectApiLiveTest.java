@@ -22,16 +22,19 @@ import static org.testng.Assert.assertNotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.DestinationPredefinedAcl;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRole;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Projection;
+import org.jclouds.googlecloudstorage.domain.Bucket;
 import org.jclouds.googlecloudstorage.domain.GCSObject;
 import org.jclouds.googlecloudstorage.domain.ListPage;
 import org.jclouds.googlecloudstorage.domain.ObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.Resource.Kind;
+import org.jclouds.googlecloudstorage.domain.templates.BucketTemplate;
 import org.jclouds.googlecloudstorage.domain.templates.ComposeObjectTemplate;
 import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiLiveTest;
@@ -45,6 +48,8 @@ import org.jclouds.googlecloudstorage.options.UpdateObjectOptions;
 import org.jclouds.http.internal.PayloadEnclosingImpl;
 import org.jclouds.io.Payloads;
 import org.jclouds.io.payloads.ByteSourcePayload;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.beust.jcommander.internal.Sets;
@@ -58,13 +63,15 @@ import com.google.common.io.Resources;
 
 public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
-   private static final String BUCKET_NAME = "jcloudobjectoperations";// + (int) (Math.random() * 10000);
-   private static final String DESTINATION_BUCKET_NAME = "jcloudobjectdestination";
-   private static final String UPLOAD_OBJECT_NAME = "objectOperation2.txt";
+   private static final String BUCKET_NAME = "jcloudsobjectoperations" + UUID.randomUUID();
+   private static final String BUCKET_NAME2 = "jcloudobjectdestination" + UUID.randomUUID();
+   private static final String UPLOAD_OBJECT_NAME = "objectOperation.txt";
    private static final String UPLOAD_OBJECT_NAME2 = "jcloudslogo.jpg";
-   private static final String DESTINATION_OBJECT_NAME = "copyofObjectOperation.txt";
+   private static final String COPIED_OBJECT_NAME = "copyofObjectOperation.txt";
    private static final String COMPOSED_OBJECT = "ComposedObject1.txt";
    private static final String COMPOSED_OBJECT2 = "ComposedObject2.json";
+
+   private Long RANDOM_LONG = 100L;
 
    private Long metageneration;
    private Long generation;
@@ -73,10 +80,19 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    private ObjectApi api() {
       return api.getObjectApi();
    }
+   @BeforeClass
+   private void createBucket() {
+      BucketTemplate template = new BucketTemplate().name(BUCKET_NAME);
+      Bucket bucket = api.getBucketApi().createBucket(PROJECT_NUMBER, template);
+      assertNotNull(bucket);
+      
+      BucketTemplate template2 = new BucketTemplate().name(BUCKET_NAME2);
+      Bucket bucket2 = api.getBucketApi().createBucket(PROJECT_NUMBER, template2);
+      assertNotNull(bucket2);
+   }
 
    @Test(groups = "live")
    public void testSimpleUpload() throws IOException {
-
       String data = "Payload data";
 
       PayloadEnclosingImpl payload = new PayloadEnclosingImpl();
@@ -93,15 +109,14 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    }
 
-   @Test(groups = "live")
+   @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
    public void testSimpleJpegUpload() throws IOException {
-
-      ByteSource byteSource = Files.asByteSource(new File(Resources.getResource(getClass(), "/jcloudslogo.jpg")
+      ByteSource byteSource = Files.asByteSource(new File(Resources.getResource(getClass(), "/" + UPLOAD_OBJECT_NAME2)
                .getPath()));
 
       HashFunction hf = Hashing.md5();
       hc = hf.newHasher().putBytes(byteSource.read()).hash();
-      String md5 =BaseEncoding.base64().encode(hc.asBytes());
+      String md5 = BaseEncoding.base64().encode(hc.asBytes());
 
       ByteSourcePayload payload = Payloads.newByteSourcePayload(byteSource);
       InsertObjectOptions options = new InsertObjectOptions().name(UPLOAD_OBJECT_NAME2);
@@ -112,7 +127,7 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertNotNull(gcsObject);
       assertEquals(gcsObject.getBucket(), BUCKET_NAME);
       assertEquals(gcsObject.getName(), UPLOAD_OBJECT_NAME2);
-      assertEquals(gcsObject.getMd5Hash(), md5 ); //This is client side validation
+      assertEquals(gcsObject.getMd5Hash(), md5); // This is a client side validation
    }
 
    @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
@@ -131,7 +146,6 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    @Test(groups = "live", dependsOnMethods = "testGetObject")
    public void testGetObjectWithOptions() {
-
       GetObjectOptions options = new GetObjectOptions().ifGenerationMatch(generation)
                .ifMetagenerationMatch(metageneration).ifGenerationNotMatch(generation + 1).projection(Projection.FULL);
 
@@ -147,113 +161,87 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    @Test(groups = "live", dependsOnMethods = "testGetObject")
    public void testCopyObject() {
-
-      GCSObject gcsObject = api().copyObject(DESTINATION_BUCKET_NAME, DESTINATION_OBJECT_NAME, BUCKET_NAME,
-               UPLOAD_OBJECT_NAME);
+      GCSObject gcsObject = api().copyObject(BUCKET_NAME2, COPIED_OBJECT_NAME, BUCKET_NAME, UPLOAD_OBJECT_NAME);
 
       assertNotNull(gcsObject);
-      assertEquals(gcsObject.getBucket(), DESTINATION_BUCKET_NAME);
-      assertEquals(gcsObject.getName(), DESTINATION_OBJECT_NAME);
+      assertEquals(gcsObject.getBucket(), BUCKET_NAME2);
+      assertEquals(gcsObject.getName(), COPIED_OBJECT_NAME);
       assertEquals(gcsObject.getContentType(), "text/plain");
 
    }
 
    @Test(groups = "live", dependsOnMethods = "testCopyObject")
    public void testCopyObjectWithOptions() {
-
       CopyObjectOptions options = new CopyObjectOptions().ifSourceGenerationMatch(generation)
                .ifSourceMetagenerationMatch(metageneration).projection(Projection.FULL);
 
-      GCSObject gcsObject = api().copyObject(DESTINATION_BUCKET_NAME, UPLOAD_OBJECT_NAME, BUCKET_NAME,
-               UPLOAD_OBJECT_NAME, options);
+      GCSObject gcsObject = api()
+               .copyObject(BUCKET_NAME2, UPLOAD_OBJECT_NAME, BUCKET_NAME, UPLOAD_OBJECT_NAME, options);
 
       assertNotNull(gcsObject);
       assertNotNull(gcsObject.getAcl());
-      assertEquals(gcsObject.getBucket(), DESTINATION_BUCKET_NAME);
+      assertEquals(gcsObject.getBucket(), BUCKET_NAME2);
       assertEquals(gcsObject.getName(), UPLOAD_OBJECT_NAME);
       assertEquals(gcsObject.getContentType(), "text/plain");
-
    }
 
    @Test(groups = "live", dependsOnMethods = "testCopyObjectWithOptions")
    public void testComposeObject() {
-
       ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
                .role(ObjectRole.OWNER).build();
 
       ObjectTemplate destination = new ObjectTemplate().contentType("text/plain").addAcl(oacl);
       Set<GCSObject> sourceList = Sets.newHashSet();
-      sourceList.add(api().getObject(DESTINATION_BUCKET_NAME, UPLOAD_OBJECT_NAME));
-      sourceList.add(api().getObject(DESTINATION_BUCKET_NAME, DESTINATION_OBJECT_NAME));
+      sourceList.add(api().getObject(BUCKET_NAME2, UPLOAD_OBJECT_NAME));
+      sourceList.add(api().getObject(BUCKET_NAME2, COPIED_OBJECT_NAME));
 
       ComposeObjectTemplate requestTemplate = new ComposeObjectTemplate().sourceObjects(sourceList).destination(
                destination);
 
-      GCSObject gcsObject = api().composeObjects(DESTINATION_BUCKET_NAME, COMPOSED_OBJECT, requestTemplate);
+      GCSObject gcsObject = api().composeObjects(BUCKET_NAME2, COMPOSED_OBJECT, requestTemplate);
 
       assertNotNull(gcsObject);
       assertNotNull(gcsObject.getAcl());
-      assertEquals(gcsObject.getBucket(), DESTINATION_BUCKET_NAME);
+      assertEquals(gcsObject.getBucket(), BUCKET_NAME2);
       assertEquals(gcsObject.getName(), COMPOSED_OBJECT);
       assertEquals(gcsObject.getContentType(), "text/plain");
 
    }
 
-   @Test(groups = "live", dependsOnMethods = "testCopyObjectWithOptions")
+   @Test(groups = "live", dependsOnMethods = "testComposeObject")
    public void testComposeObjectWithOptions() {
-
       ObjectTemplate destination = new ObjectTemplate().contentType(MediaType.APPLICATION_JSON);
       Set<GCSObject> sourceList = Sets.newHashSet();
-      sourceList.add(api().getObject(DESTINATION_BUCKET_NAME, UPLOAD_OBJECT_NAME));
-      sourceList.add(api().getObject(DESTINATION_BUCKET_NAME, DESTINATION_OBJECT_NAME));
+      sourceList.add(api().getObject(BUCKET_NAME2, UPLOAD_OBJECT_NAME));
+      sourceList.add(api().getObject(BUCKET_NAME2, COPIED_OBJECT_NAME));
 
       ComposeObjectTemplate requestTemplate = new ComposeObjectTemplate().sourceObjects(sourceList).destination(
                destination);
 
       ComposeObjectOptions options = new ComposeObjectOptions().destinationPredefinedAcl(
-               DestinationPredefinedAcl.BUCKET_OWNER_READ).ifMetagenerationNotMatch(100L);
+               DestinationPredefinedAcl.BUCKET_OWNER_READ).ifMetagenerationNotMatch(RANDOM_LONG);
 
-      GCSObject gcsObject = api().composeObjects(DESTINATION_BUCKET_NAME, COMPOSED_OBJECT2, requestTemplate, options);
+      GCSObject gcsObject = api().composeObjects(BUCKET_NAME2, COMPOSED_OBJECT2, requestTemplate, options);
 
       assertNotNull(gcsObject);
       assertNotNull(gcsObject.getAcl());
-      assertEquals(gcsObject.getBucket(), DESTINATION_BUCKET_NAME);
+      assertEquals(gcsObject.getBucket(), BUCKET_NAME2);
       assertEquals(gcsObject.getName(), COMPOSED_OBJECT2);
       assertEquals(gcsObject.getContentType(), MediaType.APPLICATION_JSON);
 
    }
 
-   @Test(groups = "live", dependsOnMethods = "listObjects")
-   public void testDeleteObject() {
-
-      api().deleteObject(DESTINATION_BUCKET_NAME, UPLOAD_OBJECT_NAME);
-      api().deleteObject(DESTINATION_BUCKET_NAME, COMPOSED_OBJECT2);
-      api().deleteObject(DESTINATION_BUCKET_NAME, COMPOSED_OBJECT);
-
-   }
-
-   @Test(groups = "live", dependsOnMethods = "listObjects")
-   public void testDeleteObjectWithOptions() {
-      DeleteObjectOptions options = new DeleteObjectOptions().ifGenerationMatch(generation).ifMetagenerationMatch(
-               metageneration);
-
-      api().deleteObject(BUCKET_NAME, UPLOAD_OBJECT_NAME, options);
-   }
-
    @Test(groups = "live", dependsOnMethods = "testComposeObjectWithOptions")
    public void listObjects() {
-
       ListPage<GCSObject> list = api().listObjects(BUCKET_NAME);
 
       assertNotNull(list);
       assertEquals(list.get(0) instanceof GCSObject, true);
       assertEquals(list.getKind(), Kind.OBJECTS);
-
    }
 
    @Test(groups = "live", dependsOnMethods = "testComposeObjectWithOptions")
    public void testListObjectsWithOptions() {
-
       ListObjectOptions options = new ListObjectOptions().maxResults(1);
       ListPage<GCSObject> list = api().listObjects(BUCKET_NAME, options);
 
@@ -266,7 +254,6 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
          options = new ListObjectOptions().maxResults(1).pageToken(list.getNextPageToken());
          list = api().listObjects(BUCKET_NAME, options);
-
       }
    }
 
@@ -286,13 +273,14 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertEquals(gcsObject.getContentType(), "image/jpeg");
    }
 
-   @Test(groups = "live", dependsOnMethods = "testComposeObjectWithOptions")
+   @Test(groups = "live", dependsOnMethods = "testUpdateObject")
    public void testUpdateObjectWithOptions() {
 
       ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
                .role(ObjectRole.OWNER).build();
 
-      UpdateObjectOptions options = new UpdateObjectOptions().ifMetagenerationNotMatch(100L).ifGenerationNotMatch(100L);
+      UpdateObjectOptions options = new UpdateObjectOptions().ifMetagenerationNotMatch(RANDOM_LONG)
+               .ifGenerationNotMatch(RANDOM_LONG);
 
       ObjectTemplate template = new ObjectTemplate().addAcl(oacl).contentType("image/jpeg")
                .contentDisposition("attachment");
@@ -307,7 +295,7 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       // assertEquals(gcsObject.getMd5Hash(), hc.toString());
    }
 
-   @Test(groups = "live", dependsOnMethods = "testComposeObjectWithOptions")
+   @Test(groups = "live", dependsOnMethods = "testUpdateObjectWithOptions")
    public void testPatchObject() {
 
       ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
@@ -329,7 +317,8 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
                .role(ObjectRole.OWNER).build();
 
-      UpdateObjectOptions options = new UpdateObjectOptions().ifMetagenerationNotMatch(100L).ifGenerationNotMatch(100L);
+      UpdateObjectOptions options = new UpdateObjectOptions().ifMetagenerationNotMatch(RANDOM_LONG)
+               .ifGenerationNotMatch(RANDOM_LONG);
 
       ObjectTemplate template = new ObjectTemplate().addAcl(oacl).contentType("image/jpeg")
                .contentDisposition("attachment");
@@ -342,6 +331,30 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertEquals(gcsObject.getContentType(), "image/jpeg");
       assertEquals(gcsObject.getContentDisposition(), "attachment");
 
+   }
+
+   @Test(groups = "live", dependsOnMethods = "testPatchObjectsWithOptions")
+   public void testDeleteObject() {
+      api().deleteObject(BUCKET_NAME2, UPLOAD_OBJECT_NAME);
+      api().deleteObject(BUCKET_NAME2, COMPOSED_OBJECT2);
+      api().deleteObject(BUCKET_NAME2, COMPOSED_OBJECT);
+      api().deleteObject(BUCKET_NAME2, COPIED_OBJECT_NAME);
+      api().deleteObject(BUCKET_NAME, UPLOAD_OBJECT_NAME2);
+
+   }
+
+   @Test(groups = "live", dependsOnMethods = "testPatchObjectsWithOptions")
+   public void testDeleteObjectWithOptions() {
+      DeleteObjectOptions options = new DeleteObjectOptions().ifGenerationMatch(generation)
+               .ifMetagenerationMatch(metageneration);
+      api().deleteObject(BUCKET_NAME, UPLOAD_OBJECT_NAME, options);
+
+   }
+
+   @AfterClass
+   private void deleteBucket() {
+      api.getBucketApi().deleteBucket(BUCKET_NAME);
+      api.getBucketApi().deleteBucket(BUCKET_NAME2);
    }
 
    /*

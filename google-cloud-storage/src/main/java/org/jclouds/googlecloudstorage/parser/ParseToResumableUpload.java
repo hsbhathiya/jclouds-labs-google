@@ -19,15 +19,15 @@ package org.jclouds.googlecloudstorage.parser;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jclouds.googlecloudstorage.domain.InitResumbleUpload;
+import org.jclouds.googlecloudstorage.domain.ResumableUpload;
 import org.jclouds.http.HttpResponse;
 
 import com.google.common.base.Function;
 
-public class ParseToResumableUpload implements Function<HttpResponse, InitResumbleUpload> {
+public class ParseToResumableUpload implements Function<HttpResponse, ResumableUpload> {
 
    @Override
-   public InitResumbleUpload apply(HttpResponse response) {
+   public ResumableUpload apply(HttpResponse response) {
 
       String contentLength = response.getFirstHeaderOrNull("Content-Length");
       String session_uri = response.getFirstHeaderOrNull("Location");
@@ -44,7 +44,7 @@ public class ParseToResumableUpload implements Function<HttpResponse, InitResumb
       }
 
       
-      return InitResumbleUpload.builder().statusCode(response.getStatusCode()).contentLength(contentLength)
+      return ResumableUpload.builder().statusCode(response.getStatusCode()).contentLength(contentLength)
                .upload_id(uploadId).rangeUpperValue(upperLimit).rangeLowerValue(lowwerLimit).build();
    }
 

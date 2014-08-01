@@ -26,7 +26,7 @@ import com.google.common.base.Objects;
 /**
  * Represents results of resumable upload response.
  */
-public class InitResumbleUpload {
+public class ResumableUpload {
 
    protected final Integer statusCode;
    protected final String upload_id;
@@ -34,7 +34,7 @@ public class InitResumbleUpload {
    protected final Long rangeUpperValue;
    protected final Long rangeLowerValue;
 
-   private InitResumbleUpload(Integer statusCode, @Nullable String upload_Id, @Nullable String contentLength,
+   private ResumableUpload(Integer statusCode, @Nullable String upload_Id, @Nullable String contentLength,
             @Nullable Long rangeUpperValue, Long rangeLowerValue) {
       this.statusCode = checkNotNull(statusCode, "statusCode");
       this.upload_id = upload_Id;
@@ -116,12 +116,12 @@ public class InitResumbleUpload {
          return this;
       }
 
-      public InitResumbleUpload build() {
-         return new InitResumbleUpload(statusCode, upload_id, contentLength, rangeUpperValue, rangeLowerValue);
+      public ResumableUpload build() {
+         return new ResumableUpload(statusCode, upload_id, contentLength, rangeUpperValue, rangeLowerValue);
       }
 
       
-      public Builder fromResumableUpload(InitResumbleUpload in) {
+      public Builder fromResumableUpload(ResumableUpload in) {
          return this.statusCode(in.getStatusCode()).upload_id(in.getUpload_id()).contentLength(in.getContentLength())
                   .rangeUpperValue(in.getRangeUpperValue()).rangeLowerValue(in.getRangeLowerValue());
       }
