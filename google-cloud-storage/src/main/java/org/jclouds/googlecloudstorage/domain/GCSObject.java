@@ -21,13 +21,14 @@ import static com.google.common.base.Objects.equal;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.StorageClass;
-import org.jclouds.googlecloudstorage.domain.internal.Metadata;
 import org.jclouds.googlecloudstorage.domain.internal.Owner;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -48,8 +49,7 @@ public class GCSObject extends Resource {
    private final Long size;
    private final String md5Hash;
    private final String mediaLink;
-   //private final Multimap<String, String> metadata;
-   private final Metadata metadata;
+   private final Map<String, String> metadata; 
    private final String contentEncoding;
    private final String contentDisposition;
    private final String contentLanguage;
@@ -61,7 +61,7 @@ public class GCSObject extends Resource {
 
    private GCSObject(String id, URI selfLink, String etag, String name, String bucket, Long generation,
             Long metageneration, String contentType, Date updated, Date timeDeleted, StorageClass storageClass,
-            Long size, String md5Hash, String mediaLink, Metadata metadata, String contentEncoding,
+            Long size, String md5Hash, String mediaLink, Map<String, String> metadata, String contentEncoding,
             String contentDisposition, String contentLanguage, String cacheControl, Set<ObjectAccessControls> acl,
             Owner owner, String crc32c, Integer componentCount) {
       super(Kind.OBJECT, id, selfLink, etag);
@@ -76,7 +76,7 @@ public class GCSObject extends Resource {
       this.size = size;
       this.md5Hash = md5Hash;
       this.mediaLink = mediaLink;
-      this.metadata = metadata;
+      this.metadata  = (metadata == null) ? ImmutableMap.<String, String>of() : metadata;
       this.contentEncoding = contentEncoding;
       this.contentDisposition = contentDisposition;
       this.contentLanguage = contentLanguage;
@@ -131,7 +131,7 @@ public class GCSObject extends Resource {
       return mediaLink;
    }
 
-   public Metadata getMetadata() {
+   public Map<String, String> getAllMetadata() {
       return this.metadata;
    }
 
@@ -215,8 +215,7 @@ public class GCSObject extends Resource {
       private Long size;
       private String md5Hash;
       private String mediaLink;
-      //private Multimap<String, String> metadata = LinkedHashMultimap.create();
-      private Metadata metadata;
+      private ImmutableMap.Builder<String, String> metadata = ImmutableMap.builder();
       private String contentEncoding;
       private String contentDisposition;
       private String contentLanguage;
@@ -246,15 +245,15 @@ public class GCSObject extends Resource {
          return this;
       }
 
-      public Builder metadata(Metadata metadata) {
-         this.metadata = metadata;
+      public Builder customMetadata(Map<String, String> metadata) {
+         this.metadata.putAll(metadata);
          return this;
       }
 
-  /*    public Builder addCustomMetadata(String key, String value) {
+      public Builder addCustomMetadata(String key, String value) {
          this.metadata.put(key, value);
          return this;
-      }*/
+      }
 
       public Builder size(Long size) {
          this.size = size;
@@ -343,7 +342,7 @@ public class GCSObject extends Resource {
 
       public GCSObject build() {
          return new GCSObject(super.id, super.selfLink, super.etag, name, bucket, generation, metageneration,
-                  contentType, updated, timeDeleted, storageClass, size, md5Hash, mediaLink, metadata, contentEncoding,
+                  contentType, updated, timeDeleted, storageClass, size, md5Hash, mediaLink, metadata.build(), contentEncoding,
                   contentDisposition, contentLanguage, cacheControl, acl.build(), owner, crc32c, componentCount);
       }
 
@@ -354,7 +353,7 @@ public class GCSObject extends Resource {
                   .md5Hash(in.getMd5Hash()).mediaLink(in.getMediaLink()).timeDeleted(in.getTimeDeleted())
                   .cacheControl(in.getCacheControl()).crc32c(in.getCrc32c()).size(in.getSize())
                   .contentType(in.getContentType()).acl(in.getAcl()).owner(in.getOwner())
-                  .storageClass(in.getStorageClass());
+                  .storageClass(in.getStorageClass()).customMetadata(in.getAllMetadata());
       }
    }
 

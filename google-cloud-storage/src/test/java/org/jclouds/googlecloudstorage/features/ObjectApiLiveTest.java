@@ -21,11 +21,13 @@ import static org.testng.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Set;
 import java.util.UUID;
 
 import javax.ws.rs.core.MediaType;
 
+import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.DeliveryType;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.DestinationPredefinedAcl;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRole;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Projection;
@@ -33,9 +35,11 @@ import org.jclouds.googlecloudstorage.domain.Bucket;
 import org.jclouds.googlecloudstorage.domain.GCSObject;
 import org.jclouds.googlecloudstorage.domain.ListPage;
 import org.jclouds.googlecloudstorage.domain.ObjectAccessControls;
+import org.jclouds.googlecloudstorage.domain.ObjectChangeNotification;
 import org.jclouds.googlecloudstorage.domain.Resource.Kind;
 import org.jclouds.googlecloudstorage.domain.templates.BucketTemplate;
 import org.jclouds.googlecloudstorage.domain.templates.ComposeObjectTemplate;
+import org.jclouds.googlecloudstorage.domain.templates.ObjectChangeNotificationTemplate;
 import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiLiveTest;
 import org.jclouds.googlecloudstorage.options.ComposeObjectOptions;
@@ -80,17 +84,74 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    private ObjectApi api() {
       return api.getObjectApi();
    }
+
+   //Create the buckets
    @BeforeClass
    private void createBucket() {
       BucketTemplate template = new BucketTemplate().name(BUCKET_NAME);
       Bucket bucket = api.getBucketApi().createBucket(PROJECT_NUMBER, template);
       assertNotNull(bucket);
-      
+
       BucketTemplate template2 = new BucketTemplate().name(BUCKET_NAME2);
       Bucket bucket2 = api.getBucketApi().createBucket(PROJECT_NUMBER, template2);
       assertNotNull(bucket2);
    }
+   
+ //Enable ObjectChangeNotifiactions for the buckets
+   @Test(groups = "live")
+   public void testWatchAllObjects() {
 
+      String address = "";
+      String id = "";
+      String resourceId = "";
+      String resourceUri = "";
+      String token = "";
+      Long expiration = new Long(100);
+
+      ObjectChangeNotificationTemplate template = new ObjectChangeNotificationTemplate().id(id)
+               .address(URI.create(address)).resourceId(resourceId).resourceUri(URI.create(resourceUri))
+               .type(DeliveryType.WEB_HOOK).expiration(expiration).payload(true).token(token);
+      
+      ListObjectOptions options = new ListObjectOptions().maxResults(2);
+      
+      ObjectChangeNotification notify = api.getObjectChangeNNotificationApi().watchAllObjects(BUCKET_NAME, template,options);
+
+      assertNotNull(notify);
+      assertEquals(template.getPayload(), Boolean.TRUE);
+      assertEquals(template.getToken(), token);
+      assertEquals(template.getId(), id);
+      assertEquals(template.getExpiration(), expiration);
+      assertEquals(template.getResourceUri().toString(), resourceUri);
+   }
+
+   
+   @Test(groups = "live")
+   public void testWatchAllObjectsWithOptions() {
+
+      String address = "";
+      String id = "";
+      String resourceId = "";
+      String resourceUri = "";
+      String token = "";
+      Long expiration = new Long(100);
+
+      ObjectChangeNotificationTemplate template = new ObjectChangeNotificationTemplate().id(id)
+               .address(URI.create(address)).resourceId(resourceId).resourceUri(URI.create(resourceUri))
+               .type(DeliveryType.WEB_HOOK).expiration(expiration).payload(true).token(token);
+      
+      ListObjectOptions options = new ListObjectOptions().maxResults(2);
+      
+      ObjectChangeNotification notify = api.getObjectChangeNNotificationApi().watchAllObjects(BUCKET_NAME, template,options);
+
+      assertNotNull(notify);
+      assertEquals(template.getPayload(), Boolean.TRUE);
+      assertEquals(template.getToken(), token);
+      assertEquals(template.getId(), id);
+      assertEquals(template.getExpiration(), expiration);
+      assertEquals(template.getResourceUri().toString(), resourceUri);
+   }
+
+   //Object Operations
    @Test(groups = "live")
    public void testSimpleUpload() throws IOException {
       String data = "Payload data";
@@ -276,6 +337,9 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    @Test(groups = "live", dependsOnMethods = "testUpdateObject")
    public void testUpdateObjectWithOptions() {
 
+      String METADATA_KEY = "key1";
+      String METADATA_VALUE = "value1";
+
       ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
                .role(ObjectRole.OWNER).build();
 
@@ -283,7 +347,7 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
                .ifGenerationNotMatch(RANDOM_LONG);
 
       ObjectTemplate template = new ObjectTemplate().addAcl(oacl).contentType("image/jpeg")
-               .contentDisposition("attachment");
+               .contentDisposition("attachment").customMetadata(METADATA_KEY, METADATA_VALUE);
       GCSObject gcsObject = api().updateObject(BUCKET_NAME, UPLOAD_OBJECT_NAME2, template, options);
 
       assertNotNull(gcsObject);
@@ -291,8 +355,9 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertEquals(gcsObject.getBucket(), BUCKET_NAME);
       assertEquals(gcsObject.getName(), UPLOAD_OBJECT_NAME2);
       assertEquals(gcsObject.getContentType(), "image/jpeg");
+      assertNotNull(gcsObject.getAllMetadata());
+      assertNotNull(gcsObject.getAllMetadata().get(METADATA_KEY), METADATA_VALUE);
 
-      // assertEquals(gcsObject.getMd5Hash(), hc.toString());
    }
 
    @Test(groups = "live", dependsOnMethods = "testUpdateObjectWithOptions")
@@ -345,35 +410,38 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    @Test(groups = "live", dependsOnMethods = "testPatchObjectsWithOptions")
    public void testDeleteObjectWithOptions() {
-      DeleteObjectOptions options = new DeleteObjectOptions().ifGenerationMatch(generation)
-               .ifMetagenerationMatch(metageneration);
+      DeleteObjectOptions options = new DeleteObjectOptions().ifGenerationMatch(generation).ifMetagenerationMatch(
+               metageneration);
       api().deleteObject(BUCKET_NAME, UPLOAD_OBJECT_NAME, options);
 
    }
+   
+   //Stop the channel
+   @Test(groups = "live", dependsOnMethods = "testDeleteObjectWithOptions")
+   public void testStopChannel() {
+      
+      String address = "";
+      String id = "";
+      String resourceId = "";
+      String resourceUri = "";
+      String token = "";
+      Long expiration = new Long(100);
+
+      ObjectChangeNotificationTemplate template = new ObjectChangeNotificationTemplate().id(id)
+               .address(URI.create(address)).resourceId(resourceId).resourceUri(URI.create(resourceUri))
+               .type(DeliveryType.WEB_HOOK).expiration(expiration).payload(true).token(token);
+      
+     api.getObjectChangeNNotificationApi().stop(template);
+
+   }
+   
 
    @AfterClass
    private void deleteBucket() {
       api.getBucketApi().deleteBucket(BUCKET_NAME);
       api.getBucketApi().deleteBucket(BUCKET_NAME2);
    }
-
-   /*
-    * @Test(groups = "live", dependsOnMethods = "testPatchObject") public void testWatchAllObjectsWithOptions() {
-    * 
-    * String address = ""; String id = ""; String resourceId = ""; String resourceUri = ""; String token = ""; Long
-    * expiration = new Long(100);
-    * 
-    * WatchAllTemplate template = WatchAllTemplate.builder().id(id).address(URI.create(address)).resourceId(resourceId)
-    * .resourceUri(URI.create(resourceUri)).type(DeliveryType.WEB_HOOK).expiration(expiration).payload(true)
-    * .token(token).build();
-    * 
-    * assertNotNull(template); assertEquals(template.getPayload(), Boolean.TRUE); assertEquals(template.getToken(),
-    * token); assertEquals(template.getId(), id); assertEquals(template.getExpiration(), expiration);
-    * assertEquals(template.getResourceUri().toString(), resourceUri);
-    * 
-    * 
-    * 
-    * }
-    */
+   
+   
 
 }

@@ -98,7 +98,6 @@ public class BucketTemplate {
    }
 
    public BucketTemplate acl(Set<BucketAccessControls> acl) {
-
       this.acl.addAll(acl);
       return this;
    }

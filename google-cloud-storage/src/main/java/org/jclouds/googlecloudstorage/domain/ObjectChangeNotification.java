@@ -20,19 +20,19 @@ package org.jclouds.googlecloudstorage.domain;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.net.URI;
+import java.util.Map;
 
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.DeliveryType;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * This supports object change notification settings
- *
+ * 
  * @see <a href = "https://developers.google.com/storage/docs/json_api/v1/objects/watchAll"/>
  */
-public class WatchAll {
+public class ObjectChangeNotification {
 
    private final String kind;
    private final String id;
@@ -43,11 +43,10 @@ public class WatchAll {
    private final DeliveryType type;
    private final URI address;
    private final Boolean payload;
-   private final Multimap <String,String> params;
-   
+   private final Map<String, String> params;
 
-   private WatchAll(String id, String resourceId, URI resourceUri, DeliveryType type, URI address, String token,
-            Long expiration, Boolean payload , Multimap<String, String> params ) {
+   private ObjectChangeNotification(String id, String resourceId, URI resourceUri, DeliveryType type, URI address, String token,
+            Long expiration, Boolean payload, Map<String, String> params) {
 
       this.kind = "api#channel";
       this.id = checkNotNull(id, "id");
@@ -58,7 +57,8 @@ public class WatchAll {
       this.token = token;
       this.payload = payload;
       this.expiration = expiration;
-      this.params = params; 
+      this.params = (params == null) ? ImmutableMap.<String, String> of() : params;
+      ;
    }
 
    public String getKind() {
@@ -69,7 +69,7 @@ public class WatchAll {
       return id;
    }
 
-   public Multimap<String, String> getParams() {
+   public Map<String, String> getAllParams() {
       return params;
    }
 
@@ -101,7 +101,6 @@ public class WatchAll {
       return payload;
    }
 
-   
    @Override
    public int hashCode() {
       final int prime = 31;
@@ -126,7 +125,7 @@ public class WatchAll {
          return false;
       if (getClass() != obj.getClass())
          return false;
-      WatchAll other = (WatchAll) obj;
+      ObjectChangeNotification other = (ObjectChangeNotification) obj;
       if (address == null) {
          if (other.address != null)
             return false;
@@ -201,7 +200,7 @@ public class WatchAll {
       private DeliveryType type;
       private URI address;
       private Boolean payload;
-      private Multimap<String, String> params = LinkedHashMultimap.create();
+      private ImmutableMap.Builder<String, String> params = ImmutableMap.builder();
 
       public Builder id(String id) {
          this.id = id;
@@ -241,24 +240,28 @@ public class WatchAll {
       public Builder payload(Boolean payload) {
          this.payload = payload;
          return this;
-      }     
-
-      public Builder params(Multimap<String, String> params) {
-         this.params = params;
-         return this;
       }
-      
-      public Builder addParam(String key , String value) {
+
+      public Builder addParams(String key, String value) {
          this.params.put(key, value);
          return this;
       }
-      
 
-      public WatchAll build() {
-         return new WatchAll(id, resourceId, resourceUri, type, address, token, expiration, payload, params);
+      public Builder addParams(Map<String, String> params) {
+         this.params.putAll(params);
+         return this;
       }
 
-      public Builder fromWatchAll(WatchAll in) {
+      public Builder addParam(String key, String value) {
+         this.params.put(key, value);
+         return this;
+      }
+
+      public ObjectChangeNotification build() {
+         return new ObjectChangeNotification(id, resourceId, resourceUri, type, address, token, expiration, payload, params.build());
+      }
+
+      public Builder fromWatchAll(ObjectChangeNotification in) {
          return this.id(in.getId()).resourceId(in.getResourceId()).resourceUri(in.getResourceUri())
                   .address(in.getAddress()).expiration(in.getExpiration()).payload(in.getPayload()).type(in.getType())
                   .token(in.getToken());

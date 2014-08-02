@@ -37,7 +37,7 @@ import org.jclouds.googlecloudstorage.binders.MultipartUploadBinder;
 import org.jclouds.googlecloudstorage.binders.SimpleUploadBinder;
 import org.jclouds.googlecloudstorage.domain.GCSObject;
 import org.jclouds.googlecloudstorage.domain.ListPage;
-import org.jclouds.googlecloudstorage.domain.WatchAll;
+import org.jclouds.googlecloudstorage.domain.ObjectChangeNotification;
 import org.jclouds.googlecloudstorage.domain.templates.ComposeObjectTemplate;
 import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
 import org.jclouds.googlecloudstorage.options.ComposeObjectOptions;
@@ -437,28 +437,4 @@ public interface ObjectApi {
             @PathParam("destinationObject") String destinationObject, @PathParam("sourceBucket") String sourceBucket,
             @PathParam("sourceObject") String sourceObject, CopyObjectOptions options);
 
-   // Need Changes
-
-   /**
-    * Retrieves a list of objects matching the criteria.
-    * 
-    * @param bucketName
-    *           Name of the bucket in which to look for objects.
-    * @param watchAlltemplate
-    *           Supply an {@link WatchAll}
-    * @param options
-    *           Supply {@link ListObjectOptions} with options
-    * 
-    * @return a {@link WatchAll}
-    */
-   @Named("Object:list")
-   @POST
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Produces(MediaType.APPLICATION_JSON)
-   @Path("storage/v1/b/{bucket}/o")
-   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @Fallback(NullOnNotFoundOr404.class)
-   @Nullable
-   WatchAll watchAllObjects(@PathParam("bucket") String bucketName,
-            @PayloadParam("template") WatchAll watchAlltemplate, ListObjectOptions options);
 }

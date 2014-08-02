@@ -42,6 +42,7 @@ public class GoogleCloudStorageParserModule extends AbstractModule {
    @Override
    protected void configure() {
       bind(DateAdapter.class).to(Iso8601DateAdapter.class);
+      
    }
 
    @Provides

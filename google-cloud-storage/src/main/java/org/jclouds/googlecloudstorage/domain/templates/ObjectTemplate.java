@@ -17,13 +17,13 @@
 
 package org.jclouds.googlecloudstorage.domain.templates;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.jclouds.googlecloudstorage.domain.ObjectAccessControls;
 import org.jclouds.googlecloudstorage.reference.Crc32c;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.hash.HashCode;
 import com.google.common.io.BaseEncoding;
@@ -40,7 +40,7 @@ public class ObjectTemplate {
    protected String contentType;
    protected String crc32c;
    protected String md5Hash;
-   private Multimap<String, String> metadata = LinkedHashMultimap.create();
+   private Map<String, String> metadata = Maps.newHashMap();
    protected Set<ObjectAccessControls> acl = Sets.newHashSet();
 
    public ObjectTemplate name(String name) {
@@ -83,13 +83,13 @@ public class ObjectTemplate {
       return this;
    }
 
-   public ObjectTemplate customMetadata(Multimap<String, String> metadata) {
+   public ObjectTemplate customMetadata(Map<String, String> metadata) {
       this.metadata = metadata;
       return this;
    }
 
-   public ObjectTemplate addCustomMetadata(Multimap<String, String> metadata) {
-      this.metadata = metadata;
+   public ObjectTemplate customMetadata(String key , String value) {
+      this.metadata.put(key, value);
       return this;
    }
 
@@ -163,7 +163,7 @@ public class ObjectTemplate {
       return md5Hash;
    }
 
-   public Multimap<String, String> getAllCustomMetadata() {
+   public Map<String, String> getAllCustomMetadata() {
       return metadata;
    }
 
