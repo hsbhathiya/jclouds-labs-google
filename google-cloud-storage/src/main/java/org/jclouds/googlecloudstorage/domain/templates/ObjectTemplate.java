@@ -104,15 +104,12 @@ public class ObjectTemplate {
       return this;
    }
 
-   private String calcCrc32c(byte[] bArray) {
+   private String calcCrc32c(byte[] bArray) {      
       Crc32c crc32c = new Crc32c();
-      crc32c.update(bArray, 0, bArray.length);
+      crc32c.update(bArray, 0, bArray.length-1);
       long crcValue = crc32c.getValue();
-      
-      String encodedString = BaseEncoding.base64().encode(String.valueOf(crcValue).getBytes());
-
-      return encodedString;
-   }
+      return new String(BaseEncoding.base64().encode(String.valueOf(crcValue).getBytes()));
+  }
 
    public ObjectTemplate md5Hash(HashCode md5Hash) {
       this.md5Hash = BaseEncoding.base64().encode(md5Hash.asBytes());

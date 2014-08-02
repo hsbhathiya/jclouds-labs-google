@@ -123,6 +123,7 @@ public class GCSObject extends Resource {
       return size;
    }
 
+   /**return the base64 encoded String of md5*/
    public String getMd5Hash() {
       return md5Hash;
    }
@@ -159,6 +160,7 @@ public class GCSObject extends Resource {
       return owner;
    }
 
+   /**return the base64 encoded String of crc32c*/
    public String getCrc32c() {
       return crc32c;
    }
@@ -270,6 +272,7 @@ public class GCSObject extends Resource {
          return this;
       }
 
+      /**Requires base64 encoded crc32c string*/
       public Builder md5Hash(String md5Hash) {
          this.md5Hash = md5Hash;
          return this;
@@ -329,7 +332,8 @@ public class GCSObject extends Resource {
          this.acl.addAll(acl);
          return this;
       }
-
+      
+      /**Requires base64 encoded crc32c string*/
       public Builder crc32c(String crc32c) {
          this.crc32c = crc32c;
          return this;

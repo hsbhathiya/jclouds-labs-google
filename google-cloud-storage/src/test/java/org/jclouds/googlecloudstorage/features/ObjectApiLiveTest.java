@@ -49,6 +49,7 @@ import org.jclouds.googlecloudstorage.options.GetObjectOptions;
 import org.jclouds.googlecloudstorage.options.InsertObjectOptions;
 import org.jclouds.googlecloudstorage.options.ListObjectOptions;
 import org.jclouds.googlecloudstorage.options.UpdateObjectOptions;
+import org.jclouds.googlecloudstorage.reference.Crc32c;
 import org.jclouds.http.internal.PayloadEnclosingImpl;
 import org.jclouds.io.Payloads;
 import org.jclouds.io.payloads.ByteSourcePayload;
@@ -57,6 +58,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.beust.jcommander.internal.Sets;
+import com.google.common.base.Charsets;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
@@ -173,11 +175,7 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
    public void testSimpleJpegUpload() throws IOException {
       ByteSource byteSource = Files.asByteSource(new File(Resources.getResource(getClass(), "/" + UPLOAD_OBJECT_NAME2)
-               .getPath()));
-
-      HashFunction hf = Hashing.md5();
-      hc = hf.newHasher().putBytes(byteSource.read()).hash();
-      String md5 = BaseEncoding.base64().encode(hc.asBytes());
+               .getPath()));     
 
       ByteSourcePayload payload = Payloads.newByteSourcePayload(byteSource);
       InsertObjectOptions options = new InsertObjectOptions().name(UPLOAD_OBJECT_NAME2);
@@ -188,7 +186,23 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertNotNull(gcsObject);
       assertEquals(gcsObject.getBucket(), BUCKET_NAME);
       assertEquals(gcsObject.getName(), UPLOAD_OBJECT_NAME2);
-      assertEquals(gcsObject.getMd5Hash(), md5); // This is a client side validation
+      
+   // This is a client side validation  of md5
+      //Md5 Hash
+      HashFunction hf = Hashing.md5();
+      hc = hf.newHasher().putBytes(byteSource.read()).hash();
+      String md5 = BaseEncoding.base64().encode(hc.asBytes());
+      
+      assertEquals(gcsObject.getMd5Hash(), md5); //Assertion works
+      
+      //crc32c validation
+      Crc32c crc32c = new Crc32c();
+      crc32c.update(byteSource.read(), 0, byteSource.read().length);
+      long crcValue = crc32c.getValue();
+      byte[] bArray = String.valueOf(crcValue).getBytes(Charsets.US_ASCII);
+      String encodedCrc =  new String(BaseEncoding.base64().encode(bArray));
+      
+      assertEquals(gcsObject.getCrc32c(), encodedCrc); //Assertion fails
    }
 
    @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
