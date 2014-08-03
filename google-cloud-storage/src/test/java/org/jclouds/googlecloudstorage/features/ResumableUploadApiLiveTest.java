@@ -101,7 +101,7 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
 
    }
 
-   @Test(groups = "live")
+ /*@Test(groups = "live")
    public void testResumableChunkedUpload() throws IOException, InterruptedException {
 
       // Read Object
@@ -164,7 +164,7 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
       assert(code3 == 200 || code3 == 201);    //200 or 201 if upload succeeded 
       
       
-   }
+   }*/
    
    @AfterClass
    private void deleteObjectsandBucket() {

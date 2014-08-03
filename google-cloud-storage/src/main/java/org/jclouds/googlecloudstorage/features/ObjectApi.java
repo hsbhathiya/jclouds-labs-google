@@ -161,7 +161,7 @@ public interface ObjectApi {
     * 
     * @return If successful, this method returns a {@link GCSObject} resource.
     */
-   
+  
    @Named("Object:multipartUpload")
    @POST
    @QueryParams(keys = "uploadType", values = "multipart")
