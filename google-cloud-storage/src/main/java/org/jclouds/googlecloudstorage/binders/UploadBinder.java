@@ -22,7 +22,7 @@ import org.jclouds.http.HttpRequest;
 import org.jclouds.io.Payload;
 import org.jclouds.rest.MapBinder;
 
-public class SimpleUploadBinder implements MapBinder {
+public class UploadBinder implements MapBinder {
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams)

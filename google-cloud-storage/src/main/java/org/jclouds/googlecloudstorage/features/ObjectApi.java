@@ -34,10 +34,9 @@ import javax.ws.rs.core.MediaType;
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
 import org.jclouds.googlecloudstorage.binders.ComposeObjectBinder;
 import org.jclouds.googlecloudstorage.binders.MultipartUploadBinder;
-import org.jclouds.googlecloudstorage.binders.SimpleUploadBinder;
+import org.jclouds.googlecloudstorage.binders.UploadBinder;
 import org.jclouds.googlecloudstorage.domain.GCSObject;
 import org.jclouds.googlecloudstorage.domain.ListPage;
-import org.jclouds.googlecloudstorage.domain.ObjectChangeNotification;
 import org.jclouds.googlecloudstorage.domain.templates.ComposeObjectTemplate;
 import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
 import org.jclouds.googlecloudstorage.options.ComposeObjectOptions;
@@ -60,15 +59,9 @@ import org.jclouds.rest.annotations.RequestFilters;
 import org.jclouds.rest.annotations.SkipEncoding;
 import org.jclouds.rest.annotations.QueryParams;
 import org.jclouds.rest.binders.BindToJsonPayload;
-
-/*Multipart Upload 
- * 
- * Separate watchAllTemaplete and Watch All, add params to watchAll 
- */
-
 /**
  * Provides access to Object entities via their REST API.
- * 
+ *
  * @see <a href = " https://developers.google.com/storage/docs/json_api/v1/objects"/>
  */
 
@@ -78,12 +71,12 @@ public interface ObjectApi {
 
    /**
     * Retrieve an object or their metadata
-    * 
+    *
     * @param bucketName
     *           Name of the bucket in which the object resides
     * @param objectName
     *           Name of the object
-    * 
+    *
     * @return a {@link Object} resource
     */
    @Named("Object:get")
@@ -98,15 +91,15 @@ public interface ObjectApi {
 
    /**
     * Retrieves objects or their metadata
-    * 
+    *
     * @param bucketName
     *           Name of the bucket in which the object resides
     * @param objectName
     *           Name of the object
     * @param options
     *           Supply {@link GetObjectOptions} with optional query parameters
-    * 
-    * @return a {@link GCSObject} resource
+    *
+    * @return a {@link GCSObject}
     */
    @Named("Object:get")
    @GET
@@ -120,18 +113,16 @@ public interface ObjectApi {
             GetObjectOptions options);
 
    /**
-    * Stores a new object
-    * 
+    * Stores a new object.Bject metadata setting is not supported with simple uploads
+    *
     * @see https://developers.google.com/storage/docs/json_api/v1/how-tos/upload#simple
-    * 
+    *
     * @param bucketName
     *           Name of the bucket in which the object to be stored
-    * @param objectTemplate
-    *           Supply {@link ObjectTemplate} with optional query parameters.
     * @param options
-    *           Supply {@link InsertObjectOptions} with optional query parameters. 'name' is mandatory.
-    * 
-    * @return If successful, this method returns a {@link GCSObject} resource.
+    *           Supply an {@link InsertObjectOptions}. 'name' should not null.
+    *
+    * @return a {@link GCSObject}
     */
    @Named("Object:simpleUpload")
    @POST
@@ -139,33 +130,27 @@ public interface ObjectApi {
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/upload/storage/v1/b/{bucket}/o")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @MapBinder(SimpleUploadBinder.class)
+   @MapBinder(UploadBinder.class)
    GCSObject simpleUpload(@PathParam("bucket") String bucketName, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Content-Length") String contentLength, @PayloadParam("payload") Payload payload,
             InsertObjectOptions Options);
 
-   // Not Functioning. Add ResponseParser ?
    /**
-    * Stores a new object with metadata
-    * 
-    * @see https://developers.google.com/storage/docs/json_api/v1/how-tos/upload#simple
-    * 
+    * Stores a new object with metadata.
+    *
+    * @see https://developers.google.com/storage/docs/json_api/v1/how-tos/upload#multipart
+    *
     * @param bucketName
     *           Name of the bucket in which the object to be stored
-    * @param uploadType
-    *           The type of upload request.
     * @param objectTemplate
-    *           Supply {@link ObjectTemplate} with optional query parameters.
-    * @param options
-    *           Supply {@link InsertObjectOptions} with optional query parameters. 'name' is mandatory.
-    * 
-    * @return If successful, this method returns a {@link GCSObject} resource.
+    *           Supply an {@link ObjectTemplate}.
+    *
+    * @return a {@link GCSObject}
     */
   
    @Named("Object:multipartUpload")
    @POST
    @QueryParams(keys = "uploadType", values = "multipart")
-   //@Consumes("multipart/related")
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/upload/storage/v1/b/{bucket}/o")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
@@ -175,7 +160,7 @@ public interface ObjectApi {
 
    /**
     * Deletes an object and its metadata. Deletions are permanent if versioning is not enabled.
-    * 
+    *
     * @param bucketName
     *           Name of the bucket in which the object to be deleted resides
     * @param objectName
@@ -186,14 +171,13 @@ public interface ObjectApi {
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("storage/v1/b/{bucket}/o/{object}")
    @OAuthScopes(STORAGE_WRITEONLY_SCOPE)
-   @Fallback(NullOnNotFoundOr404.class)
    @Nullable
    void deleteObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName);
 
    /**
     * Deletes an object and its metadata. Deletions are permanent if versioning is not enabled for the bucket, or if the
     * generation parameter is used.
-    * 
+    *
     * @param bucketName
     *           Name of the bucket in which the object to be deleted resides
     * @param objectName
@@ -206,17 +190,16 @@ public interface ObjectApi {
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("storage/v1/b/{bucket}/o/{object}")
    @OAuthScopes(STORAGE_WRITEONLY_SCOPE)
-   @Fallback(NullOnNotFoundOr404.class)
    @Nullable
    void deleteObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
             DeleteObjectOptions options);
 
    /**
     * Retrieves a list of objects matching the criteria.
-    * 
+    *
     * @param bucketName
     *           Name of the bucket in which to look for objects.
-    * 
+    *
     * @return a {@link ListPage<Object>}
     */
    @Named("Object:list")
@@ -231,10 +214,11 @@ public interface ObjectApi {
 
    /**
     * Retrieves a list of objects matching the criteria.
-    * 
+    *
     * @param bucketName
     *           Name of the bucket in which to look for objects.
-    * 
+    * @param options
+    *          Supply {@link ListObjectOptions}
     * @return a {@link ListPage<GCSObject>}
     */
    @Named("Object:list")
@@ -248,16 +232,16 @@ public interface ObjectApi {
    ListPage<GCSObject> listObjects(@PathParam("bucket") String bucketName, ListObjectOptions options);
 
    /**
-    * Updates an object
-    * 
+    * Updates an object metadata
+    *
     * @param bucketName
     *           Name of the bucket in which the object resides
     * @param objectName
     *           Name of the object
     * @param objectTemplate
-    *           Supply {@link ObjectTemplate} with optional query parameters
-    * 
-    * @return If successful, this method returns the updated {@link GCSObject} resource.
+    *           Supply  an {@link ObjectTemplate} 
+    *
+    * @return a {@link GCSObject}
     */
    @Named("Object:update")
    @PUT
@@ -271,17 +255,17 @@ public interface ObjectApi {
 
    /**
     * Updates an object
-    * 
+    *
     * @param bucketName
     *           Name of the bucket in which the object resides
     * @param objectName
     *           Name of the object
     * @param objectTemplate
-    *           Supply {@link ObjectTemplate} with optional query parameters
+    *           Supply an{@link ObjectTemplate}
     * @param options
     *           Supply {@link UpdateObjectOptions} with optional query parameters
-    * 
-    * @return The updated {@link GCSObject} .
+    *
+    * @return a {@link GCSObject} .
     */
    @Named("Object:update")
    @PUT
@@ -295,15 +279,15 @@ public interface ObjectApi {
 
    /**
     * Updates an object according to patch semantics
-    * 
+    *
     * @param bucketName
     *           Name of the bucket in which the object resides
     * @param objectName
     *           Name of the object
     * @param objectTemplate
     *           Supply {@link ObjectTemplate} with optional query parameters
-    * 
-    * @return If successful, this method returns the updated {@link GCSObject} resource.
+    *
+    * @return  a {@link GCSObject} 
     */
    @Named("Object:patch")
    @PATCH
@@ -317,7 +301,7 @@ public interface ObjectApi {
 
    /**
     * Updates an object according to patch semantics
-    * 
+    *
     * @param bucketName
     *           Name of the bucket in which the object resides
     * @param objectName
@@ -326,8 +310,8 @@ public interface ObjectApi {
     *           Supply {@link ObjectTemplate} with optional query parameters
     * @param options
     *           Supply {@link UpdateObjectOptions} with optional query parameters
-    * 
-    * @return If successful,this method returns the updated {@link GCSObject} resource.
+    *
+    * @return a {@link GCSObject} 
     */
    @Named("Object:patch")
    @PUT
@@ -341,15 +325,15 @@ public interface ObjectApi {
 
    /**
     * Concatenates a list of existing objects into a new object in the same bucket.
-    * 
+    *
     * @param destinationBucket
     *           Name of the bucket in which the object to be stored
     * @param destinationObject
     *           The type of upload request.
     * @param composeObjectTemplate
     *           Supply a {@link ComposeObjectTemplate}
-    * 
-    * @return If successful, this method returns a {@link GCSObject} resource.
+    *
+    * @return a {@link GCSObject}
     */
    @Named("Object:compose")
    @POST
@@ -363,7 +347,7 @@ public interface ObjectApi {
 
    /**
     * Concatenates a list of existing objects into a new object in the same bucket.
-    * 
+    *
     * @param destinationBucket
     *           Name of the bucket in which the object to be stored
     * @param destinationObject
@@ -371,9 +355,9 @@ public interface ObjectApi {
     * @param composeObjectTemplate
     *           Supply a {@link ComposeObjectTemplate}
     * @param options
-    *           Supply {@link ComposeObjectOptions} with optional query parameters
-    * 
-    * @return If successful, this method returns a {@link GCSObject} resource.
+    *           Supply an {@link ComposeObjectOptions} 
+    *
+    * @return a {@link GCSObject}
     */
    @Named("Object:compose")
    @POST
@@ -396,10 +380,8 @@ public interface ObjectApi {
     *           Name of the bucket in which to find the source object
     * @param sourceObject
     *           Name of the source object
-    * @param objectTemplate
-    *           Supply an {@link ObjectTemplate}
     * 
-    * @return If successful, this method returns a {@link GCSObject} resource.
+    * @return a {@link GCSObject}
     */
    @Named("Object:copy")
    @POST
@@ -412,7 +394,7 @@ public interface ObjectApi {
 
    /**
     * Copies an object to a specified location. Optionally overrides metadata.
-    * 
+    *
     * @param destinationBucket
     *           Name of the bucket in which to store the new object
     * @param destinationObject
@@ -421,12 +403,10 @@ public interface ObjectApi {
     *           Name of the bucket in which to find the source object
     * @param sourceObject
     *           Name of the source object
-    * @param objectTemplate
-    *           Supply an {@link ObjectTemplate}
     * @param options
-    *           Supply {@link CopyObjectOptions} with optional query parameters
-    * 
-    * @return If successful, this method returns a {@link GCSObject} resource.
+    *           Supply a {@link CopyObjectOptions} 
+    *
+    * @return a {@link GCSObject}
     */
    @Named("Object:copy")
    @POST

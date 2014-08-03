@@ -88,28 +88,28 @@ public class ObjectTemplate {
       return this;
    }
 
-   public ObjectTemplate customMetadata(String key , String value) {
+   public ObjectTemplate customMetadata(String key, String value) {
       this.metadata.put(key, value);
       return this;
    }
 
    // Remove??
-   private ObjectTemplate crc32c(String encodedString) {
+   public ObjectTemplate crc32c(String encodedString) {
       this.crc32c = encodedString;
       return this;
    }
-
+   //byte[]?
    public ObjectTemplate crc32c(byte[] bArray) {
       this.crc32c = calcCrc32c(bArray);
       return this;
    }
 
-   private String calcCrc32c(byte[] bArray) {      
+   private String calcCrc32c(byte[] bArray) {
       Crc32c crc32c = new Crc32c();
-      crc32c.update(bArray, 0, bArray.length-1);
+      crc32c.update(bArray, 0, bArray.length - 1);
       long crcValue = crc32c.getValue();
       return new String(BaseEncoding.base64().encode(String.valueOf(crcValue).getBytes()));
-  }
+   }
 
    public ObjectTemplate md5Hash(HashCode md5Hash) {
       this.md5Hash = BaseEncoding.base64().encode(md5Hash.asBytes());
@@ -151,8 +151,6 @@ public class ObjectTemplate {
    }
 
    public String getMd5Hash() {
-      // String stringMd5 = new String(BaseEncoding.base64().decode(md5Hash));
-      // HashCode hash = HashCode.fromString(stringMd5);
       return md5Hash;
    }
 

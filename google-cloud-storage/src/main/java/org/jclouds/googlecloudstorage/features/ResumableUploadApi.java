@@ -30,7 +30,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.googlecloudstorage.binders.ResumableUploadBinder;
-import org.jclouds.googlecloudstorage.binders.SimpleUploadBinder;
+import org.jclouds.googlecloudstorage.binders.UploadBinder;
 import org.jclouds.googlecloudstorage.domain.GCSObject;
 import org.jclouds.googlecloudstorage.domain.ResumableUpload;
 import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
@@ -64,14 +64,43 @@ public interface ResumableUploadApi {
     * 
     * @param bucketName
     *           Name of the bucket in which the object to be stored
-    * @param objectTemplate
-    *           Supply {@link ObjectTemplate} with optional query parameters.
-    * @param options
-    *           Supply {@link InsertObjectOptions} with optional query parameters. 'name' is mandatory.
+    * @param objectName
+    *           Name of the object to upload
+    * @param contentType
+    *           Content type of the uploaded data
+    * @param contentLength
+    *           ContentLength of the uploaded object (Media part)
     * 
-    * @return If successful, this method returns a {@link GCSObject} resource.
+    * @return a {@link ResumableUpload}
     */
-   @Named("Object:simpleUpload")
+   @Named("Object:resumableUpload")
+   @POST
+   @QueryParams(keys = "uploadType", values = "resumable")
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Path("/upload/storage/v1/b/{bucket}/o")
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
+   @ResponseParser(ParseToResumableUpload.class)
+   ResumableUpload initResumableUpload(@PathParam("bucket") String bucketName, @QueryParam("name") String objectName,
+            @HeaderParam("X-Upload-Content-Type") String contentType,
+            @HeaderParam("X-Upload-Content-Length") String contentLength);
+
+   /**
+    * initiate a Resumable Upload Session
+    * 
+    * @see https://developers.google.com/storage/docs/json_api/v1/how-tos/upload#simple
+    * 
+    * @param bucketName
+    *           Name of the bucket in which the object to be stored
+    * @param contentType
+    *           Content type of the uploaded data (Media part)
+    * @param contentLength
+    *           Content length of the uploaded data (Media part)
+    * @param metada
+    *           Supply an {@link ObjectTemplate}  
+    * 
+    * @return a {@link ResumableUpload}
+    */
+   @Named("Object:resumableUpload")
    @POST
    @QueryParams(keys = "uploadType", values = "resumable")
    @Consumes(MediaType.APPLICATION_JSON)
@@ -91,8 +120,7 @@ public interface ResumableUploadApi {
     * 
     * @param bucketName
     *           Name of the bucket in which the object to be stored
-    * @param objectTemplate
-    *           Supply {@link ObjectTemplate} with optional query parameters.
+    * @param 
     * @param options
     *           Supply {@link InsertObjectOptions} with optional query parameters. 'name' is mandatory.
     * 
@@ -104,25 +132,32 @@ public interface ResumableUploadApi {
    @QueryParams(keys = "uploadType", values = "resumable")
    @Path("/upload/storage/v1/b/{bucket}/o")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @MapBinder(SimpleUploadBinder.class)
+   @MapBinder(UploadBinder.class)
    @ResponseParser(ParseToResumableUpload.class)
    ResumableUpload upload(@PathParam("bucket") String bucketName, @QueryParam("upload_id") String uploadId,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Content-Length") String contentLength,
             @PayloadParam("payload") Payload payload);
 
    /**
-    * Stores a new object
+    * Facilitate to use resumable upload operation to upload files in chunks 
     * 
-    * @see https://developers.google.com/storage/docs/json_api/v1/how-tos/upload#simple
+    * @see https://developers.google.com/storage/docs/json_api/v1/how-tos/upload#resumable
     * 
     * @param bucketName
     *           Name of the bucket in which the object to be stored
-    * @param objectTemplate
-    *           Supply {@link ObjectTemplate} with optional query parameters.
-    * @param options
-    *           Supply {@link InsertObjectOptions} with optional query parameters. 'name' is mandatory.
+    * @param uploadId
+    *           uploadId returned from initResumableUpload operation 
+    * @param contentType
+    *           Content type of the uploaded data 
+    * @param contentLength
+    *           Content length of the uploaded data 
+    * @param contentRange
+    *            Range in {bytes StartingByte - Endingbyte/Totalsize } format 
+    *            ex: bytes  0 - 1213/2000 
+    * @param payload
+    *            a {@link Payload} with actual data to upload
     * 
-    * @return If successful, this method returns a {@link GCSObject} resource.
+    * @return a {@link ResumableUpload} 
     */
    @Named("Object:Upload")
    @PUT
@@ -130,26 +165,29 @@ public interface ResumableUploadApi {
    @QueryParams(keys = "uploadType", values = "resumable")
    @Path("/upload/storage/v1/b/{bucket}/o")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @MapBinder(SimpleUploadBinder.class)
+   @MapBinder(UploadBinder.class)
    @ResponseParser(ParseToResumableUpload.class)
    ResumableUpload chunkUpload(@PathParam("bucket") String bucketName, @QueryParam("upload_id") String uploadId,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Content-Length") String contentLength,
             @HeaderParam("Content-Range") String contentRange, @PayloadParam("payload") Payload payload);
 
    /**
-    * Stores a new object
+    * Check the status of a resumable upload 
     * 
-    * @see https://developers.google.com/storage/docs/json_api/v1/how-tos/upload#simple
+    * @see https://developers.google.com/storage/docs/json_api/v1/how-tos/upload#resumable
     * 
     * @param bucketName
     *           Name of the bucket in which the object to be stored
-    * @param objectTemplate
-    *           Supply {@link ObjectTemplate} with optional query parameters.
-    * @param options
-    *           Supply {@link InsertObjectOptions} with optional query parameters. 'name' is mandatory.
+    * @param uploadId
+    *           uploadId returned from initResumableUpload operation 
+    * @param contentRange
+    *            Range in {bytes StartingByte - Endingbyte/Totalsize } format 
+    *            ex: bytes  0 - 1213/2000 
     * 
-    * @return If successful, this method returns a {@link GCSObject} resource.
+    * @return a {@link ResumableUpload} 
     */
+   
+
    @Named("Object:Upload")
    @PUT
    @Consumes(MediaType.APPLICATION_JSON)

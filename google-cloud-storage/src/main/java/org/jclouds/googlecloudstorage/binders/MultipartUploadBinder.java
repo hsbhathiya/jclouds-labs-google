@@ -22,25 +22,16 @@ import javax.ws.rs.core.MediaType;
 
 import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
 import org.jclouds.http.HttpRequest;
-import org.jclouds.io.ByteSources;
 import org.jclouds.io.Payload;
 import org.jclouds.io.Payloads;
 import org.jclouds.io.payloads.MultipartForm;
 import org.jclouds.io.payloads.Part;
 import org.jclouds.io.payloads.StringPayload;
 import org.jclouds.rest.MapBinder;
-import org.jclouds.rest.binders.BindToJsonPayload;
-
 import com.google.gson.Gson;
-import com.google.inject.Inject;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MultipartUploadBinder implements MapBinder {
-
-   // Not functioning
-   @Inject
-   private BindToJsonPayload jsonBinder;
 
    private final String BOUNDARY_HEADER = "multipart_boundary";
 
@@ -55,36 +46,21 @@ public class MultipartUploadBinder implements MapBinder {
       Long lenght = checkNotNull(template.getSize(), "contetLength");
 
       StringPayload jsonPayload = Payloads.newStringPayload(new Gson().toJson(template));
+
       payload.getContentMetadata().setContentLength(lenght);
-      
+
       Part jsonPart = Part.create("Metadata", jsonPayload,
                new Part.PartOptions().contentType(MediaType.APPLICATION_JSON));
-      Part mediaPart = Part.create(template.getName(), payload, new Part.PartOptions().contentType(contentType)
-               .contentType(template.getContentType()));
+      Part mediaPart = Part.create(template.getName(), payload, new Part.PartOptions().contentType(contentType));
 
-      MultipartForm compPayload = new MultipartForm("gcs", jsonPart, mediaPart);
-      request.setPayload(compPayload);
+      MultipartForm compPayload = new MultipartForm(BOUNDARY_HEADER, jsonPart, mediaPart);
+      request.setPayload(compPayload)
+      ;
       // HeaderPart
       request.toBuilder().removeHeader("Content-Type")
                .addHeader("Content-Type", "Multipart/related; boundary= " + BOUNDARY_HEADER).build();
-              // .addHeader("Content-Length", lenght.toString()).build();
 
       return request;
-
-      // Metadata Part
-      /*
-       * request.setPayload("--" + BOUNDARY_HEADER); request.toBuilder().addHeader("Content-Type",
-       * MediaType.APPLICATION_JSON);
-       * 
-       * request.setPayload("--" + BOUNDARY_HEADER); //End of metadapart
-       * 
-       * //Media Part request.toBuilder().addHeader("Content-Type", contentType); request.setPayload(payload);
-       * request.setPayload("--" + BOUNDARY_HEADER +"--");
-       * 
-       * payload.getContentMetadata().setContentType("image/jpeg");
-       * payload.getContentMetadata().setContentLength(lenght); payload.getContentMetadata().setContentLanguage("en");
-       * request.setPayload(payload); return request;
-       */
    }
 
    @Override

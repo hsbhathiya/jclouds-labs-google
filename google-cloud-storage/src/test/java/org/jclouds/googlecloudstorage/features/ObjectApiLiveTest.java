@@ -79,7 +79,7 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    private static final String COPIED_OBJECT_NAME = "copyofObjectOperation.txt";
    private static final String COMPOSED_OBJECT = "ComposedObject1.txt";
    private static final String COMPOSED_OBJECT2 = "ComposedObject2.json";
-   private static final String BUCKET_NAMEX = "jcloudobjectdestination" ;
+   private static final String BUCKET_NAMEX = "jcloudobjectdestination";
 
    private Long RANDOM_LONG = 100L;
 
@@ -91,7 +91,7 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       return api.getObjectApi();
    }
 
-   //Create the buckets
+   // Create the buckets
    @BeforeClass
    private void createBucket() {
       BucketTemplate template = new BucketTemplate().name(BUCKET_NAME);
@@ -102,9 +102,9 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       Bucket bucket2 = api.getBucketApi().createBucket(PROJECT_NUMBER, template2);
       assertNotNull(bucket2);
    }
-   
- //Enable ObjectChangeNotifiactions for the buckets
-/*   @Test(groups = "live")
+
+   // Enable ObjectChangeNotifiactions for the buckets
+   @Test(groups = "live")
    public void testWatchAllObjects() {
 
       String address = "";
@@ -117,10 +117,11 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       ObjectChangeNotificationTemplate template = new ObjectChangeNotificationTemplate().id(id)
                .address(URI.create(address)).resourceId(resourceId).resourceUri(URI.create(resourceUri))
                .type(DeliveryType.WEB_HOOK).expiration(expiration).payload(true).token(token);
-      
+
       ListObjectOptions options = new ListObjectOptions().maxResults(2);
-      
-      ObjectChangeNotification notify = api.getObjectChangeNNotificationApi().watchAllObjects(BUCKET_NAME, template,options);
+
+      ObjectChangeNotification notify = api.getObjectChangeNNotificationApi().watchAllObjects(BUCKET_NAME, template,
+               options);
 
       assertNotNull(notify);
       assertEquals(template.getPayload(), Boolean.TRUE);
@@ -130,7 +131,6 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertEquals(template.getResourceUri().toString(), resourceUri);
    }
 
-   
    @Test(groups = "live")
    public void testWatchAllObjectsWithOptions() {
 
@@ -144,10 +144,11 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       ObjectChangeNotificationTemplate template = new ObjectChangeNotificationTemplate().id(id)
                .address(URI.create(address)).resourceId(resourceId).resourceUri(URI.create(resourceUri))
                .type(DeliveryType.WEB_HOOK).expiration(expiration).payload(true).token(token);
-      
+
       ListObjectOptions options = new ListObjectOptions().maxResults(2);
-      
-      ObjectChangeNotification notify = api.getObjectChangeNNotificationApi().watchAllObjects(BUCKET_NAME, template,options);
+
+      ObjectChangeNotification notify = api.getObjectChangeNNotificationApi().watchAllObjects(BUCKET_NAME, template,
+               options);
 
       assertNotNull(notify);
       assertEquals(template.getPayload(), Boolean.TRUE);
@@ -155,9 +156,9 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertEquals(template.getId(), id);
       assertEquals(template.getExpiration(), expiration);
       assertEquals(template.getResourceUri().toString(), resourceUri);
-   }*/
+   }
 
-   //Object Operations
+   // Object Operations
    @Test(groups = "live")
    public void testSimpleUpload() throws IOException {
       String data = "Payload data";
@@ -175,45 +176,11 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertEquals(gcsObject.getName(), UPLOAD_OBJECT_NAME);
 
    }
-   
-   @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
-   public void testMultipartJpegUpload() throws IOException {
-      ByteSource byteSource = Files.asByteSource(new File(Resources.getResource(getClass(), "/" + UPLOAD_OBJECT_NAME2)
-               .getPath()));     
-
-      ByteSourcePayload payload = Payloads.newByteSourcePayload(byteSource);
-  //    InsertObjectOptions options = new InsertObjectOptions().name(UPLOAD_OBJECT_NAME2);
-      
-      ObjectTemplate template = new ObjectTemplate();
-      
-      ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(BUCKET_NAMEX).entity("allUsers")
-               .role(ObjectRole.OWNER).build();
-      
-      // This would trigger server side validation  of md5
-      //Md5 Hash
-      HashFunction hf = Hashing.md5();
-      hc = hf.newHasher().putBytes(byteSource.read()).hash();
-      String md5 = BaseEncoding.base64().encode(hc.asBytes());
-      
-      template.contentType("image/jpeg").addAcl(oacl).size(Long.valueOf(byteSource.read().length + ""))
-               .name(UPLOAD_OBJECT_NAME2).contentLanguage("en").contentDisposition("attachment").md5Hash(hc)
-               .customMetadata("cutomMetaKey","cutomMetaValue" );
-
-      GCSObject gcsObject = api().multipartUpload(BUCKET_NAMEX, template, payload);
-
-      assertNotNull(gcsObject);
-      assertEquals(gcsObject.getBucket(), BUCKET_NAMEX);
-      assertEquals(gcsObject.getName(), UPLOAD_OBJECT_NAME2);
-      assertNotNull(gcsObject.getAllMetadata());
-      assertEquals(gcsObject.getAllMetadata().get("cutomMetaKey"),"cutomMetaValue");
-
-      assertEquals(gcsObject.getMd5Hash(), md5); //Assertion works
-   }
 
    @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
    public void testSimpleJpegUpload() throws IOException {
       ByteSource byteSource = Files.asByteSource(new File(Resources.getResource(getClass(), "/" + UPLOAD_OBJECT_NAME2)
-               .getPath()));     
+               .getPath()));
 
       ByteSourcePayload payload = Payloads.newByteSourcePayload(byteSource);
       InsertObjectOptions options = new InsertObjectOptions().name(UPLOAD_OBJECT_NAME2);
@@ -224,32 +191,55 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertNotNull(gcsObject);
       assertEquals(gcsObject.getBucket(), BUCKET_NAME);
       assertEquals(gcsObject.getName(), UPLOAD_OBJECT_NAME2);
-      
-   // This is a client side validation  of md5
-      //Md5 Hash
+
+      // This is a client side validation of md5
+      // Md5 Hash
       HashFunction hf = Hashing.md5();
       hc = hf.newHasher().putBytes(byteSource.read()).hash();
       String md5 = BaseEncoding.base64().encode(hc.asBytes());
-      
-      assertEquals(gcsObject.getMd5Hash(), md5); //Assertion works
-      
-      //crc32c validation
+
+      assertEquals(gcsObject.getMd5Hash(), md5); // Assertion works
+
+      // crc32c validation
       Crc32c crc32c = new Crc32c();
       crc32c.update(byteSource.read(), 0, byteSource.read().length);
       long crcValue = crc32c.getValue();
-      ByteBuffer buffer = ByteBuffer.allocate(8);
-      byte[] bArray =  buffer.putLong(crcValue).array(); //Longs.toByteArray(value)
-     
+      byte[] bArray = Longs.toByteArray(crcValue); // Longs.toByteArray(value)
+      String encodedCrc = new String(BaseEncoding.base64().encode(bArray));
+
+      // assertEquals(gcsObject.getCrc32c(), encodedCrc); //Assertion fails
+   }
+
+   @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
+   public void testMultipartJpegUpload() throws IOException {
+      ByteSource byteSource = Files.asByteSource(new File(Resources.getResource(getClass(), "/" + UPLOAD_OBJECT_NAME2)
+               .getPath()));
+
+      ByteSourcePayload payload = Payloads.newByteSourcePayload(byteSource);
       
-      String encodedCrc =  new String(BaseEncoding.base64().encode(bArray));
-      
-    /*  Crc32c crc32ToDecode = new Crc32c();
-      byte[] bArray2 = BaseEncoding.base64().decode(gcsObject.getCrc32c());
-      int i = Ints.fromByteArray(bArray2);
-      crc32c.update(i);
-      
-      assertEquals(crc32c.getValue(), 0); */
-     // assertEquals(gcsObject.getCrc32c(), encodedCrc); //Assertion fails
+      ObjectTemplate template = new ObjectTemplate();
+
+      ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(BUCKET_NAMEX).entity("allUsers")
+               .role(ObjectRole.OWNER).build();
+
+      // This would trigger server side validation of md5     
+      HashFunction hf = Hashing.md5();
+      hc = hf.newHasher().putBytes(byteSource.read()).hash();
+      String md5 = BaseEncoding.base64().encode(hc.asBytes());
+
+      template.contentType("image/jpeg").addAcl(oacl).size(Long.valueOf(byteSource.read().length + ""))
+               .name(UPLOAD_OBJECT_NAME2).contentLanguage("en").contentDisposition("attachment").md5Hash(hc)
+               .customMetadata("cutomMetaKey", "cutomMetaValue");
+
+      GCSObject gcsObject = api().multipartUpload(BUCKET_NAMEX, template, payload);
+
+      assertNotNull(gcsObject);
+      assertEquals(gcsObject.getBucket(), BUCKET_NAMEX);
+      assertEquals(gcsObject.getName(), UPLOAD_OBJECT_NAME2);
+      assertNotNull(gcsObject.getAllMetadata());
+      assertEquals(gcsObject.getAllMetadata().get("cutomMetaKey"), "cutomMetaValue");
+
+      assertEquals(gcsObject.getMd5Hash(), md5); // Assertion works
    }
 
    @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
@@ -476,11 +466,11 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       api().deleteObject(BUCKET_NAME, UPLOAD_OBJECT_NAME, options);
 
    }
-   
-   //Stop the channel
-  /* @Test(groups = "live", dependsOnMethods = "testDeleteObjectWithOptions")
+
+   // Stop the channel
+   @Test(groups = "live", dependsOnMethods = "testDeleteObjectWithOptions")
    public void testStopChannel() {
-      
+
       String address = "";
       String id = "";
       String resourceId = "";
@@ -491,18 +481,15 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       ObjectChangeNotificationTemplate template = new ObjectChangeNotificationTemplate().id(id)
                .address(URI.create(address)).resourceId(resourceId).resourceUri(URI.create(resourceUri))
                .type(DeliveryType.WEB_HOOK).expiration(expiration).payload(true).token(token);
-      
-     api.getObjectChangeNNotificationApi().stop(template);
 
-   }*/
-   
+      api.getObjectChangeNNotificationApi().stop(template);
+
+   }
 
    @AfterClass
    private void deleteBucket() {
       api.getBucketApi().deleteBucket(BUCKET_NAME);
       api.getBucketApi().deleteBucket(BUCKET_NAME2);
    }
-   
-   
 
 }

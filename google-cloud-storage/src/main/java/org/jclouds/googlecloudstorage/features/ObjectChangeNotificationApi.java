@@ -50,12 +50,12 @@ public interface ObjectChangeNotificationApi {
 
    /**
     * Watch for changes on all objects in a bucket.
-    * 
+    *
     * @param bucketName
     *           Name of the bucket which is observed.
     * @param template
     *           Supply an {@link ObjectChangeNotification}
-    * 
+    *
     * @return a {@link ObjectChangeNotification}
     */
    @Named("ObjectNotificatio:WatchAll")
@@ -71,14 +71,14 @@ public interface ObjectChangeNotificationApi {
 
    /**
     * Watch for changes on all objects in a bucket.
-    * 
+    *
     * @param bucketName
     *           Name of the bucket which is observed.
     * @param template
     *           Supply an {@link ObjectChangeNotification}
     * @param options
     *           Supply {@link ListObjectOptions} with options
-    * 
+    *
     * @return a {@link ObjectChangeNotification}
     */
    @Named("ObjectNotificatio:WatchAll")
@@ -94,7 +94,7 @@ public interface ObjectChangeNotificationApi {
 
    /**
     * Watch for changes on all objects in a bucket.
-    * 
+    *
     * @param template
     *           Supply an {@link ObjectChangeNotification}
     */
