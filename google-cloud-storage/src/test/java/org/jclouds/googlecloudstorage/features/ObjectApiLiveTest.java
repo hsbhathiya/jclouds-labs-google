@@ -104,7 +104,7 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    }
 
    // Enable ObjectChangeNotifiactions for the buckets
-   @Test(groups = "live")
+/*   @Test(groups = "live")
    public void testWatchAllObjects() {
 
       String address = "";
@@ -156,7 +156,7 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertEquals(template.getId(), id);
       assertEquals(template.getExpiration(), expiration);
       assertEquals(template.getResourceUri().toString(), resourceUri);
-   }
+   }*/
 
    // Object Operations
    @Test(groups = "live")
@@ -203,11 +203,8 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       // crc32c validation
       Crc32c crc32c = new Crc32c();
       crc32c.update(byteSource.read(), 0, byteSource.read().length);
-      long crcValue = crc32c.getValue();
-      byte[] bArray = Longs.toByteArray(crcValue); // Longs.toByteArray(value)
-      String encodedCrc = new String(BaseEncoding.base64().encode(bArray));
-
-      // assertEquals(gcsObject.getCrc32c(), encodedCrc); //Assertion fails
+      byte[] bArray = crc32c.getValueAsBytes(); // Longs.toByteArray(value)
+      String encodedCrc = new String(BaseEncoding.base64().encode(bArray));       assertEquals(gcsObject.getCrc32c(), encodedCrc); //Assertion fails
    }
 
    @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
@@ -468,7 +465,7 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    }
 
    // Stop the channel
-   @Test(groups = "live", dependsOnMethods = "testDeleteObjectWithOptions")
+/*   @Test(groups = "live", dependsOnMethods = "testDeleteObjectWithOptions")
    public void testStopChannel() {
 
       String address = "";
@@ -484,7 +481,7 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
       api.getObjectChangeNNotificationApi().stop(template);
 
-   }
+   }*/
 
    @AfterClass
    private void deleteBucket() {

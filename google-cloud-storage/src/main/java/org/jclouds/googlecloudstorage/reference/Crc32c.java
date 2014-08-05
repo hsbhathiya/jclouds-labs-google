@@ -20,8 +20,6 @@ import java.util.zip.Checksum;
 
 /**
  * This class generates a CRC32C checksum, defined by rfc3720 section B.4.
- *
- *
  */
 public final class Crc32c implements Checksum {
 
@@ -135,6 +133,20 @@ public final class Crc32c implements Checksum {
   @Override
   public long getValue() {
     return crc;
+  }
+  
+  /**
+   * Returns the value of the checksum.
+   * @return the 4-byte array representation of the checksum in network byte order (big endian).
+   */
+  public byte[] getValueAsBytes() {
+    long value = crc;
+    byte[] result = new byte[4];
+    for (int i = 3; i >= 0; i--) {
+      result[i] = (byte) (value & 0xffL);
+      value >>= 8;
+    }
+    return result;
   }
 
   /**
