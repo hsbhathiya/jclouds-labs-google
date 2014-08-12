@@ -47,6 +47,7 @@ import org.jclouds.googlecloudstorage.options.InsertObjectOptions;
 import org.jclouds.googlecloudstorage.options.ListObjectOptions;
 import org.jclouds.googlecloudstorage.options.UpdateObjectOptions;
 import org.jclouds.io.Payload;
+import org.jclouds.io.Payloads;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.oauth.v2.config.OAuthScopes;
 import org.jclouds.oauth.v2.filters.OAuthAuthenticator;
@@ -70,7 +71,7 @@ import org.jclouds.rest.binders.BindToJsonPayload;
 public interface ObjectApi {
 
    /**
-    * Retrieve an object or their metadata
+    * Retrieve an object metadata
     *
     * @param bucketName
     *           Name of the bucket in which the object resides
@@ -90,7 +91,7 @@ public interface ObjectApi {
    GCSObject getObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName);
 
    /**
-    * Retrieves objects or their metadata
+    * Retrieves objects metadata
     *
     * @param bucketName
     *           Name of the bucket in which the object resides
@@ -110,6 +111,51 @@ public interface ObjectApi {
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
    GCSObject getObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
+            GetObjectOptions options);
+   
+   /**
+    * Retrieve an object or their metadata
+    *
+    * @param bucketName
+    *           Name of the bucket in which the object resides
+    * @param objectName
+    *           Name of the object
+    *
+    * @return a {@link Object} resource
+    */
+   @Named("Object:get")
+   @GET
+   @QueryParams(keys = "alt", values = "media")
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Produces(MediaType.APPLICATION_JSON)
+   @Path("storage/v1/b/{bucket}/o/{object}")
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
+   @Fallback(NullOnNotFoundOr404.class)
+   @Nullable
+   Payloads download(@PathParam("bucket") String bucketName, @PathParam("object") String objectName);
+
+   /**
+    * Retrieves objects
+    *
+    * @param bucketName
+    *           Name of the bucket in which the object resides
+    * @param objectName
+    *           Name of the object
+    * @param options
+    *           Supply {@link GetObjectOptions} with optional query parameters
+    *
+    * @return a {@link GCSObject}
+    */
+   @Named("Object:get")
+   @GET
+   @QueryParams(keys = "alt", values = "media")
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Produces(MediaType.APPLICATION_JSON)
+   @Path("storage/v1/b/{bucket}/o/{object}")
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
+   @Fallback(NullOnNotFoundOr404.class)
+   @Nullable
+   Payloads download(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
             GetObjectOptions options);
 
    /**

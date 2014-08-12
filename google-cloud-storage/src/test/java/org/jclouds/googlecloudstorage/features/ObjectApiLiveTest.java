@@ -85,7 +85,8 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    private Long metageneration;
    private Long generation;
-   private HashCode hc;
+   private HashCode hcMd5;
+   private HashCode hcCrc32c;
 
    private ObjectApi api() {
       return api.getObjectApi();
@@ -195,16 +196,22 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       // This is a client side validation of md5
       // Md5 Hash
       HashFunction hf = Hashing.md5();
-      hc = hf.newHasher().putBytes(byteSource.read()).hash();
-      String md5 = BaseEncoding.base64().encode(hc.asBytes());
+      hcMd5 = hf.newHasher().putBytes(byteSource.read()).hash();
+      String md5 = BaseEncoding.base64().encode(hcMd5.asBytes());
 
       assertEquals(gcsObject.getMd5Hash(), md5); // Assertion works
 
       // crc32c validation
+      
+     /* HashFunction hfCrc32c = Hashing.crc32c();
+      hcCrc32c = hfCrc32c.newHasher().putBytes(byteSource.read()).hash();
+      String md5 = BaseEncoding.base64().encode(hcMd5.asBytes());*/
+      
       Crc32c crc32c = new Crc32c();
       crc32c.update(byteSource.read(), 0, byteSource.read().length);
       byte[] bArray = crc32c.getValueAsBytes(); // Longs.toByteArray(value)
-      String encodedCrc = new String(BaseEncoding.base64().encode(bArray));       assertEquals(gcsObject.getCrc32c(), encodedCrc); //Assertion fails
+      String encodedCrc = new String(BaseEncoding.base64().encode(bArray));      
+      assertEquals(gcsObject.getCrc32c(), encodedCrc); //Assertion fails
    }
 
    @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
@@ -221,11 +228,11 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
       // This would trigger server side validation of md5     
       HashFunction hf = Hashing.md5();
-      hc = hf.newHasher().putBytes(byteSource.read()).hash();
-      String md5 = BaseEncoding.base64().encode(hc.asBytes());
+      hcMd5 = hf.newHasher().putBytes(byteSource.read()).hash();
+      String md5 = BaseEncoding.base64().encode(hcMd5.asBytes());
 
       template.contentType("image/jpeg").addAcl(oacl).size(Long.valueOf(byteSource.read().length + ""))
-               .name(UPLOAD_OBJECT_NAME2).contentLanguage("en").contentDisposition("attachment").md5Hash(hc)
+               .name(UPLOAD_OBJECT_NAME2).contentLanguage("en").contentDisposition("attachment").md5Hash(hcMd5)
                .customMetadata("cutomMetaKey", "cutomMetaValue");
 
       GCSObject gcsObject = api().multipartUpload(BUCKET_NAMEX, template, payload);

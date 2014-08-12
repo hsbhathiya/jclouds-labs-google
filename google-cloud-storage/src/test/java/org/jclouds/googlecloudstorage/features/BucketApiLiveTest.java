@@ -31,6 +31,7 @@ import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRol
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Projection;
 import org.jclouds.googlecloudstorage.domain.Bucket;
 import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls;
+import org.jclouds.googlecloudstorage.domain.GCSObject;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Role;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.StorageClass;
 import org.jclouds.googlecloudstorage.domain.ListPage;
@@ -43,8 +44,12 @@ import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiLiveTest
 import org.jclouds.googlecloudstorage.options.DeleteBucketOptions;
 import org.jclouds.googlecloudstorage.options.GetBucketOptions;
 import org.jclouds.googlecloudstorage.options.InsertBucketOptions;
+import org.jclouds.googlecloudstorage.options.ListObjectOptions;
+import org.jclouds.googlecloudstorage.options.ListOptions;
 import org.jclouds.googlecloudstorage.options.UpdateBucketOptions;
 import org.jclouds.rest.ResourceNotFoundException;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
@@ -220,6 +225,24 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
       api().deleteBucket(BUCKET_NAME_WITHOPTIONS, options);
 
+   }
+   
+    @BeforeClass
+    public void deleteAllBuckets() throws InterruptedException{
+      Thread.sleep(60*1000);
+      ListOptions options = new ListOptions().maxResults(1000);
+      ListPage<Bucket> list= api().listBucket(PROJECT_NUMBER,options);
+      //ListPage<Bucket> list = api().listBucket(projectId)(BUCKET_NAME, options);
+      Iterator<Bucket> i =list.iterator();
+      while (i.hasNext()) {
+         Bucket bucket = i.next();         
+         assertNotNull(bucket.getName());
+         if(bucket.getName().contains("blob")){
+            api().deleteBucket(bucket.getName());
+            Thread.sleep(1200);
+         }
+       
+      }
    }
 
 }

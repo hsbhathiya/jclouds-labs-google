@@ -30,6 +30,7 @@ import org.jclouds.googlecloudstorage.domain.internal.Owner;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.io.BaseEncoding;
 
 /**
  * This class represent an object in a Google Cloud Storage Bucket.
@@ -48,7 +49,7 @@ public class GCSObject extends Resource {
    private final StorageClass storageClass;
    private final Long size;
    private final String md5Hash;
-   private final String mediaLink;
+   private final URI mediaLink;
    private final Map<String, String> metadata; 
    private final String contentEncoding;
    private final String contentDisposition;
@@ -61,7 +62,7 @@ public class GCSObject extends Resource {
 
    private GCSObject(String id, URI selfLink, String etag, String name, String bucket, Long generation,
             Long metageneration, String contentType, Date updated, Date timeDeleted, StorageClass storageClass,
-            Long size, String md5Hash, String mediaLink, Map<String, String> metadata, String contentEncoding,
+            Long size, String md5Hash, URI mediaLink, Map<String, String> metadata, String contentEncoding,
             String contentDisposition, String contentLanguage, String cacheControl, Set<ObjectAccessControls> acl,
             Owner owner, String crc32c, Integer componentCount) {
       super(Kind.OBJECT, id, selfLink, etag);
@@ -127,8 +128,12 @@ public class GCSObject extends Resource {
    public String getMd5Hash() {
       return md5Hash;
    }
+   
+   public byte[] md5AsVByteArray() {
+      return BaseEncoding.base64().decode(md5Hash);
+   }
 
-   public String getMediaLink() {
+   public URI getMediaLink() {
       return mediaLink;
    }
 
@@ -216,7 +221,7 @@ public class GCSObject extends Resource {
       private StorageClass storageClass;
       private Long size;
       private String md5Hash;
-      private String mediaLink;
+      private URI mediaLink;
       private ImmutableMap.Builder<String, String> metadata = ImmutableMap.builder();
       private String contentEncoding;
       private String contentDisposition;
@@ -278,7 +283,7 @@ public class GCSObject extends Resource {
          return this;
       }
 
-      public Builder mediaLink(String mediaLink) {
+      public Builder mediaLink(URI mediaLink) {
          this.mediaLink = mediaLink;
          return this;
       }
