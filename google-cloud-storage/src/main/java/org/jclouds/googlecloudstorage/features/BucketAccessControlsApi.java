@@ -30,9 +30,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
-import org.jclouds.googlecloudstorage.binders.BucketAccessControlsBinder;
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.ListBucketAccessControls;
+import org.jclouds.googlecloudstorage.handlers.BucketAccessControlsBinder;
+import org.jclouds.http.HttpResponse;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.oauth.v2.config.OAuthScopes;
 import org.jclouds.oauth.v2.filters.OAuthAuthenticator;
@@ -64,7 +65,7 @@ public interface BucketAccessControlsApi {
     *           The entity holding the permission. Can be user-userId, user-emailAddress, group-groupId,
     *           group-emailAddress, allUsers, or allAuthenticatedUsers.
     *
-    * @return a {@link BucketAccessControls }resource
+    * @return a BucketAccessControls resource
     */
 
    @Named("BucketAccessControls:get")
@@ -84,9 +85,9 @@ public interface BucketAccessControlsApi {
     *           Name of the bucket of which ACL to be created
     *
     * @param bucketAccessControls
-    *           In the request body,supply a {@link BucketAccessControls } with role and entity
+    *           In the request body,supply a BucketAccessControls resource with role and entity
     *
-    * @return If successful, this method returns a {@link BucketAccessControls }.
+    * @return If successful, this method returns a BucketAccessControls resource in the response body
     */
 
    @Named("BucketAccessControls:insert")
@@ -95,15 +96,15 @@ public interface BucketAccessControlsApi {
    @Path("/b/{bucket}/acl")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @MapBinder(BucketAccessControlsBinder.class)
-   @Nullable
    BucketAccessControls createBucketAccessControls(@PathParam("bucket") String bucketName,
-            @PayloadParam("bucketAccessControls") BucketAccessControls bucketAccessControls);
+            @PayloadParam("BACLInsert") BucketAccessControls bucketAccessControls);
 
    /**
     * Permanently deletes the ACL entry for the specified entity on the specified bucket.
     *
     * @param bucketName
     *           Name of the bucket of that ACL is related
+    * @return If successful, this method returns an empty response body.
     */
 
    @Named("BucketAccessControls:delete")
@@ -111,7 +112,9 @@ public interface BucketAccessControlsApi {
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/b/{bucket}/acl/{entity}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   void deleteBucketAccessControls(@PathParam("bucket") String bucketName, @PathParam("entity") String entity);
+   @Fallback(NullOnNotFoundOr404.class)
+   @Nullable
+   HttpResponse deleteBucketAccessControls(@PathParam("bucket") String bucketName, @PathParam("entity") String entity);
 
    /**
     * Retrieves all ACL entries on a specified bucket
@@ -119,7 +122,7 @@ public interface BucketAccessControlsApi {
     * @param bucketName
     *           Name of the bucket which ACL is related
     *
-    * @return {@link ListBucketAccessControls}
+    * @return ListBucketAccessControls resource
     */
 
    @Named("BucketAccessControls:list")
@@ -139,10 +142,10 @@ public interface BucketAccessControlsApi {
     *           Name of the bucket which ACL to be created
     * @param entity
     *           The entity holding the permission. Can be user-userId, user-emailAddress, group-groupId,
-    *           group-emailAddress, allUsers, or allAuthenticatedUsers. Supply a {@link BucketAccessControls } 
-    *           with role
+    *           group-emailAddress, allUsers, or allAuthenticatedUsers. In the request body, supply a
+    *           BucketAccessControls resource with role
     *
-    * @return If successful, this method returns a {@link BucketAccessControls }.
+    * @return If successful, this method returns a BucketAccessControls resource in the response body
     */
 
    @Named("BucketAccessControls:update")
@@ -166,7 +169,7 @@ public interface BucketAccessControlsApi {
     *           group-emailAddress, allUsers, or allAuthenticatedUsers
     *
     * @param bucketAccessControls
-    *           In the request body, supply a {@link BucketAccessControls } with role
+    *           In the request body, supply a BucketAccessControls resource with role
     *
     * @return If successful, this method returns a BucketAccessControls resource in the response body
     */

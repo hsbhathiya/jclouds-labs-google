@@ -28,7 +28,6 @@ import org.jclouds.googlecloudstorage.domain.Resource.Kind;
 import org.jclouds.googlecloudstorage.domain.internal.ProjectTeam;
 import org.jclouds.googlecloudstorage.domain.internal.ProjectTeam.Team;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageParseTest;
-
 import com.google.common.collect.ImmutableSet;
 
 public class BucketAclListTest extends BaseGoogleCloudStorageParseTest<ListBucketAccessControls> {

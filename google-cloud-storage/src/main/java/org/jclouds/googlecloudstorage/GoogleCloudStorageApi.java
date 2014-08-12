@@ -31,7 +31,7 @@ import org.jclouds.rest.annotations.Delegate;
 
 /**
  * Provide access to GoogleCloudStorage
- *
+ * 
  * @see <a href="https://developers.google.com/storage/docs/json_api/v1/">api doc /a>
  */
 public interface GoogleCloudStorageApi extends Closeable {
