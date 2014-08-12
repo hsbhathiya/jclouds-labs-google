@@ -27,6 +27,7 @@ import java.util.Set;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.StorageClass;
 import org.jclouds.googlecloudstorage.domain.internal.Owner;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -129,7 +130,7 @@ public class GCSObject extends Resource {
       return md5Hash;
    }
    
-   public byte[] md5AsVByteArray() {
+   public byte[] getMd5AsByteArray() {
       return BaseEncoding.base64().decode(md5Hash);
    }
 
@@ -170,6 +171,10 @@ public class GCSObject extends Resource {
       return crc32c;
    }
 
+   public byte[] getCrc32cAsByteArray() {
+      return BaseEncoding.base64().decode(crc32c);
+   }
+
    public Integer getComponentCount() {
       return componentCount;
    }
@@ -185,7 +190,7 @@ public class GCSObject extends Resource {
 
    }
 
-   protected Objects.ToStringHelper string() {
+   protected MoreObjects.ToStringHelper string() {
       return super.string().omitNullValues().add("name", name).add("bucket", bucket).add("generation", generation)
                .add("metageneration", metageneration).add("timeDeleted", timeDeleted).add("updated", updated)
                .add("storageClass", storageClass).add("size", size).add("md5Hash", md5Hash).add("mediaLink", mediaLink)

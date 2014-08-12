@@ -25,6 +25,7 @@ import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRol
 import org.jclouds.googlecloudstorage.domain.internal.ProjectTeam;
 import org.jclouds.javax.annotation.Nullable;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 /**
@@ -107,7 +108,7 @@ public class ObjectAccessControls extends Resource {
                && equal(this.entity, that.entity);
    }
 
-   protected Objects.ToStringHelper string() {
+   protected MoreObjects.ToStringHelper string() {
       return super.string().omitNullValues().add("bucket", bucket).add("entity", entity).add("entityId", entityId)
                .add("object", object).add("generation", generation).add("role", role).add("email", email)
                .add("domain", domain).add("projectTeam", projectTeam);

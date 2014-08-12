@@ -227,7 +227,7 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    }
    
-    @BeforeClass
+    /*@BeforeClass
     public void deleteAllBuckets() throws InterruptedException{
       Thread.sleep(60*1000);
       ListOptions options = new ListOptions().maxResults(1000);
@@ -243,6 +243,6 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
          }
        
       }
-   }
+   }*/
 
 }

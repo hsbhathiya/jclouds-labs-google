@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jclouds.googlecloudstorage.domain.ObjectAccessControls;
-import org.jclouds.googlecloudstorage.reference.Crc32c;
-
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.hash.HashCode;
@@ -93,22 +91,9 @@ public class ObjectTemplate {
       return this;
    }
 
-   // Remove??
-   public ObjectTemplate crc32c(String encodedString) {
-      this.crc32c = encodedString;
+   public ObjectTemplate crc32c(HashCode crc32c) {
+      this.crc32c = BaseEncoding.base64().encode(crc32c.asBytes());
       return this;
-   }
-   //byte[]?
-   public ObjectTemplate crc32c(byte[] bArray) {
-      this.crc32c = calcCrc32c(bArray);
-      return this;
-   }
-
-   private String calcCrc32c(byte[] bArray) {
-      Crc32c crc32c = new Crc32c();
-      crc32c.update(bArray, 0, bArray.length - 1);
-      long crcValue = crc32c.getValue();
-      return new String(BaseEncoding.base64().encode(String.valueOf(crcValue).getBytes()));
    }
 
    public ObjectTemplate md5Hash(HashCode md5Hash) {
@@ -189,7 +174,7 @@ public class ObjectTemplate {
                   .cacheControl(in.getCacheControl()).contentDisposition(in.getContentDisposition())
                   .contentEncoding(in.getContentEncoding()).contentLanguage(in.getContentLanguage())
                   .contentType(in.getContentType()).md5Hash(HashCode.fromString(in.getMd5Hash()))
-                  .customMetadata(in.getAllCustomMetadata()).crc32c(in.getCrc32c());
+                  .customMetadata(in.getAllCustomMetadata()).crc32c(HashCode.fromString(in.getMd5Hash()));
 
       }
    }

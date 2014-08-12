@@ -41,7 +41,7 @@ public class ObjectToBlobMetadata implements Function<GCSObject, MutableBlobMeta
       if (from == null)
          return null;
       MutableBlobMetadata to = new MutableBlobMetadataImpl();
-      to.getContentMetadata().setContentMD5(HashCode.fromBytes(from.md5AsVByteArray()));
+      to.getContentMetadata().setContentMD5(HashCode.fromBytes(from.getMd5AsByteArray()));
       if (from.getContentType() != null)
          to.getContentMetadata().setContentType(from.getContentType());
       if (from.getContentDisposition() != null)

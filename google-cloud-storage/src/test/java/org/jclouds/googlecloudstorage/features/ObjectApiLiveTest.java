@@ -105,59 +105,43 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    }
 
    // Enable ObjectChangeNotifiactions for the buckets
-/*   @Test(groups = "live")
-   public void testWatchAllObjects() {
-
-      String address = "";
-      String id = "";
-      String resourceId = "";
-      String resourceUri = "";
-      String token = "";
-      Long expiration = new Long(100);
-
-      ObjectChangeNotificationTemplate template = new ObjectChangeNotificationTemplate().id(id)
-               .address(URI.create(address)).resourceId(resourceId).resourceUri(URI.create(resourceUri))
-               .type(DeliveryType.WEB_HOOK).expiration(expiration).payload(true).token(token);
-
-      ListObjectOptions options = new ListObjectOptions().maxResults(2);
-
-      ObjectChangeNotification notify = api.getObjectChangeNNotificationApi().watchAllObjects(BUCKET_NAME, template,
-               options);
-
-      assertNotNull(notify);
-      assertEquals(template.getPayload(), Boolean.TRUE);
-      assertEquals(template.getToken(), token);
-      assertEquals(template.getId(), id);
-      assertEquals(template.getExpiration(), expiration);
-      assertEquals(template.getResourceUri().toString(), resourceUri);
-   }
-
-   @Test(groups = "live")
-   public void testWatchAllObjectsWithOptions() {
-
-      String address = "";
-      String id = "";
-      String resourceId = "";
-      String resourceUri = "";
-      String token = "";
-      Long expiration = new Long(100);
-
-      ObjectChangeNotificationTemplate template = new ObjectChangeNotificationTemplate().id(id)
-               .address(URI.create(address)).resourceId(resourceId).resourceUri(URI.create(resourceUri))
-               .type(DeliveryType.WEB_HOOK).expiration(expiration).payload(true).token(token);
-
-      ListObjectOptions options = new ListObjectOptions().maxResults(2);
-
-      ObjectChangeNotification notify = api.getObjectChangeNNotificationApi().watchAllObjects(BUCKET_NAME, template,
-               options);
-
-      assertNotNull(notify);
-      assertEquals(template.getPayload(), Boolean.TRUE);
-      assertEquals(template.getToken(), token);
-      assertEquals(template.getId(), id);
-      assertEquals(template.getExpiration(), expiration);
-      assertEquals(template.getResourceUri().toString(), resourceUri);
-   }*/
+   /*
+    * @Test(groups = "live") public void testWatchAllObjects() {
+    * 
+    * String address = ""; String id = ""; String resourceId = ""; String resourceUri = ""; String token = ""; Long
+    * expiration = new Long(100);
+    * 
+    * ObjectChangeNotificationTemplate template = new ObjectChangeNotificationTemplate().id(id)
+    * .address(URI.create(address)).resourceId(resourceId).resourceUri(URI.create(resourceUri))
+    * .type(DeliveryType.WEB_HOOK).expiration(expiration).payload(true).token(token);
+    * 
+    * ListObjectOptions options = new ListObjectOptions().maxResults(2);
+    * 
+    * ObjectChangeNotification notify = api.getObjectChangeNNotificationApi().watchAllObjects(BUCKET_NAME, template,
+    * options);
+    * 
+    * assertNotNull(notify); assertEquals(template.getPayload(), Boolean.TRUE); assertEquals(template.getToken(),
+    * token); assertEquals(template.getId(), id); assertEquals(template.getExpiration(), expiration);
+    * assertEquals(template.getResourceUri().toString(), resourceUri); }
+    * 
+    * @Test(groups = "live") public void testWatchAllObjectsWithOptions() {
+    * 
+    * String address = ""; String id = ""; String resourceId = ""; String resourceUri = ""; String token = ""; Long
+    * expiration = new Long(100);
+    * 
+    * ObjectChangeNotificationTemplate template = new ObjectChangeNotificationTemplate().id(id)
+    * .address(URI.create(address)).resourceId(resourceId).resourceUri(URI.create(resourceUri))
+    * .type(DeliveryType.WEB_HOOK).expiration(expiration).payload(true).token(token);
+    * 
+    * ListObjectOptions options = new ListObjectOptions().maxResults(2);
+    * 
+    * ObjectChangeNotification notify = api.getObjectChangeNNotificationApi().watchAllObjects(BUCKET_NAME, template,
+    * options);
+    * 
+    * assertNotNull(notify); assertEquals(template.getPayload(), Boolean.TRUE); assertEquals(template.getToken(),
+    * token); assertEquals(template.getId(), id); assertEquals(template.getExpiration(), expiration);
+    * assertEquals(template.getResourceUri().toString(), resourceUri); }
+    */
 
    // Object Operations
    @Test(groups = "live")
@@ -202,16 +186,11 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertEquals(gcsObject.getMd5Hash(), md5); // Assertion works
 
       // crc32c validation
-      
-     /* HashFunction hfCrc32c = Hashing.crc32c();
+      HashFunction hfCrc32c = Hashing.crc32c();
       hcCrc32c = hfCrc32c.newHasher().putBytes(byteSource.read()).hash();
-      String md5 = BaseEncoding.base64().encode(hcMd5.asBytes());*/
+      String crc = BaseEncoding.base64().encode(hcCrc32c.asBytes());
       
-      Crc32c crc32c = new Crc32c();
-      crc32c.update(byteSource.read(), 0, byteSource.read().length);
-      byte[] bArray = crc32c.getValueAsBytes(); // Longs.toByteArray(value)
-      String encodedCrc = new String(BaseEncoding.base64().encode(bArray));      
-      assertEquals(gcsObject.getCrc32c(), encodedCrc); //Assertion fails
+      assertEquals(gcsObject.getCrc32c(), crc); // Assertion fails
    }
 
    @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
@@ -220,20 +199,25 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
                .getPath()));
 
       ByteSourcePayload payload = Payloads.newByteSourcePayload(byteSource);
-      
+
       ObjectTemplate template = new ObjectTemplate();
 
       ObjectAccessControls oacl = ObjectAccessControls.builder().bucket(BUCKET_NAMEX).entity("allUsers")
                .role(ObjectRole.OWNER).build();
 
-      // This would trigger server side validation of md5     
+      // This would trigger server side validation of md5
       HashFunction hf = Hashing.md5();
       hcMd5 = hf.newHasher().putBytes(byteSource.read()).hash();
       String md5 = BaseEncoding.base64().encode(hcMd5.asBytes());
 
+      // This would trigger server side validation of crc32c
+      HashFunction hf2 = Hashing.crc32c();
+      hcCrc32c = hf2.newHasher().putBytes(byteSource.read()).hash();
+      String crc = BaseEncoding.base64().encode(hcCrc32c.asBytes());
+
       template.contentType("image/jpeg").addAcl(oacl).size(Long.valueOf(byteSource.read().length + ""))
                .name(UPLOAD_OBJECT_NAME2).contentLanguage("en").contentDisposition("attachment").md5Hash(hcMd5)
-               .customMetadata("cutomMetaKey", "cutomMetaValue");
+               .crc32c(hcCrc32c).customMetadata("cutomMetaKey", "cutomMetaValue");
 
       GCSObject gcsObject = api().multipartUpload(BUCKET_NAMEX, template, payload);
 
@@ -243,7 +227,8 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertNotNull(gcsObject.getAllMetadata());
       assertEquals(gcsObject.getAllMetadata().get("cutomMetaKey"), "cutomMetaValue");
 
-      assertEquals(gcsObject.getMd5Hash(), md5); // Assertion works
+      assertEquals(gcsObject.getMd5Hash(), md5);
+      assertEquals(gcsObject.getCrc32c(), crc);
    }
 
    @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
@@ -472,23 +457,20 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    }
 
    // Stop the channel
-/*   @Test(groups = "live", dependsOnMethods = "testDeleteObjectWithOptions")
-   public void testStopChannel() {
-
-      String address = "";
-      String id = "";
-      String resourceId = "";
-      String resourceUri = "";
-      String token = "";
-      Long expiration = new Long(100);
-
-      ObjectChangeNotificationTemplate template = new ObjectChangeNotificationTemplate().id(id)
-               .address(URI.create(address)).resourceId(resourceId).resourceUri(URI.create(resourceUri))
-               .type(DeliveryType.WEB_HOOK).expiration(expiration).payload(true).token(token);
-
-      api.getObjectChangeNNotificationApi().stop(template);
-
-   }*/
+   /*
+    * @Test(groups = "live", dependsOnMethods = "testDeleteObjectWithOptions") public void testStopChannel() {
+    * 
+    * String address = ""; String id = ""; String resourceId = ""; String resourceUri = ""; String token = ""; Long
+    * expiration = new Long(100);
+    * 
+    * ObjectChangeNotificationTemplate template = new ObjectChangeNotificationTemplate().id(id)
+    * .address(URI.create(address)).resourceId(resourceId).resourceUri(URI.create(resourceUri))
+    * .type(DeliveryType.WEB_HOOK).expiration(expiration).payload(true).token(token);
+    * 
+    * api.getObjectChangeNNotificationApi().stop(template);
+    * 
+    * }
+    */
 
    @AfterClass
    private void deleteBucket() {
