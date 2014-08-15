@@ -16,16 +16,144 @@
  */
 package org.jclouds.googlecloudstorage.blobstore.integration;
 
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertEquals;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
+import javax.ws.rs.core.MediaType;
+
+import org.jclouds.blobstore.domain.Blob;
+import org.jclouds.blobstore.domain.BlobBuilder.PayloadBlobBuilder;
+import org.jclouds.blobstore.domain.BlobMetadata;
+import org.jclouds.blobstore.domain.PageSet;
+import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.integration.internal.BaseBlobIntegrationTest;
-import org.jclouds.blobstore.integration.internal.BaseBlobStoreIntegrationTest;
+import org.jclouds.io.Payloads;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-/*@Test(groups = { "live" })
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
+import com.google.common.io.Files;
+
+@Test(groups = { "live" ,"blobstorelive" })
 public class GCSBlobStoreLiveTest extends BaseBlobIntegrationTest {
 
-   /*public GCSBlobStoreLiveTest() {
+   public GCSBlobStoreLiveTest() {
       provider = "google-cloud-storage";
-      BaseBlobStoreIntegrationTest.SANITY_CHECK_RETURNED_BUCKET_NAME = true;
+      // BaseBlobStoreIntegrationTest.SANITY_CHECK_RETURNED_BUCKET_NAME = true;
    }
 
-}*/
+   @Override
+   @Test(enabled = false)
+   public void testGetTwoRanges() {
+      // not supported in GCS
+   }
+
+   @Override
+   @Test(enabled = false)
+   public void testGetRange() {
+      // not supported in GCS
+   }
+   @Override
+   @Test(enabled = false)
+   public void testCreateBlobWithExpiry() throws InterruptedException {
+      //not supported in object level.
+   }
+   
+   @Override
+   @Test(enabled = false)
+   public void testFileGetParallel() throws Exception {
+      //Implement Parallel uploads
+   }
+   
+   @Override
+   @Test(enabled = false)
+   public void testPutFileParallel() throws InterruptedException, IOException, TimeoutException {
+      //Implement Parallel uploads
+   }
+
+   @Override
+   @Test(groups = { "integration", "live" }, dataProvider = "gcsPutTest")
+   public void testPutObject(String name, String type, Object content, Object realObject) throws InterruptedException,
+            IOException {
+      PayloadBlobBuilder blobBuilder = view.getBlobStore().blobBuilder(name).payload(Payloads.newPayload(content))
+               .contentType(type);
+      addContentMetadata(blobBuilder);
+      Blob blob = blobBuilder.build();
+      blob.getPayload().setContentMetadata(blob.getMetadata().getContentMetadata());
+      String container = getContainerName();
+      try {
+         assertNotNull(view.getBlobStore().putBlob(container, blob));
+         blob = view.getBlobStore().getBlob(container, blob.getMetadata().getName());
+         validateMetadata(blob.getMetadata(), container, name);
+         checkContentMetadata(blob);
+
+         String returnedString = getContentAsStringOrNullAndClose(blob);
+         assertEquals(returnedString, realObject);
+         PageSet<? extends StorageMetadata> set = view.getBlobStore().list(container);
+         assert set.size() == 1 : set;
+      } finally {
+         returnContainer(container);
+      }
+   }
+
+   private void addContentMetadata(PayloadBlobBuilder blobBuilder) {
+      blobBuilder.contentType("text/csv");
+      blobBuilder.contentDisposition("attachment; filename=photo.jpg");
+      blobBuilder.contentEncoding("gzip");
+      blobBuilder.contentLanguage("en");
+   }
+   
+   @DataProvider(name = "gcsPutTest")
+   public Object[][] createData1() throws IOException {
+      File file = new File("pom.xml");
+      String realObject = Files.toString(file, Charsets.UTF_8);
+
+      return new Object[][] { { "file", MediaType.APPLICATION_XML, file, realObject },
+               { "string", MediaType.APPLICATION_XML, realObject, realObject },
+               { "bytes", MediaType.APPLICATION_OCTET_STREAM, realObject.getBytes(), realObject } };
+   }
+
+   @Override
+   public void testMetadata() throws InterruptedException, IOException {
+      String name = "hello";
+
+      HashFunction hf = Hashing.md5();
+      HashCode md5 = hf.hashString(TEST_STRING, Charsets.UTF_8);
+      Blob blob = view.getBlobStore().blobBuilder(name).userMetadata(ImmutableMap.of("adrian", "powderpuff"))
+               .payload(TEST_STRING).contentType(MediaType.TEXT_PLAIN).contentMD5(md5).build();
+      String container = getContainerName();
+      try {
+         assertNull(view.getBlobStore().blobMetadata(container, "powderpuff"));
+
+         addBlobToContainer(container, blob);
+         Blob newObject = validateContent(container, name);
+
+         BlobMetadata metadata = newObject.getMetadata();
+
+         validateMetadata(metadata);
+         validateMetadata(metadata, container, name);
+         validateMetadata(view.getBlobStore().blobMetadata(container, name));
+
+         // write 2 items with the same name to ensure that provider doesn't
+         // accept dupes
+         blob.getMetadata().getUserMetadata().put("adrian", "wonderpuff");
+         blob.getMetadata().getUserMetadata().put("adrian", "powderpuff");
+
+         addBlobToContainer(container, blob);
+         validateMetadata(view.getBlobStore().blobMetadata(container, name));
+
+      } finally {
+         returnContainer(container);
+      }
+
+   }
+}

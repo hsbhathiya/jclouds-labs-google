@@ -152,7 +152,7 @@ public interface BucketApi {
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/b/{bucket}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @Nullable
+   @Fallback(NullOnNotFoundOr404.class)
    void deleteBucket(@PathParam("bucket") String bucketName);
 
    /**
@@ -168,7 +168,7 @@ public interface BucketApi {
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/b/{bucket}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @Nullable
+   @Fallback(NullOnNotFoundOr404.class)
    void deleteBucket(@PathParam("bucket") String bucketName, DeleteBucketOptions options);
 
    /**

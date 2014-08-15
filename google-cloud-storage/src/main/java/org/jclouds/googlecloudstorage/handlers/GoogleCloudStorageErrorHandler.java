@@ -24,6 +24,7 @@ import org.jclouds.http.HttpCommand;
 import org.jclouds.http.HttpErrorHandler;
 import org.jclouds.http.HttpResponse;
 import org.jclouds.http.HttpResponseException;
+import org.jclouds.http.handlers.BackoffLimitedRetryHandler;
 import org.jclouds.rest.AuthorizationException;
 import org.jclouds.rest.ResourceNotFoundException;
 
@@ -64,6 +65,9 @@ public class GoogleCloudStorageErrorHandler implements HttpErrorHandler {
       case 412:
          exception = new IllegalStateException(message412 + message, exception);
          break;
+      case 503:
+        new BackoffLimitedRetryHandler().imposeBackoffExponentialDelay(2, "SlowDown");
+        return;
       }
       command.setException(exception);
 

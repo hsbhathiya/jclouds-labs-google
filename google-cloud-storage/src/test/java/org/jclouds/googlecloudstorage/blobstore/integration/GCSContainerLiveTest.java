@@ -16,12 +16,6 @@
  */
 package org.jclouds.googlecloudstorage.blobstore.integration;
 
-import java.util.UUID;
-
-import org.jclouds.blobstore.integration.internal.BaseBlobIntegrationTest;
-import org.jclouds.blobstore.integration.internal.BaseContainerLiveTest;
-import org.testng.annotations.Test;
-
 /*@Test(groups = { "live" })
 public class GCSContainerLiveTest extends BaseContainerLiveTest {
 

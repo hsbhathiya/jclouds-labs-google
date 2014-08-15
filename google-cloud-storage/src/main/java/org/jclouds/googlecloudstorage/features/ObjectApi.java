@@ -32,6 +32,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
+import org.jclouds.blobstore.domain.Blob;
+import org.jclouds.blobstore.functions.ParseBlobFromHeadersAndHttpContent;
 import org.jclouds.googlecloudstorage.binders.ComposeObjectBinder;
 import org.jclouds.googlecloudstorage.binders.MultipartUploadBinder;
 import org.jclouds.googlecloudstorage.binders.UploadBinder;
@@ -46,7 +48,10 @@ import org.jclouds.googlecloudstorage.options.GetObjectOptions;
 import org.jclouds.googlecloudstorage.options.InsertObjectOptions;
 import org.jclouds.googlecloudstorage.options.ListObjectOptions;
 import org.jclouds.googlecloudstorage.options.UpdateObjectOptions;
+import org.jclouds.googlecloudstorage.parser.ParseToPayloadEnclosing;
+import org.jclouds.http.internal.PayloadEnclosingImpl;
 import org.jclouds.io.Payload;
+import org.jclouds.io.PayloadEnclosing;
 import org.jclouds.io.Payloads;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.oauth.v2.config.OAuthScopes;
@@ -57,6 +62,7 @@ import org.jclouds.rest.annotations.MapBinder;
 import org.jclouds.rest.annotations.PATCH;
 import org.jclouds.rest.annotations.PayloadParam;
 import org.jclouds.rest.annotations.RequestFilters;
+import org.jclouds.rest.annotations.ResponseParser;
 import org.jclouds.rest.annotations.SkipEncoding;
 import org.jclouds.rest.annotations.QueryParams;
 import org.jclouds.rest.binders.BindToJsonPayload;
@@ -126,13 +132,12 @@ public interface ObjectApi {
    @Named("Object:get")
    @GET
    @QueryParams(keys = "alt", values = "media")
-   @Consumes(MediaType.APPLICATION_JSON)
-   @Produces(MediaType.APPLICATION_JSON)
    @Path("storage/v1/b/{bucket}/o/{object}")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
+   @ResponseParser(ParseToPayloadEnclosing.class)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   Payloads download(@PathParam("bucket") String bucketName, @PathParam("object") String objectName);
+   PayloadEnclosingImpl download(@PathParam("bucket") String bucketName, @PathParam("object") String objectName);
 
    /**
     * Retrieves objects
@@ -152,10 +157,11 @@ public interface ObjectApi {
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
    @Path("storage/v1/b/{bucket}/o/{object}")
+   @ResponseParser(ParseToPayloadEnclosing.class)
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
-   Payloads download(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
+   PayloadEnclosingImpl download(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
             GetObjectOptions options);
 
    /**
@@ -217,7 +223,7 @@ public interface ObjectApi {
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("storage/v1/b/{bucket}/o/{object}")
    @OAuthScopes(STORAGE_WRITEONLY_SCOPE)
-   @Nullable
+   @Fallback(NullOnNotFoundOr404.class)
    void deleteObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName);
 
    /**
@@ -236,7 +242,7 @@ public interface ObjectApi {
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("storage/v1/b/{bucket}/o/{object}")
    @OAuthScopes(STORAGE_WRITEONLY_SCOPE)
-   @Nullable
+   @Fallback(NullOnNotFoundOr404.class)
    void deleteObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
             DeleteObjectOptions options);
 

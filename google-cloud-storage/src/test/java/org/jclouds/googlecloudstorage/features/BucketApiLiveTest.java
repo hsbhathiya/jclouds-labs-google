@@ -213,7 +213,7 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       api().deleteBucket(LOG_BUCKET_NAME);
    }
 
-   @Test(groups = "live", dependsOnMethods = { "testDeleteBucket" }, expectedExceptions = { ResourceNotFoundException.class })
+   @Test(groups = "live", dependsOnMethods = { "testDeleteBucket" })
    public void testDeleteNotExistingBucket() {
       api().deleteBucket(BUCKET_NAME);
    }
@@ -227,7 +227,7 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    }
    
-    /*@BeforeClass
+  /*  @BeforeClass
     public void deleteAllBuckets() throws InterruptedException{
       Thread.sleep(60*1000);
       ListOptions options = new ListOptions().maxResults(1000);

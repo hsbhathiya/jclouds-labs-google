@@ -27,6 +27,7 @@ import org.jclouds.googlecloudstorage.domain.GCSObject;
 
 import com.google.common.base.Function;
 import com.google.common.hash.HashCode;
+import com.google.common.hash.Hashing;
 
 @Singleton
 public class ObjectToBlobMetadata implements Function<GCSObject, MutableBlobMetadata> {
@@ -41,7 +42,7 @@ public class ObjectToBlobMetadata implements Function<GCSObject, MutableBlobMeta
       if (from == null)
          return null;
       MutableBlobMetadata to = new MutableBlobMetadataImpl();
-      to.getContentMetadata().setContentMD5(HashCode.fromBytes(from.getMd5AsByteArray()));
+      to.getContentMetadata().setContentMD5(from.getMd5AsByteArray());
       if (from.getContentType() != null)
          to.getContentMetadata().setContentType(from.getContentType());
       if (from.getContentDisposition() != null)
@@ -51,17 +52,18 @@ public class ObjectToBlobMetadata implements Function<GCSObject, MutableBlobMeta
       if (from.getContentLanguage() != null)
          to.getContentMetadata().setContentLanguage(from.getContentLanguage());
       if (from.getSize() != null)
-         to.getContentMetadata().setContentLength(from.getSize());       
+         to.getContentMetadata().setContentLength(from.getSize());
+      if (from.getUpdated() != null)
+         to.setLastModified(from.getUpdated());
+      to.setContainer(from.getBucket());
+      to.setUserMetadata(from.getAllMetadata());
       to.setETag(from.getEtag());
       to.setName(from.getName());
       to.setContainer(from.getBucket());
       to.setUri(from.getSelfLink());
-      if (from.getUpdated() != null)
-         to.setLastModified(from.getUpdated());      
-      to.setUserMetadata(from.getAllMetadata());
       to.setId(from.getId());
       to.setPublicUri(from.getMediaLink());
-      
+
       String directoryName = ifDirectoryReturnName.execute(to);
       if (directoryName != null) {
          to.setName(directoryName);

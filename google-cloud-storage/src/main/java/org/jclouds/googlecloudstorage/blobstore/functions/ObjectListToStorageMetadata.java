@@ -24,6 +24,7 @@ import org.jclouds.blobstore.domain.internal.PageSetImpl;
 import org.jclouds.blobstore.domain.internal.StorageMetadataImpl;
 import org.jclouds.googlecloudstorage.domain.GCSObject;
 import org.jclouds.googlecloudstorage.domain.ListPage;
+import org.jclouds.googlecloudstorage.domain.Resource.Kind;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
@@ -40,6 +41,9 @@ public class ObjectListToStorageMetadata implements Function<ListPage<GCSObject>
    }
 
    public PageSet<? extends StorageMetadata> apply(ListPage<GCSObject> from) {
+      if(from == null){
+         from =  ListPage.<GCSObject>builder().kind(Kind.OBJECTS).build();
+      }
       return new PageSetImpl<StorageMetadata>(Iterables.transform(Iterables.transform(from, object2blobMd),
                new Function<BlobMetadata, StorageMetadata>() {
                   public StorageMetadata apply(BlobMetadata input) {

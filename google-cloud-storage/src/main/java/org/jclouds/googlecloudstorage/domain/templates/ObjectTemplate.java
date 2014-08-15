@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jclouds.googlecloudstorage.domain.ObjectAccessControls;
+
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.hash.HashCode;
@@ -82,7 +83,7 @@ public class ObjectTemplate {
    }
 
    public ObjectTemplate customMetadata(Map<String, String> metadata) {
-      this.metadata = metadata;
+      this.metadata.putAll(metadata); 
       return this;
    }
 
