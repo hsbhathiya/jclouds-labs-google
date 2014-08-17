@@ -19,20 +19,25 @@ package org.jclouds.googlecloudstorage.blobstore.config;
 import org.jclouds.blobstore.AsyncBlobStore;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.attr.ConsistencyModel;
-
-
+import org.jclouds.domain.Location;
 import org.jclouds.googlecloudstorage.blobstore.GCSAsyncBlobStore;
 import org.jclouds.googlecloudstorage.blobstore.GCSBlobStore;
-
+import org.jclouds.googlecloudstorage.blobstore.functions.GCSLocationToLocation;
+import com.google.common.base.Function;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+import com.google.inject.TypeLiteral;
 
 public class GCSBlobStoreContextModule extends AbstractModule {
 
    @Override
    protected void configure() {
       bind(ConsistencyModel.class).toInstance(ConsistencyModel.EVENTUAL);
-      bind(BlobStore.class).to(GCSBlobStore.class).in(Scopes.SINGLETON); 
+      bind(BlobStore.class).to(GCSBlobStore.class).in(Scopes.SINGLETON);
       bind(AsyncBlobStore.class).to(GCSAsyncBlobStore.class).in(Scopes.SINGLETON);
+
+      bind(
+               new TypeLiteral<Function<org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Location, Location>>() {
+               }).to(GCSLocationToLocation.class);
    }
 }

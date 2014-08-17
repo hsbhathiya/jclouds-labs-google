@@ -32,8 +32,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
-import org.jclouds.blobstore.domain.Blob;
-import org.jclouds.blobstore.functions.ParseBlobFromHeadersAndHttpContent;
 import org.jclouds.googlecloudstorage.binders.ComposeObjectBinder;
 import org.jclouds.googlecloudstorage.binders.MultipartUploadBinder;
 import org.jclouds.googlecloudstorage.binders.UploadBinder;
@@ -51,8 +49,6 @@ import org.jclouds.googlecloudstorage.options.UpdateObjectOptions;
 import org.jclouds.googlecloudstorage.parser.ParseToPayloadEnclosing;
 import org.jclouds.http.internal.PayloadEnclosingImpl;
 import org.jclouds.io.Payload;
-import org.jclouds.io.PayloadEnclosing;
-import org.jclouds.io.Payloads;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.oauth.v2.config.OAuthScopes;
 import org.jclouds.oauth.v2.filters.OAuthAuthenticator;

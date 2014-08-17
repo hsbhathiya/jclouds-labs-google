@@ -106,7 +106,7 @@ public class DefaultObjectAccessControlsApiLiveTest extends BaseGoogleCloudStora
       api().deleteDefaultObjectAccessControls(BUCKET_NAME, "allUsers");
       deleteBucket(BUCKET_NAME);
    }
-   
+
    @Test(groups = "live", dependsOnMethods = { "testDeleteBucketacl" }, expectedExceptions = { ResourceNotFoundException.class })
    public void testDeleteNotExistingBucketAccessControls() {
       api().deleteDefaultObjectAccessControls(BUCKET_NAME, "allUsers");

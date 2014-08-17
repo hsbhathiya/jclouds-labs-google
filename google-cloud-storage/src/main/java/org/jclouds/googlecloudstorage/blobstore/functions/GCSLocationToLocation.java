@@ -14,15 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.googlecloudstorage.blobstore.integration;
+package org.jclouds.googlecloudstorage.blobstore.functions;
 
-import org.jclouds.blobstore.integration.internal.BaseContainerLiveTest;
-import org.testng.annotations.Test;
+import org.jclouds.domain.Location;
+import org.jclouds.domain.LocationBuilder;
+import org.jclouds.domain.LocationScope;
+import com.google.common.base.Function;
 
-@Test(groups = { "live" })
-public class GCSContainerLiveTest extends BaseContainerLiveTest {
+/**
+ * Transforms a google compute domain specific region to a generic Region object.
+ */
+public class GCSLocationToLocation implements
+         Function<org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Location, Location> {
 
-   public GCSContainerLiveTest() {
-      provider = "google-cloud-storage";
+   @Override
+   public Location apply(org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Location input) {
+      return new LocationBuilder().id(input.value()).scope(LocationScope.REGION).build();
    }
 }

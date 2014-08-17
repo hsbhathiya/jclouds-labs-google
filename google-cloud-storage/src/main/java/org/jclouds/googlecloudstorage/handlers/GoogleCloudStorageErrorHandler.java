@@ -36,7 +36,7 @@ public class GoogleCloudStorageErrorHandler implements HttpErrorHandler {
    public void handleError(HttpCommand command, HttpResponse response) {
       // it is important to always read fully and close streams
       byte[] data = closeClientButKeepContentStream(response);
-      String message = data != null ? new String(data) : null;
+      String message = data != null ? response.getStatusCode() + ":" + new String(data) : null;
 
       Exception exception = message != null ? new HttpResponseException(command, response, message)
                : new HttpResponseException(command, response);
@@ -65,9 +65,6 @@ public class GoogleCloudStorageErrorHandler implements HttpErrorHandler {
       case 412:
          exception = new IllegalStateException(message412 + message, exception);
          break;
-      case 503:
-        new BackoffLimitedRetryHandler().imposeBackoffExponentialDelay(2, "SlowDown");
-        return;
       }
       command.setException(exception);
 

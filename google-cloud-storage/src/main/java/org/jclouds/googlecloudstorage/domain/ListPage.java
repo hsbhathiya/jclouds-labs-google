@@ -22,6 +22,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.beans.ConstructorProperties;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.jclouds.collect.IterableWithMarker;
 import org.jclouds.googlecloudstorage.domain.Resource.Kind;
@@ -39,13 +40,15 @@ public class ListPage<T> extends IterableWithMarker<T> {
    private final Kind kind;
    private final String nextPageToken;
    private final Iterable<T> items;
+   private final Set<String> prefixes;
 
-   @ConstructorProperties({ "kind", "nextPageToken", "items" })
-   protected ListPage(Kind kind, String nextPageToken, Iterable<T> items) {
+   @ConstructorProperties({ "kind", "nextPageToken", "items","prefixes" })
+   protected ListPage(Kind kind, String nextPageToken, Iterable<T> items,Set<String> prefixes ) {
 
       this.kind = checkNotNull(kind, "kind");
       this.nextPageToken = nextPageToken;
       this.items = items != null ? ImmutableSet.copyOf(items) : ImmutableSet.<T> of();
+      this.prefixes = prefixes != null ? prefixes : ImmutableSet.<String> of();;
    }
 
    public Kind getKind() {
@@ -55,7 +58,11 @@ public class ListPage<T> extends IterableWithMarker<T> {
    public String getNextPageToken() {
       return nextPageToken;
    }
-
+   
+   public Set<String> getPrefixes() {
+      return prefixes;
+   }   
+   
    @Override
    public Optional<Object> nextMarker() {
       return Optional.<Object> fromNullable(nextPageToken);
@@ -104,6 +111,8 @@ public class ListPage<T> extends IterableWithMarker<T> {
       private Kind kind;
       private String nextPageToken;
       private ImmutableSet.Builder<T> items = ImmutableSet.builder();
+      private ImmutableSet.Builder<String> prefixes = ImmutableSet.builder();
+      
 
       public Builder<T> kind(Kind kind) {
          this.kind = kind;
@@ -119,6 +128,11 @@ public class ListPage<T> extends IterableWithMarker<T> {
          this.items.addAll(items);
          return this;
       }
+      
+      public Builder<T> prefixes(Set<String> prefixes) {
+         this.prefixes.addAll(prefixes);
+         return this;
+      }
 
       public Builder<T> nextPageToken(String nextPageToken) {
          this.nextPageToken = nextPageToken;
@@ -126,11 +140,11 @@ public class ListPage<T> extends IterableWithMarker<T> {
       }
 
       public ListPage<T> build() {
-         return new ListPage<T>(kind, nextPageToken, items.build());
+         return new ListPage<T>(kind, nextPageToken, items.build(),prefixes.build());
       }
 
       public Builder<T> fromPagedList(ListPage<T> in) {
-         return this.kind(in.getKind()).nextPageToken((String) in.nextMarker().orNull()).items(in);
+         return this.kind(in.getKind()).nextPageToken((String) in.nextMarker().orNull()).items(in).prefixes(in.getPrefixes());
 
       }
    }

@@ -21,6 +21,7 @@ import static com.google.common.base.Objects.equal;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,10 +29,11 @@ import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.StorageCl
 import org.jclouds.googlecloudstorage.domain.internal.Owner;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
+import com.google.common.primitives.Bytes;
 
 /**
  * This class represent an object in a Google Cloud Storage Bucket.
@@ -172,7 +174,13 @@ public class GCSObject extends Resource {
    }
 
    public byte[] getCrc32cAsByteArray() {
-      return BaseEncoding.base64().decode(crc32c);
+      return reverse(BaseEncoding.base64().decode(crc32c));
+   }
+   
+   private byte[] reverse(byte[] b) {
+      List<Byte> hashByte = Bytes.asList(b);
+      List<Byte> reversedList = Lists.reverse(hashByte);
+      return Bytes.toArray(reversedList);
    }
 
    public Integer getComponentCount() {

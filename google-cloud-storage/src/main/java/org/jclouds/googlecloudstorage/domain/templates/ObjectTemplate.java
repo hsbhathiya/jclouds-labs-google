@@ -17,16 +17,19 @@
 
 package org.jclouds.googlecloudstorage.domain.templates;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.jclouds.googlecloudstorage.domain.ObjectAccessControls;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.hash.HashCode;
 import com.google.common.io.BaseEncoding;
 import com.google.common.net.MediaType;
+import com.google.common.primitives.Bytes;
 
 public class ObjectTemplate {
 
@@ -83,7 +86,7 @@ public class ObjectTemplate {
    }
 
    public ObjectTemplate customMetadata(Map<String, String> metadata) {
-      this.metadata.putAll(metadata); 
+      this.metadata.putAll(metadata);
       return this;
    }
 
@@ -93,8 +96,14 @@ public class ObjectTemplate {
    }
 
    public ObjectTemplate crc32c(HashCode crc32c) {
-      this.crc32c = BaseEncoding.base64().encode(crc32c.asBytes());
+      this.crc32c = BaseEncoding.base64().encode(reverse(crc32c.asBytes()));
       return this;
+   }
+
+   private byte[] reverse(byte[] b) {
+      List<Byte> hashByte = Bytes.asList(b);
+      List<Byte> reversedList = Lists.reverse(hashByte);
+      return Bytes.toArray(reversedList);
    }
 
    public ObjectTemplate md5Hash(HashCode md5Hash) {

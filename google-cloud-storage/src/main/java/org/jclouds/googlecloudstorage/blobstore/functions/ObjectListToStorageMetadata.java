@@ -52,6 +52,13 @@ public class ObjectListToStorageMetadata implements Function<ListPage<GCSObject>
                                  .getName(), input.getLocation(), input.getUri(), input.getETag(),
                                  input.getCreationDate(), input.getLastModified(), input.getUserMetadata());
                      }
+                     
+                     if (input.getContentMetadata().getContentType().equalsIgnoreCase("folder")) {
+                        return new StorageMetadataImpl(StorageType.FOLDER, input.getProviderId(), input
+                                 .getName(), input.getLocation(), input.getUri(), input.getETag(),
+                                 input.getCreationDate(), input.getLastModified(), input.getUserMetadata());
+                     }
+
                      return input;
                   }
                }), from.getNextPageToken());

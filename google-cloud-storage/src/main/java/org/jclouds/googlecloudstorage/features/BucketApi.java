@@ -76,7 +76,7 @@ public interface BucketApi {
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/b/{bucket}")
-   @OAuthScopes(STORAGE_READONLY_SCOPE)
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
    Bucket getBucket(@PathParam("bucket") String bucketName);
@@ -96,7 +96,7 @@ public interface BucketApi {
    @Consumes(MediaType.APPLICATION_JSON)
    @Produces(MediaType.APPLICATION_JSON)
    @Path("/b/{bucket}")
-   @OAuthScopes(STORAGE_READONLY_SCOPE)
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @Fallback(NullOnNotFoundOr404.class)
    @Nullable
    Bucket getBucket(@PathParam("bucket") String bucketName, GetBucketOptions options);

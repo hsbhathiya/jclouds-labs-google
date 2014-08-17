@@ -88,6 +88,8 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
                .versioning(version).location(Location.US_CENTRAL2).logging(log)
                .storageClass(StorageClass.DURABLE_REDUCED_AVAILABILITY).addCORS(bucketCors);
 
+      assertTrue(!template.getDefaultObjectAccessControls().isEmpty());
+          
       Bucket response = api().createBucket(PROJECT_NUMBER, template);
 
       assertNotNull(response);
@@ -123,6 +125,8 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
       InsertBucketOptions options = new InsertBucketOptions().projection(Projection.FULL);
 
+      assertTrue(!template.getDefaultObjectAccessControls().isEmpty());
+      
       Bucket response = api().createBucket(PROJECT_NUMBER, template, options);
 
       assertNotNull(response);

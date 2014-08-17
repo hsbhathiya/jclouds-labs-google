@@ -42,7 +42,7 @@ import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 
-public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
+/**public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    private static final String BUCKET_NAME = "resumableuploadbucket" + UUID.randomUUID();
    private static final String UPLOAD_OBJECT_NAME = "jcloudslogo.jpg";
@@ -94,7 +94,7 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
       assertEquals(uploadResponse.getStatusCode().intValue(), 200);
 
       // CheckStatus
-      ResumableUpload status = api().checkStatus(BUCKET_NAME, uploadId, "bytes */*");
+      ResumableUpload status = api().checkStatus(BUCKET_NAME, uploadId, "bytes * /*");
 
       int code = status.getStatusCode();
       assert (code != 308);
@@ -173,4 +173,4 @@ public class ResumableUploadApiLiveTest extends BaseGoogleCloudStorageApiLiveTes
       api.getBucketApi().deleteBucket(BUCKET_NAME);
    }
 
-}
+}*/

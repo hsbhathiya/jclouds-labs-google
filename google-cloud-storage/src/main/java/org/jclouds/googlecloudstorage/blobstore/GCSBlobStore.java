@@ -18,9 +18,7 @@ package org.jclouds.googlecloudstorage.blobstore;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.inject.Singleton;
@@ -31,7 +29,6 @@ import org.jclouds.blobstore.domain.BlobMetadata;
 import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.domain.internal.BlobBuilderImpl;
-import org.jclouds.blobstore.domain.internal.BlobImpl;
 import org.jclouds.blobstore.domain.internal.PageSetImpl;
 import org.jclouds.blobstore.internal.BaseBlobStore;
 import org.jclouds.blobstore.options.CreateContainerOptions;
@@ -43,30 +40,25 @@ import org.jclouds.collect.Memoized;
 import org.jclouds.domain.Location;
 import org.jclouds.googlecloudstorage.GoogleCloudStorageApi;
 import org.jclouds.googlecloudstorage.blobstore.functions.BlobMetadataToObjectTemplate;
+import org.jclouds.googlecloudstorage.blobstore.functions.BlobStoreListContainerOptionsToListObjectOptions;
 import org.jclouds.googlecloudstorage.blobstore.functions.BucketToStorageMetadata;
 import org.jclouds.googlecloudstorage.blobstore.functions.ObjectListToStorageMetadata;
 import org.jclouds.googlecloudstorage.blobstore.functions.ObjectToBlobMetadata;
 import org.jclouds.googlecloudstorage.domain.Bucket;
-import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
-import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Role;
+import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRole;
 import org.jclouds.googlecloudstorage.domain.GCSObject;
 import org.jclouds.googlecloudstorage.domain.ListPage;
 import org.jclouds.googlecloudstorage.domain.templates.BucketTemplate;
+import org.jclouds.googlecloudstorage.domain.templates.DefaultObjectAccessControlsTemplate;
 import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
 import org.jclouds.googlecloudstorage.options.ListObjectOptions;
 import org.jclouds.http.HttpResponseException;
 import org.jclouds.http.internal.PayloadEnclosingImpl;
-import org.jclouds.io.ContentMetadata;
-import org.jclouds.io.Payload;
-import org.jclouds.io.Payloads;
-import org.jclouds.io.payloads.ByteSourcePayload;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import com.google.common.hash.HashCode;
-import com.google.common.io.ByteSource;
-import com.google.common.net.MediaType;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -80,6 +72,7 @@ public class GCSBlobStore extends BaseBlobStore {
    ObjectListToStorageMetadata objectListToStorageMetadata;
    Provider<FetchBlobMetadata> fetchBlobMetadataProvider;
    BlobMetadataToObjectTemplate blobMetadataToObjectTemplate;
+   BlobStoreListContainerOptionsToListObjectOptions listContainerOptionsToListObjectOptions;
 
    @Inject
    protected GCSBlobStore(BlobStoreContext context, BlobUtils blobUtils, Supplier<Location> defaultLocation,
@@ -87,7 +80,8 @@ public class GCSBlobStore extends BaseBlobStore {
             BucketToStorageMetadata bucketToStorageMetadata, ObjectToBlobMetadata objectToBlobMetadata,
             ObjectListToStorageMetadata objectListToStorageMetadata,
             Provider<FetchBlobMetadata> fetchBlobMetadataProvider,
-            BlobMetadataToObjectTemplate blobMetadataToObjectTemplate) {
+            BlobMetadataToObjectTemplate blobMetadataToObjectTemplate,
+            BlobStoreListContainerOptionsToListObjectOptions listContainerOptionsToListObjectOptions) {
       super(context, blobUtils, defaultLocation, locations);
       this.api = api;
       this.bucketToStorageMetadata = bucketToStorageMetadata;
@@ -95,6 +89,7 @@ public class GCSBlobStore extends BaseBlobStore {
       this.objectListToStorageMetadata = objectListToStorageMetadata;
       this.fetchBlobMetadataProvider = checkNotNull(fetchBlobMetadataProvider, "fetchBlobMetadataProvider");
       this.blobMetadataToObjectTemplate = blobMetadataToObjectTemplate;
+      this.listContainerOptionsToListObjectOptions = listContainerOptionsToListObjectOptions;
    }
 
    @Override
@@ -115,7 +110,7 @@ public class GCSBlobStore extends BaseBlobStore {
    public boolean createContainerInLocation(Location location, String container) {
 
       if (containerExists(container)) {
-         return true;
+         return false;
       }
 
       BucketTemplate template = new BucketTemplate().name(container);
@@ -131,32 +126,53 @@ public class GCSBlobStore extends BaseBlobStore {
    public boolean createContainerInLocation(Location location, String container, CreateContainerOptions options) {
 
       if (containerExists(container)) {
-         return true;
+         return false;
       }
-      org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Location gcsLocation = org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Location
-               .fromValue(location.getId());
-      BucketTemplate template = new BucketTemplate().name(container).location(gcsLocation);
+      BucketTemplate template = new BucketTemplate().name(container);
+      if (location != null) {
+         org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Location gcsLocation = org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Location
+                  .fromValue(location.getId());
+         template = template.location(gcsLocation);
+      }
+      Bucket bucket = api.getBucketApi().createBucket(PROJECT_ID, template);
       if (options.isPublicRead()) {
-         BucketAccessControls acl = BucketAccessControls.builder().bucket(container).entity("allUsers")
-                  .role(Role.READER).build();
-         template.addAcl(acl);
+         try {
+            DefaultObjectAccessControlsTemplate doAclTemplate = new DefaultObjectAccessControlsTemplate().entity(
+                     "allUsers").role(ObjectRole.READER);
+            api.getDefaultObjectAccessControlsApi().createDefaultObjectAccessControls(container, doAclTemplate);
+         } catch (HttpResponseException e) {
+            // If DefaultObjectAccessControls operation fail, Reverse create operation the operation.
+            api.getBucketApi().deleteBucket(container);
+            return false;
+         }
       }
-      return api.getBucketApi().createBucket(PROJECT_ID, template) != null;
+
+      return bucket != null;
+   }
+   /** Returns list of objects in root*/
+   @Override
+   public PageSet<? extends StorageMetadata> list(String container) {
+    //  ListObjectOptions options = new ListObjectOptions().delimiter("/");
+      ListPage<GCSObject> gcsList = api.getObjectApi().listObjects(container);
+      PageSet<? extends StorageMetadata> list = objectListToStorageMetadata.apply(gcsList);
+      return list;
+      
    }
 
    @Override
    public PageSet<? extends StorageMetadata> list(String container, ListContainerOptions options) {
+      
 
-      if (options != null && options.getMaxResults() != null && options.getMarker() != null) {
-         ListObjectOptions listOptions = new ListObjectOptions().maxResults(options.getMaxResults()).pageToken(
-                  options.getMarker());
+      if (options != null && options != ListContainerOptions.NONE ) {
+       //  ListObjectOptions listOptions = new ListObjectOptions().maxResults(options.getMaxResults()).pageToken(
+       //           options.getMarker());
+         ListObjectOptions listOptions =  listContainerOptionsToListObjectOptions.apply(options);
          ListPage<GCSObject> gcsList = api.getObjectApi().listObjects(container, listOptions);
          PageSet<? extends StorageMetadata> list = objectListToStorageMetadata.apply(gcsList);
          return options.isDetailed() ? fetchBlobMetadataProvider.get().setContainerName(container).apply(list) : list;
       } else {
-         ListPage<GCSObject> gcsList = api.getObjectApi().listObjects(container);
-         PageSet<? extends StorageMetadata> list = objectListToStorageMetadata.apply(gcsList);
-         return list;
+
+         return list(container);
       }
    }
 
@@ -175,31 +191,16 @@ public class GCSBlobStore extends BaseBlobStore {
    @Override
    public String putBlob(String container, Blob blob) {
       checkNotNull(blob.getPayload().getContentMetadata().getContentLength());
-      
-     ObjectTemplate template = blobMetadataToObjectTemplate.apply(blob.getMetadata());
-      
-    /*  ContentMetadata metadata  = blob.getPayload().getContentMetadata();
-      BlobMetadata from = blob.getMetadata();
-      String name = from.getName();
-      Map<String, String>  userMeta = from.getUserMetadata();      
-           
-      String contentDisposition = metadata.getContentDisposition();
-      String contentEncoding = metadata.getContentEncoding();
-      String contentLanguage = metadata.getContentLanguage();
-      String contentType = metadata.getContentType();
-      Long contentLength = metadata.getContentLength();
-            
-      HashCode md5 = metadata.getContentMD5AsHashCode();
-      
-      ObjectTemplate template = new ObjectTemplate().contentType(contentType).size(contentLength)
-               .contentEncoding(contentEncoding).contentLanguage(contentLanguage)
-               .contentDisposition(contentDisposition).name(name).customMetadata(userMeta);
-
-      if(md5!= null){
-         template = template.md5Hash(md5);
-      }*/
-      //ObjectTemplate template= new ObjectTemplate().contentType(blob.getPayload().getContentMetadata().getContentType());
-      return api.getObjectApi().multipartUpload(container, template, blob.getPayload()).getEtag();
+      try {
+         ObjectTemplate template = blobMetadataToObjectTemplate.apply(blob.getMetadata());
+         if (blob.getMetadata().getContentMetadata().getContentMD5AsHashCode() != null) {
+            checkNotNull(template.getMd5Hash());
+         }
+         return api.getObjectApi().multipartUpload(container, template, blob.getPayload()).getEtag();
+      } catch (HttpResponseException e) {
+         e.printStackTrace();
+      }
+      return null;
    }
 
    @Override
@@ -224,8 +225,20 @@ public class GCSBlobStore extends BaseBlobStore {
          e.printStackTrace();
       }
       GCSObject gcsObject = api.getObjectApi().getObject(container, name);
-      Blob blob = new BlobImpl(objectToBlobMetadata.apply(gcsObject));
-      blob.setPayload(impl.getPayload());
+      Blob blob = new BlobBuilderImpl().payload(impl.getPayload()).payload(impl.getPayload())
+               .contentType(gcsObject.getContentType()).contentDisposition(gcsObject.getContentDisposition())
+               .contentEncoding(gcsObject.getContentEncoding()).contentLanguage(gcsObject.getContentLanguage())
+               .contentLength(gcsObject.getSize()).contentMD5(HashCode.fromBytes(gcsObject.getMd5AsByteArray()))
+               .name(gcsObject.getName()).userMetadata(gcsObject.getAllMetadata()).build();
+      // Blob blob = new BlobImpl(objectToBlobMetadata.apply(gcsObject));
+      blob.getMetadata().setContainer(container);
+      blob.getMetadata().setLastModified(gcsObject.getUpdated());
+      blob.getMetadata().setETag(gcsObject.getEtag());
+      blob.getMetadata().setPublicUri(gcsObject.getMediaLink());
+      blob.getMetadata().setUserMetadata(gcsObject.getAllMetadata());
+      blob.getMetadata().setUri(gcsObject.getSelfLink());
+      blob.getMetadata().setId(gcsObject.getId());
+      // blob.setPayload(impl.getPayload());
       return blob;
    }
 
@@ -240,5 +253,19 @@ public class GCSBlobStore extends BaseBlobStore {
       return !containerExists(container);
 
    }
+   
+  /* @Override
+   public void clearContainer(String containerName) {
+      // TODO Auto-generated method stub
+      super.clearContainer(containerName);
+      //Delete the folders
+      ListPage<GCSObject> list =  api.getObjectApi().listObjects(containerName);
+      Iterator<String> it =list.getPrefixes().iterator();
+      while(it.hasNext()){
+         String prefix = it.next();
+         removeBlob(containerName, prefix);
+         
+      };
+   }*/
 
 }

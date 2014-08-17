@@ -24,6 +24,7 @@ import org.jclouds.blobstore.domain.StorageType;
 import org.jclouds.blobstore.domain.internal.MutableBlobMetadataImpl;
 import org.jclouds.blobstore.strategy.IfDirectoryReturnNameStrategy;
 import org.jclouds.googlecloudstorage.domain.GCSObject;
+import org.jclouds.io.ContentMetadata;
 
 import com.google.common.base.Function;
 import com.google.common.hash.HashCode;
@@ -42,7 +43,9 @@ public class ObjectToBlobMetadata implements Function<GCSObject, MutableBlobMeta
       if (from == null)
          return null;
       MutableBlobMetadata to = new MutableBlobMetadataImpl();
-      to.getContentMetadata().setContentMD5(from.getMd5AsByteArray());
+
+      if (from.getMd5Hash() != null)
+         to.getContentMetadata().setContentMD5(HashCode.fromBytes(from.getMd5AsByteArray()));
       if (from.getContentType() != null)
          to.getContentMetadata().setContentType(from.getContentType());
       if (from.getContentDisposition() != null)
