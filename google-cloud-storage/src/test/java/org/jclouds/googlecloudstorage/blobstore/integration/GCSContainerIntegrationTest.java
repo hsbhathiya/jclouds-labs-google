@@ -16,10 +16,21 @@
  */
 package org.jclouds.googlecloudstorage.blobstore.integration;
 
+import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.base.Throwables.propagateIfPossible;
 import static com.google.common.collect.Iterables.get;
+import static com.google.common.hash.Hashing.md5;
+import static org.jclouds.blobstore.options.ListContainerOptions.Builder.afterMarker;
+import static org.jclouds.blobstore.options.ListContainerOptions.Builder.inDirectory;
 import static org.jclouds.blobstore.options.ListContainerOptions.Builder.maxResults;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
+
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 
@@ -27,7 +38,11 @@ import org.jclouds.blobstore.domain.BlobMetadata;
 import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.integration.internal.BaseContainerIntegrationTest;
+import org.jclouds.blobstore.options.ListContainerOptions;
+import org.jclouds.googlecloudstorage.blobstore.GCSBlobStore;
 import org.testng.annotations.Test;
+
+import clojure.lang.Compiler.C;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
@@ -68,4 +83,34 @@ public class GCSContainerIntegrationTest extends BaseContainerIntegrationTest {
          returnContainer(containerName);
       }
    }
+
+   /* Google Cloud Storage lists prefixes and objects in two different lists */
+   @Override
+   public void testListRootUsesDelimiter() throws InterruptedException {
+      String containerName = getContainerName();
+      try {
+         String prefix = "rootdelimiter";
+         addTenObjectsUnderPrefix(containerName, prefix);
+         add15UnderRoot(containerName);
+         PageSet<? extends StorageMetadata> container = view.getBlobStore().list(containerName,
+                  new ListContainerOptions());
+         assert container.getNextMarker() == null;
+         assertEquals(container.size(), 15);
+      } finally {
+         returnContainer(containerName);
+      }
+   }
+
+   @Override
+   @Test(enabled = false)
+   public void testDirectory() throws InterruptedException {
+      /**
+       * By using slashes in an object name, you can make objects appear as though they're stored in a hierarchical
+       * structure. For example, you could name one object /europe/france/paris.jpg and another object
+       * /europe/france/cannes.jpg. When you list these objects they appear to be in a hierarchical directory structure
+       * based on location; however, Google Cloud Storage sees the objects as independent objects with no hierarchical
+       * relationship whatsoever.
+       */
+   }
+
 }

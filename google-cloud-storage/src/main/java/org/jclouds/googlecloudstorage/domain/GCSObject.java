@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
 import com.google.common.primitives.Bytes;
+import com.google.inject.Inject;
 
 /**
  * This class represent an object in a Google Cloud Storage Bucket.
@@ -63,6 +64,7 @@ public class GCSObject extends Resource {
    private final String crc32c;
    private final Integer componentCount;
 
+   @Inject
    private GCSObject(String id, URI selfLink, String etag, String name, String bucket, Long generation,
             Long metageneration, String contentType, Date updated, Date timeDeleted, StorageClass storageClass,
             Long size, String md5Hash, URI mediaLink, Map<String, String> metadata, String contentEncoding,

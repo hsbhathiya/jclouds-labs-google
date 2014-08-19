@@ -29,7 +29,7 @@ public class BlobStoreListContainerOptionsToListObjectOptions implements
    public ListObjectOptions apply(ListContainerOptions from) {
       checkNotNull(from, "set options to instance NONE instead of passing null");
       ListObjectOptions httpOptions = new ListObjectOptions();
-      // ListBucketOptions httpOptions = new ListBucketOptions();
+     
       if (!from.isRecursive()) {
          httpOptions = httpOptions.delimiter("/");
       }

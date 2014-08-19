@@ -17,7 +17,6 @@
 package org.jclouds.googlecloudstorage.features;
 
 import static org.jclouds.googlecloudstorage.reference.GoogleCloudStorageConstants.STORAGE_FULLCONTROL_SCOPE;
-import static org.jclouds.googlecloudstorage.reference.GoogleCloudStorageConstants.STORAGE_READONLY_SCOPE;
 
 import javax.inject.Named;
 import javax.ws.rs.Consumes;
@@ -31,7 +30,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.jclouds.Fallbacks.FalseOnNotFoundOr404;
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
+import org.jclouds.Fallbacks.TrueOnNotFoundOr404;
 import org.jclouds.googlecloudstorage.binders.BucketBinder;
 import org.jclouds.googlecloudstorage.domain.Bucket;
 import org.jclouds.googlecloudstorage.domain.ListPage;
@@ -62,6 +63,22 @@ import org.jclouds.rest.binders.BindToJsonPayload;
 @SkipEncoding({ '/', '=' })
 @RequestFilters(OAuthAuthenticationFilter.class)
 public interface BucketApi {
+   
+   /**
+    * Check the existence of a bucket
+    *
+    * @param bucketName
+    *           Name of the bucket
+    *
+    * @return a {@link Bucket} true if bucket exist
+    */
+   @Named("Bucket:get")
+   @GET
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Path("/b/{bucket}")
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
+   @Fallback(FalseOnNotFoundOr404.class)
+   boolean bucketExist(@PathParam("bucket") String bucketName);
 
    /**
     * Returns metadata for the specified bucket.
@@ -117,6 +134,7 @@ public interface BucketApi {
    @Path("/b")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @MapBinder(BucketBinder.class)
+   @Fallback(NullOnNotFoundOr404.class)
    Bucket createBucket(@QueryParam("project") String projectId, @PayloadParam("template") BucketTemplate bucketTemplate);
 
    /**
@@ -138,6 +156,7 @@ public interface BucketApi {
    @Path("/b")
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @MapBinder(BucketBinder.class)
+   @Fallback(NullOnNotFoundOr404.class)
    Bucket createBucket(@QueryParam("project") String projectId,
             @PayloadParam("template") BucketTemplate bucketTemplate, InsertBucketOptions options);
 
@@ -151,9 +170,9 @@ public interface BucketApi {
    @DELETE
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/b/{bucket}")
+   @Fallback(TrueOnNotFoundOr404.class)
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @Fallback(NullOnNotFoundOr404.class)
-   void deleteBucket(@PathParam("bucket") String bucketName);
+   boolean deleteBucket(@PathParam("bucket") String bucketName);
 
    /**
     * Permanently deletes an empty Bucket.If bucket is not empty 409 error to indicate the conflict.
@@ -167,9 +186,9 @@ public interface BucketApi {
    @DELETE
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("/b/{bucket}")
+   @Fallback(TrueOnNotFoundOr404.class)
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
-   @Fallback(NullOnNotFoundOr404.class)
-   void deleteBucket(@PathParam("bucket") String bucketName, DeleteBucketOptions options);
+   boolean deleteBucket(@PathParam("bucket") String bucketName, DeleteBucketOptions options);
 
    /**
     * Retrieves a list of buckets for a given project

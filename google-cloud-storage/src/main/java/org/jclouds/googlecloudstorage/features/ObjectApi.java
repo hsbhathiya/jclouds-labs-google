@@ -31,7 +31,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.jclouds.Fallbacks.FalseOnNotFoundOr404;
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
+import org.jclouds.Fallbacks.TrueOnNotFoundOr404;
 import org.jclouds.googlecloudstorage.binders.ComposeObjectBinder;
 import org.jclouds.googlecloudstorage.binders.MultipartUploadBinder;
 import org.jclouds.googlecloudstorage.binders.UploadBinder;
@@ -71,6 +73,25 @@ import org.jclouds.rest.binders.BindToJsonPayload;
 @SkipEncoding({ '/', '=' })
 @RequestFilters(OAuthAuthenticator.class)
 public interface ObjectApi {
+   
+   /**
+    * Check the existence of an object
+    *
+    * @param bucketName
+    *           Name of the bucket in which the object resides
+    * @param objectName
+    *           Name of the object
+    *
+    * @return a {@link Object} true if object exists
+    */
+   @Named("Object:Exist")
+   @GET
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Path("storage/v1/b/{bucket}/o/{object}")
+   @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
+   @Fallback(FalseOnNotFoundOr404.class)
+   @Nullable
+   boolean objectExist(@PathParam("bucket") String bucketName, @PathParam("object") String objectName);
 
    /**
     * Retrieve an object metadata
@@ -218,9 +239,9 @@ public interface ObjectApi {
    @DELETE
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("storage/v1/b/{bucket}/o/{object}")
-   @OAuthScopes(STORAGE_WRITEONLY_SCOPE)
-   @Fallback(NullOnNotFoundOr404.class)
-   void deleteObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName);
+   @Fallback(TrueOnNotFoundOr404.class)
+   @OAuthScopes(STORAGE_WRITEONLY_SCOPE)   
+    boolean deleteObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName);
 
    /**
     * Deletes an object and its metadata. Deletions are permanent if versioning is not enabled for the bucket, or if the
@@ -237,9 +258,9 @@ public interface ObjectApi {
    @DELETE
    @Consumes(MediaType.APPLICATION_JSON)
    @Path("storage/v1/b/{bucket}/o/{object}")
+   @Fallback(TrueOnNotFoundOr404.class)
    @OAuthScopes(STORAGE_WRITEONLY_SCOPE)
-   @Fallback(NullOnNotFoundOr404.class)
-   void deleteObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
+   boolean deleteObject(@PathParam("bucket") String bucketName, @PathParam("object") String objectName,
             DeleteObjectOptions options);
 
    /**

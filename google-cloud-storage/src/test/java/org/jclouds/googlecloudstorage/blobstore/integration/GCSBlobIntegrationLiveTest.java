@@ -131,14 +131,14 @@ public class GCSBlobIntegrationLiveTest extends BaseBlobIntegrationTest {
                { "bytes.xml", "application/octet-stream", realObject.getBytes(), realObject } };
    }
 
-   //Content Length shoul not be null
+   // Content-Length should not be null
    @Override
    public void testPutObjectStream() throws InterruptedException, IOException, java.util.concurrent.ExecutionException {
 
       ByteSource byteSource = ByteSource.wrap("foo".getBytes());
-      ByteSourcePayload payload =new ByteSourcePayload(byteSource);      
-      PayloadBlobBuilder blobBuilder = view.getBlobStore().blobBuilder("streaming")
-               .payload(payload).contentLength(byteSource.read().length);
+      ByteSourcePayload payload = new ByteSourcePayload(byteSource);
+      PayloadBlobBuilder blobBuilder = view.getBlobStore().blobBuilder("streaming").payload(payload)
+               .contentLength(byteSource.read().length);
       addContentMetadata(blobBuilder);
 
       Blob blob = blobBuilder.build();
@@ -181,8 +181,6 @@ public class GCSBlobIntegrationLiveTest extends BaseBlobIntegrationTest {
          validateMetadata(metadata, container, name);
          validateMetadata(view.getBlobStore().blobMetadata(container, name));
 
-         // write 2 items with the same name to ensure that provider doesn't
-         // accept dupes
          blob.getMetadata().getUserMetadata().put("adrian", "wonderpuff");
          blob.getMetadata().getUserMetadata().put("adrian", "powderpuff");
 

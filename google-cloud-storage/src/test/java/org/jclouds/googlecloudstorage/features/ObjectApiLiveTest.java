@@ -18,7 +18,6 @@ package org.jclouds.googlecloudstorage.features;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -202,17 +201,16 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
       assertEquals(gcsObject.getMd5Hash(), md5); // Assertion works
 
-      
       // crc32c validation
       HashFunction hfCrc32c = Hashing.crc32c();
       hcCrc32c = hfCrc32c.newHasher().putBytes(byteSource.read()).hash();
-      
+
       List<Byte> hashByte = Bytes.asList(hcCrc32c.asBytes());
       List<Byte> reversedList = Lists.reverse(hashByte);
-      byte[] reversedHash =  Bytes.toArray(reversedList);
+      byte[] reversedHash = Bytes.toArray(reversedList);
       String crc = BaseEncoding.base64().encode(reversedHash);
 
-       assertEquals(gcsObject.getCrc32c(), crc); // Assertion fails
+      assertEquals(gcsObject.getCrc32c(), crc); // Assertion fails
    }
 
    @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
@@ -235,7 +233,7 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       // This would trigger server side validation of crc32c
       HashFunction hf2 = Hashing.crc32c();
       hcCrc32c = hf2.newHasher().putBytes(byteSource.read()).hash();
-     // String crc = BaseEncoding.base64().encode(hcCrc32c.asBytes());
+      // String crc = BaseEncoding.base64().encode(hcCrc32c.asBytes());
 
       template.contentType("image/jpeg").addAcl(oacl).size(Long.valueOf(byteSource.read().length + ""))
                .name(UPLOAD_OBJECT_NAME2).contentLanguage("en").contentDisposition("attachment").md5Hash(hcMd5)
@@ -253,7 +251,7 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       assertEquals(gcsObject.getAllMetadata().get("adrian") == null, true);
 
       assertEquals(gcsObject.getMd5Hash(), md5);
-       assertEquals(gcsObject.getCrc32c(), template.getCrc32c());
+      assertEquals(gcsObject.getCrc32c(), template.getCrc32c());
    }
 
    @Test(groups = "live", dependsOnMethods = "testSimpleUpload")
@@ -495,7 +493,7 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    @Test(groups = "live", dependsOnMethods = "testDeleteObjectWithOptions")
    public void testStopChannel() {
- 
+
       String address = "";
       String id = "";
       String resourceId = "";
@@ -508,9 +506,8 @@ public class ObjectApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
                .type(DeliveryType.WEB_HOOK).expiration(expiration).payload(true).token(token);
 
       api.getObjectChangeNNotificationApi().stop(template);
-
    }
-
+ 
    @AfterClass
    private void deleteBucket() {
       api.getBucketApi().deleteBucket(BUCKET_NAME);

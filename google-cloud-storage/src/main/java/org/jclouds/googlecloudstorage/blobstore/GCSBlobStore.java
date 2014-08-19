@@ -18,11 +18,11 @@ package org.jclouds.googlecloudstorage.blobstore;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.Iterator;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Set;
 
 import javax.inject.Singleton;
-
 import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.domain.BlobMetadata;
@@ -55,8 +55,10 @@ import org.jclouds.googlecloudstorage.options.ListObjectOptions;
 import org.jclouds.http.HttpResponseException;
 import org.jclouds.http.internal.PayloadEnclosingImpl;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.hash.HashCode;
 import com.google.inject.Inject;
@@ -103,7 +105,7 @@ public class GCSBlobStore extends BaseBlobStore {
 
    @Override
    public boolean containerExists(String container) {
-      return api.getBucketApi().getBucket(container) != null;
+      return api.getBucketApi().bucketExist(container);
    }
 
    @Override
@@ -122,6 +124,7 @@ public class GCSBlobStore extends BaseBlobStore {
       return api.getBucketApi().createBucket(PROJECT_ID, template) != null;
    }
 
+   /** Should be changed to changed */
    @Override
    public boolean createContainerInLocation(Location location, String container, CreateContainerOptions options) {
 
@@ -149,29 +152,25 @@ public class GCSBlobStore extends BaseBlobStore {
 
       return bucket != null;
    }
-   /** Returns list of objects in root*/
+
+   /** Returns list of of all the objects */
    @Override
    public PageSet<? extends StorageMetadata> list(String container) {
-    //  ListObjectOptions options = new ListObjectOptions().delimiter("/");
+      // ListObjectOptions options = new ListObjectOptions().delimiter("/");
       ListPage<GCSObject> gcsList = api.getObjectApi().listObjects(container);
       PageSet<? extends StorageMetadata> list = objectListToStorageMetadata.apply(gcsList);
       return list;
-      
    }
 
    @Override
    public PageSet<? extends StorageMetadata> list(String container, ListContainerOptions options) {
-      
 
-      if (options != null && options != ListContainerOptions.NONE ) {
-       //  ListObjectOptions listOptions = new ListObjectOptions().maxResults(options.getMaxResults()).pageToken(
-       //           options.getMarker());
-         ListObjectOptions listOptions =  listContainerOptionsToListObjectOptions.apply(options);
+      if (options != null && options != ListContainerOptions.NONE) {
+         ListObjectOptions listOptions = listContainerOptionsToListObjectOptions.apply(options);
          ListPage<GCSObject> gcsList = api.getObjectApi().listObjects(container, listOptions);
          PageSet<? extends StorageMetadata> list = objectListToStorageMetadata.apply(gcsList);
          return options.isDetailed() ? fetchBlobMetadataProvider.get().setContainerName(container).apply(list) : list;
       } else {
-
          return list(container);
       }
    }
@@ -182,7 +181,13 @@ public class GCSBlobStore extends BaseBlobStore {
     */
    @Override
    public boolean blobExists(String container, String name) {
-      return api.getObjectApi().getObject(container, name) != null;
+      try {
+         String urlName = name.contains("/") ? URLEncoder.encode(name, Charsets.UTF_8.toString()) : name;
+         return api.getObjectApi().objectExist(container, urlName);
+      } catch (UnsupportedEncodingException e) {
+         e.printStackTrace();
+      }
+      return false;
    }
 
    /**
@@ -191,16 +196,13 @@ public class GCSBlobStore extends BaseBlobStore {
    @Override
    public String putBlob(String container, Blob blob) {
       checkNotNull(blob.getPayload().getContentMetadata().getContentLength());
-      try {
-         ObjectTemplate template = blobMetadataToObjectTemplate.apply(blob.getMetadata());
-         if (blob.getMetadata().getContentMetadata().getContentMD5AsHashCode() != null) {
-            checkNotNull(template.getMd5Hash());
-         }
-         return api.getObjectApi().multipartUpload(container, template, blob.getPayload()).getEtag();
-      } catch (HttpResponseException e) {
-         e.printStackTrace();
+
+      ObjectTemplate template = blobMetadataToObjectTemplate.apply(blob.getMetadata());
+      if (blob.getMetadata().getContentMetadata().getContentMD5AsHashCode() != null) {
+         checkNotNull(template.getMd5Hash());
       }
-      return null;
+      return api.getObjectApi().multipartUpload(container, template, blob.getPayload()).getEtag();
+
    }
 
    @Override
@@ -230,7 +232,6 @@ public class GCSBlobStore extends BaseBlobStore {
                .contentEncoding(gcsObject.getContentEncoding()).contentLanguage(gcsObject.getContentLanguage())
                .contentLength(gcsObject.getSize()).contentMD5(HashCode.fromBytes(gcsObject.getMd5AsByteArray()))
                .name(gcsObject.getName()).userMetadata(gcsObject.getAllMetadata()).build();
-      // Blob blob = new BlobImpl(objectToBlobMetadata.apply(gcsObject));
       blob.getMetadata().setContainer(container);
       blob.getMetadata().setLastModified(gcsObject.getUpdated());
       blob.getMetadata().setETag(gcsObject.getEtag());
@@ -238,34 +239,38 @@ public class GCSBlobStore extends BaseBlobStore {
       blob.getMetadata().setUserMetadata(gcsObject.getAllMetadata());
       blob.getMetadata().setUri(gcsObject.getSelfLink());
       blob.getMetadata().setId(gcsObject.getId());
-      // blob.setPayload(impl.getPayload());
       return blob;
    }
 
    @Override
    public void removeBlob(String container, String name) {
-      api.getObjectApi().deleteObject(container, name);
+      try {
+         String urlName = name.contains("/") ? URLEncoder.encode(name, Charsets.UTF_8.toString()) : name;
+         api.getObjectApi().deleteObject(container, urlName);
+      } catch (UnsupportedEncodingException e) {
+         e.printStackTrace();
+      }
    }
 
    @Override
    protected boolean deleteAndVerifyContainerGone(String container) {
-      api.getBucketApi().deleteBucket(container);
-      return !containerExists(container);
+      ListPage<GCSObject> list = api.getObjectApi().listObjects(container);
+      if(list == null){
+         return api.getBucketApi().deleteBucket(container);
+      }
+      if (!list.iterator().hasNext() && ( (list.getPrefixes() == null) || list.getPrefixes().isEmpty()) )
+         return api.getBucketApi().deleteBucket(container);
 
+      return false;
    }
-   
-  /* @Override
-   public void clearContainer(String containerName) {
-      // TODO Auto-generated method stub
-      super.clearContainer(containerName);
-      //Delete the folders
-      ListPage<GCSObject> list =  api.getObjectApi().listObjects(containerName);
-      Iterator<String> it =list.getPrefixes().iterator();
-      while(it.hasNext()){
-         String prefix = it.next();
-         removeBlob(containerName, prefix);
-         
-      };
-   }*/
 
+   public Set<String> listPrefixes(String container, ListContainerOptions options) {
+      ListObjectOptions gcsOptions = listContainerOptionsToListObjectOptions.apply(options);
+      Set<String> prefixes = api.getObjectApi().listObjects(container, gcsOptions).getPrefixes();
+      return prefixes != null ? prefixes : ImmutableSet.<String> of();
+   }
+
+   public Set<String> listPrefixes(String container) {
+      return listPrefixes(container, ListContainerOptions.NONE);
+   }
 }

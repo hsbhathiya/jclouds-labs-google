@@ -42,27 +42,28 @@ public class ListPage<T> extends IterableWithMarker<T> {
    private final Iterable<T> items;
    private final Set<String> prefixes;
 
-   @ConstructorProperties({ "kind", "nextPageToken", "items","prefixes" })
-   protected ListPage(Kind kind, String nextPageToken, Iterable<T> items,Set<String> prefixes ) {
+   @ConstructorProperties({ "kind", "nextPageToken", "items", "prefixes" })
+   protected ListPage(Kind kind, String nextPageToken, Iterable<T> items, Set<String> prefixes) {
 
       this.kind = checkNotNull(kind, "kind");
       this.nextPageToken = nextPageToken;
       this.items = items != null ? ImmutableSet.copyOf(items) : ImmutableSet.<T> of();
-      this.prefixes = prefixes != null ? prefixes : ImmutableSet.<String> of();;
+      this.prefixes = prefixes != null ? prefixes : ImmutableSet.<String> of();
+      ;
    }
 
    public Kind getKind() {
       return kind;
    }
-   
+
    public String getNextPageToken() {
       return nextPageToken;
    }
-   
+
    public Set<String> getPrefixes() {
       return prefixes;
-   }   
-   
+   }
+
    @Override
    public Optional<Object> nextMarker() {
       return Optional.<Object> fromNullable(nextPageToken);
@@ -112,7 +113,6 @@ public class ListPage<T> extends IterableWithMarker<T> {
       private String nextPageToken;
       private ImmutableSet.Builder<T> items = ImmutableSet.builder();
       private ImmutableSet.Builder<String> prefixes = ImmutableSet.builder();
-      
 
       public Builder<T> kind(Kind kind) {
          this.kind = kind;
@@ -128,7 +128,7 @@ public class ListPage<T> extends IterableWithMarker<T> {
          this.items.addAll(items);
          return this;
       }
-      
+
       public Builder<T> prefixes(Set<String> prefixes) {
          this.prefixes.addAll(prefixes);
          return this;
@@ -140,11 +140,12 @@ public class ListPage<T> extends IterableWithMarker<T> {
       }
 
       public ListPage<T> build() {
-         return new ListPage<T>(kind, nextPageToken, items.build(),prefixes.build());
+         return new ListPage<T>(kind, nextPageToken, items.build(), prefixes.build());
       }
 
       public Builder<T> fromPagedList(ListPage<T> in) {
-         return this.kind(in.getKind()).nextPageToken((String) in.nextMarker().orNull()).items(in).prefixes(in.getPrefixes());
+         return this.kind(in.getKind()).nextPageToken((String) in.nextMarker().orNull()).items(in)
+                  .prefixes(in.getPrefixes());
 
       }
    }

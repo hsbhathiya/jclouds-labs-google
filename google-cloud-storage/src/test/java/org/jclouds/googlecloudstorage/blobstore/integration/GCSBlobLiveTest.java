@@ -17,24 +17,16 @@
 package org.jclouds.googlecloudstorage.blobstore.integration;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.io.BaseEncoding.base16;
 import static org.testng.Assert.assertEquals;
-
-import javax.ws.rs.core.MediaType;
 
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.integration.internal.BaseBlobLiveTest;
-import org.jclouds.blobstore.integration.internal.BaseContainerLiveTest;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.http.HttpResponse;
-import org.jclouds.io.Payloads;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import com.google.common.base.Charsets;
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
+import com.google.common.io.BaseEncoding;
 
 @Test(groups = { "live" })
 public class GCSBlobLiveTest extends BaseBlobLiveTest {
@@ -55,31 +47,27 @@ public class GCSBlobLiveTest extends BaseBlobLiveTest {
 
       HttpResponse response = view.utils().http()
                .invoke(HttpRequest.builder().method("GET").endpoint(httpStreamUrl).build());
-      long length = response.getPayload().getContentMetadata().getContentLength();      
-      
-      
+      long length = response.getPayload().getContentMetadata().getContentLength();
+
       checkNotNull(response.getPayload().getContentMetadata().getContentType());
       assertEquals(response.getPayload().getContentMetadata().getContentType(), "application/x-gzip");
-     // checkNotNull(response.getFirstHeaderOrNull("Content-Type"));
 
       String name = "hello";
-      HashFunction hf = Hashing.md5();
-   //   HashCode hc = hf.newHasher().putBytes(Payloads.newInputStreamPayload(response.getPayload().openStream()).).hash();
-      // byte[] md5 = hc.asBytes();
+      byte[] md5 = BaseEncoding.base64().decode(httpStreamMD5);
 
       Blob blob = view.getBlobStore().blobBuilder(name).payload(response.getPayload()).contentLength(length)
-               .contentType(response.getPayload().getContentMetadata().getContentType()).build();
+               .contentMD5(md5).contentType(response.getPayload().getContentMetadata().getContentType()).build();
       String container = getContainerName();
       try {
          view.getBlobStore().putBlob(container, blob);
-        // checkMD5(container, name, hc);
+         checkMD5(container, name, md5);
       } finally {
          returnContainer(container);
       }
    }
 
-   protected void checkMD5(String container, String name, HashCode md5) {
-      assertEquals(view.getBlobStore().blobMetadata(container, name).getContentMetadata().getContentMD5AsHashCode(),
+   protected void checkMD5(String container, String name, byte[] md5) {
+      assertEquals(view.getBlobStore().blobMetadata(container, name).getContentMetadata().getContentMD5(),
                md5);
    }
 

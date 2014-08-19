@@ -16,6 +16,8 @@
  */
 package org.jclouds.googlecloudstorage.blobstore.functions;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -24,11 +26,9 @@ import org.jclouds.blobstore.domain.StorageType;
 import org.jclouds.blobstore.domain.internal.MutableBlobMetadataImpl;
 import org.jclouds.blobstore.strategy.IfDirectoryReturnNameStrategy;
 import org.jclouds.googlecloudstorage.domain.GCSObject;
-import org.jclouds.io.ContentMetadata;
-
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.HashCode;
-import com.google.common.hash.Hashing;
 
 @Singleton
 public class ObjectToBlobMetadata implements Function<GCSObject, MutableBlobMetadata> {
@@ -59,10 +59,10 @@ public class ObjectToBlobMetadata implements Function<GCSObject, MutableBlobMeta
       if (from.getUpdated() != null)
          to.setLastModified(from.getUpdated());
       to.setContainer(from.getBucket());
-      to.setUserMetadata(from.getAllMetadata());
+      Map<String, String> userMeta = from.getAllMetadata()== null ? ImmutableMap.<String, String>of():from.getAllMetadata();
+      to.setUserMetadata(userMeta);
       to.setETag(from.getEtag());
       to.setName(from.getName());
-      to.setContainer(from.getBucket());
       to.setUri(from.getSelfLink());
       to.setId(from.getId());
       to.setPublicUri(from.getMediaLink());

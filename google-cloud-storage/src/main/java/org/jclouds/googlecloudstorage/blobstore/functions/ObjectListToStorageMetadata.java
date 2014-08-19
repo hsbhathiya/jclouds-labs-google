@@ -16,6 +16,7 @@
  */
 package org.jclouds.googlecloudstorage.blobstore.functions;
 
+import java.util.Map;
 import org.jclouds.blobstore.domain.BlobMetadata;
 import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
@@ -27,6 +28,7 @@ import org.jclouds.googlecloudstorage.domain.ListPage;
 import org.jclouds.googlecloudstorage.domain.Resource.Kind;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -41,24 +43,20 @@ public class ObjectListToStorageMetadata implements Function<ListPage<GCSObject>
    }
 
    public PageSet<? extends StorageMetadata> apply(ListPage<GCSObject> from) {
-      if(from == null){
-         from =  ListPage.<GCSObject>builder().kind(Kind.OBJECTS).build();
+      if (from == null) {
+         from = ListPage.<GCSObject> builder().kind(Kind.OBJECTS).build();
       }
+
       return new PageSetImpl<StorageMetadata>(Iterables.transform(Iterables.transform(from, object2blobMd),
                new Function<BlobMetadata, StorageMetadata>() {
                   public StorageMetadata apply(BlobMetadata input) {
+                     Map<String, String> userMetaData = (input != null && input.getUserMetadata() != null) ? input
+                              .getUserMetadata() : ImmutableMap.<String, String> of();
                      if (input.getContentMetadata().getContentType().equals("application/directory")) {
                         return new StorageMetadataImpl(StorageType.RELATIVE_PATH, input.getProviderId(), input
-                                 .getName(), input.getLocation(), input.getUri(), input.getETag(),
-                                 input.getCreationDate(), input.getLastModified(), input.getUserMetadata());
+                                 .getName(), input.getLocation(), input.getUri(), input.getETag(), input
+                                 .getCreationDate(), input.getLastModified(), userMetaData);
                      }
-                     
-                     if (input.getContentMetadata().getContentType().equalsIgnoreCase("folder")) {
-                        return new StorageMetadataImpl(StorageType.FOLDER, input.getProviderId(), input
-                                 .getName(), input.getLocation(), input.getUri(), input.getETag(),
-                                 input.getCreationDate(), input.getLastModified(), input.getUserMetadata());
-                     }
-
                      return input;
                   }
                }), from.getNextPageToken());
