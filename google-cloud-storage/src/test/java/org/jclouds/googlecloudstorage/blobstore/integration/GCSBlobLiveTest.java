@@ -18,15 +18,34 @@ package org.jclouds.googlecloudstorage.blobstore.integration;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+
+import java.io.File;
+import java.util.List;
 
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.integration.internal.BaseBlobLiveTest;
+import org.jclouds.googlecloudstorage.blobstore.strategy.internal.MultipartUpload;
+import org.jclouds.googlecloudstorage.blobstore.strategy.internal.MultipartUploadStrategy;
+import org.jclouds.googlecloudstorage.blobstore.strategy.internal.SequentialMultipartUploadStrategy;
+import org.jclouds.googlecloudstorage.domain.GCSObject;
+import org.jclouds.googlecloudstorage.options.InsertObjectOptions;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.http.HttpResponse;
+import org.jclouds.io.Payloads;
+import org.jclouds.io.payloads.ByteSourcePayload;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.Lists;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
+import com.google.common.io.ByteSource;
+import com.google.common.io.Files;
+import com.google.common.io.Resources;
+import com.google.common.primitives.Bytes;
 
 @Test(groups = { "live" })
 public class GCSBlobLiveTest extends BaseBlobLiveTest {

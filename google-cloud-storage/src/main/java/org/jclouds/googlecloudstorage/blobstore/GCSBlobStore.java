@@ -23,6 +23,7 @@ import java.net.URLEncoder;
 import java.util.Set;
 
 import javax.inject.Singleton;
+
 import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.domain.BlobMetadata;
@@ -44,6 +45,7 @@ import org.jclouds.googlecloudstorage.blobstore.functions.BlobStoreListContainer
 import org.jclouds.googlecloudstorage.blobstore.functions.BucketToStorageMetadata;
 import org.jclouds.googlecloudstorage.blobstore.functions.ObjectListToStorageMetadata;
 import org.jclouds.googlecloudstorage.blobstore.functions.ObjectToBlobMetadata;
+import org.jclouds.googlecloudstorage.blobstore.strategy.internal.MultipartUploadStrategy;
 import org.jclouds.googlecloudstorage.domain.Bucket;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRole;
 import org.jclouds.googlecloudstorage.domain.GCSObject;
@@ -75,6 +77,7 @@ public class GCSBlobStore extends BaseBlobStore {
    Provider<FetchBlobMetadata> fetchBlobMetadataProvider;
    BlobMetadataToObjectTemplate blobMetadataToObjectTemplate;
    BlobStoreListContainerOptionsToListObjectOptions listContainerOptionsToListObjectOptions;
+   MultipartUploadStrategy multipartUploadStrategy;
 
    @Inject
    protected GCSBlobStore(BlobStoreContext context, BlobUtils blobUtils, Supplier<Location> defaultLocation,
@@ -83,7 +86,8 @@ public class GCSBlobStore extends BaseBlobStore {
             ObjectListToStorageMetadata objectListToStorageMetadata,
             Provider<FetchBlobMetadata> fetchBlobMetadataProvider,
             BlobMetadataToObjectTemplate blobMetadataToObjectTemplate,
-            BlobStoreListContainerOptionsToListObjectOptions listContainerOptionsToListObjectOptions) {
+            BlobStoreListContainerOptionsToListObjectOptions listContainerOptionsToListObjectOptions,
+            MultipartUploadStrategy multipartUploadStrategy) {
       super(context, blobUtils, defaultLocation, locations);
       this.api = api;
       this.bucketToStorageMetadata = bucketToStorageMetadata;
@@ -92,6 +96,7 @@ public class GCSBlobStore extends BaseBlobStore {
       this.fetchBlobMetadataProvider = checkNotNull(fetchBlobMetadataProvider, "fetchBlobMetadataProvider");
       this.blobMetadataToObjectTemplate = blobMetadataToObjectTemplate;
       this.listContainerOptionsToListObjectOptions = listContainerOptionsToListObjectOptions;
+      this.multipartUploadStrategy = multipartUploadStrategy;
    }
 
    @Override
@@ -207,10 +212,11 @@ public class GCSBlobStore extends BaseBlobStore {
 
    @Override
    public String putBlob(String container, Blob blob, PutOptions options) {
-      if (!options.multipart().isMultipart()) {
+      if (options.multipart().isMultipart()) {
+         return multipartUploadStrategy.execute(container, blob);
+      } else {
          return putBlob(container, blob);
       }
-      return null;
    }
 
    @Override
@@ -255,10 +261,10 @@ public class GCSBlobStore extends BaseBlobStore {
    @Override
    protected boolean deleteAndVerifyContainerGone(String container) {
       ListPage<GCSObject> list = api.getObjectApi().listObjects(container);
-      if(list == null){
+      if (list == null) {
          return api.getBucketApi().deleteBucket(container);
       }
-      if (!list.iterator().hasNext() && ( (list.getPrefixes() == null) || list.getPrefixes().isEmpty()) )
+      if (!list.iterator().hasNext() && ((list.getPrefixes() == null) || list.getPrefixes().isEmpty()))
          return api.getBucketApi().deleteBucket(container);
 
       return false;

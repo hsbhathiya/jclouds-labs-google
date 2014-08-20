@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.jclouds.googlecloudstorage.domain.Resource.Kind;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
 
@@ -58,8 +59,8 @@ public class ListObjectAccessControls {
 
    }
 
-   protected Objects.ToStringHelper string() {
-      return toStringHelper(this).omitNullValues().add("kind", kind).add("items", items);
+   protected MoreObjects.ToStringHelper string() {
+      return MoreObjects.toStringHelper(this).omitNullValues().add("kind", kind).add("items", items);
 
    }
 
