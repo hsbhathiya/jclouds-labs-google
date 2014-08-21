@@ -18,15 +18,13 @@
 package org.jclouds.googlecloudstorage.features;
 
 import static org.jclouds.googlecloudstorage.reference.GoogleCloudStorageConstants.STORAGE_FULLCONTROL_SCOPE;
-import static org.jclouds.googlecloudstorage.reference.GoogleCloudStorageConstants.STORAGE_READONLY_SCOPE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
-
 import javax.ws.rs.core.MediaType;
 
-import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Projection;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Role;
+import org.jclouds.googlecloudstorage.domain.templates.BucketAccessControlsTemplate;
 import org.jclouds.googlecloudstorage.domain.templates.BucketTemplate;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiExpectTest;
 import org.jclouds.googlecloudstorage.options.GetBucketOptions;
@@ -72,7 +70,7 @@ public class BucketApiExpectTest extends BaseGoogleCloudStorageApiExpectTest {
    // Test getBucket without options
    public void testGetBucketWithNoOptionsResponseIs2xx() throws Exception {
 
-      BucketApi api = requestsSendResponses(requestForScopes(STORAGE_READONLY_SCOPE), TOKEN_RESPONSE,
+      BucketApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE,
                GET_BUCKET_REQUEST, BUCKET_RESPONSE).getBucketApi();
 
       assertEquals(api.getBucket(EXPECTED_TEST_BUCKET), new NoAclBucketTest().expected());
@@ -82,7 +80,7 @@ public class BucketApiExpectTest extends BaseGoogleCloudStorageApiExpectTest {
 
       HttpResponse getResponse = HttpResponse.builder().statusCode(404).build();
 
-      BucketApi api = requestsSendResponses(requestForScopes(STORAGE_READONLY_SCOPE), TOKEN_RESPONSE,
+      BucketApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE,
                GET_BUCKET_REQUEST, getResponse).getBucketApi();
 
       assertNull("404", api.getBucket(EXPECTED_TEST_BUCKET));
@@ -91,7 +89,7 @@ public class BucketApiExpectTest extends BaseGoogleCloudStorageApiExpectTest {
    // Test getBucket with options
    public void testGetBucketWithOptionsResponseIs2xx() throws Exception {
 
-      BucketApi api = requestsSendResponses(requestForScopes(STORAGE_READONLY_SCOPE), TOKEN_RESPONSE,
+      BucketApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE,
                GET_BUCKET_REQUEST_WITHOPTIONS, BUCKET_RESPONSE).getBucketApi();
 
       GetBucketOptions options = new GetBucketOptions().ifMetagenerationNotMatch(Long.valueOf(100)).projection(
@@ -142,8 +140,8 @@ public class BucketApiExpectTest extends BaseGoogleCloudStorageApiExpectTest {
                .payload(payloadFromResourceWithContentType("/bucket_insert_requestpayload.json",
                         MediaType.APPLICATION_JSON)).build();
 
-      BucketApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE,
-               createRequest, BUCKET_RESPONSE).getBucketApi();
+      BucketApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE, createRequest,
+               BUCKET_RESPONSE).getBucketApi();
 
       BucketTemplate template = new BucketTemplate().name("bhashbucket");
 
@@ -153,8 +151,8 @@ public class BucketApiExpectTest extends BaseGoogleCloudStorageApiExpectTest {
 
    public void testUpdateBucketWithNoOptionsResponseIs2xx() throws Exception {
 
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(EXPECTED_TEST_BUCKET)
-               .entity("allAuthenticatedUsers").role(Role.OWNER).build();
+      BucketAccessControlsTemplate bucketacl = new BucketAccessControlsTemplate().entity("allAuthenticatedUsers").role(
+               Role.OWNER);
 
       BucketTemplate template = new BucketTemplate().name(EXPECTED_TEST_BUCKET).addAcl(bucketacl);
 
@@ -170,16 +168,16 @@ public class BucketApiExpectTest extends BaseGoogleCloudStorageApiExpectTest {
       HttpResponse updateResponse = HttpResponse.builder().statusCode(200)
                .payload(staticPayloadFromResource("/bucket_update_response.json")).build();
 
-      BucketApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE,
-               updateRequest, updateResponse).getBucketApi();
+      BucketApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE, updateRequest,
+               updateResponse).getBucketApi();
 
       assertEquals(api.updateBucket(EXPECTED_TEST_BUCKET, template), new BucketUpdateTest().expected());
    }
 
    public void testUpdateBucketWithOptionsResponseIs2xx() throws Exception {
 
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(EXPECTED_TEST_BUCKET)
-               .entity("allAuthenticatedUsers").role(Role.OWNER).build();
+      BucketAccessControlsTemplate bucketacl = new BucketAccessControlsTemplate().entity("allAuthenticatedUsers").role(
+               Role.OWNER);
       UpdateBucketOptions options = new UpdateBucketOptions().projection(Projection.NO_ACL).ifMetagenerationNotMatch(
                Long.valueOf(100));
       BucketTemplate template = new BucketTemplate().name(EXPECTED_TEST_BUCKET).addAcl(bucketacl);
@@ -198,16 +196,16 @@ public class BucketApiExpectTest extends BaseGoogleCloudStorageApiExpectTest {
       HttpResponse updateResponse = HttpResponse.builder().statusCode(200)
                .payload(staticPayloadFromResource("/bucket_update_response.json")).build();
 
-      BucketApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE,
-               updateRequest, updateResponse).getBucketApi();
+      BucketApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE, updateRequest,
+               updateResponse).getBucketApi();
 
       assertEquals(api.updateBucket(EXPECTED_TEST_BUCKET, template, options), new BucketUpdateTest().expected());
    }
 
    public void testPatchBucketWithNoOptionsResponseIs2xx() throws Exception {
 
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(EXPECTED_TEST_BUCKET)
-               .entity("allAuthenticatedUsers").role(Role.OWNER).build();
+      BucketAccessControlsTemplate bucketacl = new BucketAccessControlsTemplate().entity("allAuthenticatedUsers").role(
+               Role.OWNER);
 
       BucketTemplate template = new BucketTemplate().name(EXPECTED_TEST_BUCKET).addAcl(bucketacl);
 
@@ -231,8 +229,8 @@ public class BucketApiExpectTest extends BaseGoogleCloudStorageApiExpectTest {
 
    public void testPatchBucketWithOptionsResponseIs2xx() throws Exception {
 
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(EXPECTED_TEST_BUCKET)
-               .entity("allAuthenticatedUsers").role(Role.OWNER).build();
+      BucketAccessControlsTemplate bucketacl = new BucketAccessControlsTemplate().entity("allAuthenticatedUsers").role(
+               Role.OWNER);
       UpdateBucketOptions options = new UpdateBucketOptions().projection(Projection.NO_ACL).ifMetagenerationNotMatch(
                Long.valueOf(100));
       BucketTemplate template = new BucketTemplate().name(EXPECTED_TEST_BUCKET).addAcl(bucketacl);

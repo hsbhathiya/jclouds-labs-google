@@ -59,7 +59,8 @@ public class ObjectToBlobMetadata implements Function<GCSObject, MutableBlobMeta
       if (from.getUpdated() != null)
          to.setLastModified(from.getUpdated());
       to.setContainer(from.getBucket());
-      Map<String, String> userMeta = from.getAllMetadata()== null ? ImmutableMap.<String, String>of():from.getAllMetadata();
+      Map<String, String> userMeta = from.getAllMetadata() == null ? ImmutableMap.<String, String> of() : from
+               .getAllMetadata();
       to.setUserMetadata(userMeta);
       to.setETag(from.getEtag());
       to.setName(from.getName());

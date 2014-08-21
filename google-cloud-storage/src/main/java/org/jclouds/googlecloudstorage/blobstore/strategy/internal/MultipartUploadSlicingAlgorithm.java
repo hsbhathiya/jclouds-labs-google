@@ -21,7 +21,6 @@ import com.google.inject.Inject;
 import org.jclouds.blobstore.reference.BlobStoreConstants;
 import org.jclouds.logging.Logger;
 
-
 import javax.annotation.Resource;
 import javax.inject.Named;
 
@@ -32,16 +31,17 @@ public class MultipartUploadSlicingAlgorithm {
    protected Logger logger = Logger.NULL;
 
    @VisibleForTesting
-   static final long DEFAULT_PART_SIZE = 33554432; // 32MB
-   
+   // 2MB for testing purposes. Change to a reasonable value
+   static final long DEFAULT_PART_SIZE = 2 * 1024 * 1024; // 2MB //33554432; // 32MB
+
    @VisibleForTesting
    static final int DEFAULT_MAGNITUDE_BASE = 100;
-   
+
    @Inject(optional = true)
    @Named("jclouds.mpu.parts.size")
    @VisibleForTesting
    long defaultPartSize = DEFAULT_PART_SIZE;
-   
+
    @Inject(optional = true)
    @Named("jclouds.mpu.parts.magnitude")
    @VisibleForTesting
@@ -60,7 +60,7 @@ public class MultipartUploadSlicingAlgorithm {
    @VisibleForTesting
    protected long calculateChunkSize(long length) {
       long unitPartSize = defaultPartSize; // first try with default part size
-      int parts = (int)(length / unitPartSize);
+      int parts = (int) (length / unitPartSize);
       long partSize = unitPartSize;
       int magnitude = parts / magnitudeBase;
       if (magnitude > 0) {
@@ -69,24 +69,24 @@ public class MultipartUploadSlicingAlgorithm {
             partSize = MultipartUpload.MAX_PART_SIZE;
             unitPartSize = MultipartUpload.MAX_PART_SIZE;
          }
-         parts = (int)(length / partSize);
+         parts = (int) (length / partSize);
          if (parts * partSize < length) {
             partSize = (magnitude + 1) * unitPartSize;
             if (partSize > MultipartUpload.MAX_PART_SIZE) {
                partSize = MultipartUpload.MAX_PART_SIZE;
                unitPartSize = MultipartUpload.MAX_PART_SIZE;
             }
-            parts = (int)(length / partSize);
+            parts = (int) (length / partSize);
          }
       }
       if (parts > MultipartUpload.MAX_NUMBER_OF_PARTS) { // if splits in too many parts or
-                                         // cannot be split
+         // cannot be split
          unitPartSize = MultipartUpload.MIN_PART_SIZE; // take the minimum part size
-         parts = (int)(length / unitPartSize);
+         parts = (int) (length / unitPartSize);
       }
       if (parts > MultipartUpload.MAX_NUMBER_OF_PARTS) { // if still splits in too many parts
          parts = MultipartUpload.MAX_NUMBER_OF_PARTS - 1; // limit them. do not care about not
-                                          // covering
+         // covering
       }
       long remainder = length % unitPartSize;
       if (remainder == 0 && parts > 0) {
@@ -96,7 +96,7 @@ public class MultipartUploadSlicingAlgorithm {
       this.parts = parts;
       this.remaining = length - partSize * parts;
       logger.debug(" %d bytes partitioned in %d parts of part size: %d, remaining: %d%s", length, parts, chunkSize,
-            remaining, remaining > MultipartUpload.MAX_PART_SIZE ? " overflow!" : "");
+               remaining, remaining > MultipartUpload.MAX_PART_SIZE ? " overflow!" : "");
       return this.chunkSize;
    }
 

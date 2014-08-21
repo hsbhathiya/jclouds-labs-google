@@ -22,7 +22,7 @@ import org.jclouds.domain.LocationScope;
 import com.google.common.base.Function;
 
 /**
- * Transforms a google compute domain specific region to a generic Region object.
+ * Transforms a google cloud domain specific region to a generic Region object.
  */
 public class GCSLocationToLocation implements
          Function<org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Location, Location> {

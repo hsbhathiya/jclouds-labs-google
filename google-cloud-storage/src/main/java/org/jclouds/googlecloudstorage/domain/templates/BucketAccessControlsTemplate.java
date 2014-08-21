@@ -16,19 +16,24 @@
  */
 package org.jclouds.googlecloudstorage.domain.templates;
 
-import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRole;
+import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Role;
 
-public class DefaultObjectAccessControlsTemplate {
+/**
+ * Represents a Bucket Access Control Resource.
+ *
+ * @see <a href= "https://developers.google.com/storage/docs/json_api/v1/bucketAccessControls"/>
+ */
+public class BucketAccessControlsTemplate {
 
-   private String entity;
-   private ObjectRole role;
+   protected String entity;
+   protected Role role;
 
-   public DefaultObjectAccessControlsTemplate role(ObjectRole role) {
+   public BucketAccessControlsTemplate role(Role role) {
       this.role = role;
       return this;
    }
 
-   public DefaultObjectAccessControlsTemplate entity(String entity) {
+   public BucketAccessControlsTemplate entity(String entity) {
       this.entity = entity;
       return this;
    }
@@ -37,7 +42,7 @@ public class DefaultObjectAccessControlsTemplate {
       return entity;
    }
 
-   public ObjectRole getRole() {
+   public Role getRole() {
       return role;
    }
 
@@ -45,16 +50,16 @@ public class DefaultObjectAccessControlsTemplate {
       return new Builder();
    }
 
-   public static DefaultObjectAccessControlsTemplate fromObjectAccessControlsTemplate(
-            DefaultObjectAccessControlsTemplate objectAccessControlsTemplate) {
-      return Builder.fromObjectAccessControlsTemplate(objectAccessControlsTemplate);
+   public static BucketAccessControlsTemplate fromBucketAccessControlsTemplate(
+            BucketAccessControlsTemplate BucketAccessControlsTemplate) {
+      return Builder.fromBucketAccessControlsTemplate(BucketAccessControlsTemplate);
    }
 
    public static class Builder {
 
-      public static DefaultObjectAccessControlsTemplate fromObjectAccessControlsTemplate(
-               DefaultObjectAccessControlsTemplate in) {
-         return new DefaultObjectAccessControlsTemplate().role(in.getRole()).entity(in.getEntity());
+      public static BucketAccessControlsTemplate fromBucketAccessControlsTemplate(BucketAccessControlsTemplate in) {
+         return new BucketAccessControlsTemplate().role(in.getRole()).entity(in.getEntity());
       }
+
    }
 }

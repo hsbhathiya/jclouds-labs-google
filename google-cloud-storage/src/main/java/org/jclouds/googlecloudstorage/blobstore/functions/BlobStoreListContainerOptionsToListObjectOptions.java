@@ -29,7 +29,7 @@ public class BlobStoreListContainerOptionsToListObjectOptions implements
    public ListObjectOptions apply(ListContainerOptions from) {
       checkNotNull(from, "set options to instance NONE instead of passing null");
       ListObjectOptions httpOptions = new ListObjectOptions();
-     
+
       if (!from.isRecursive()) {
          httpOptions = httpOptions.delimiter("/");
       }
@@ -37,13 +37,13 @@ public class BlobStoreListContainerOptionsToListObjectOptions implements
          String path = from.getDir();
          if (!path.endsWith("/"))
             path = path + "/";
-        httpOptions = httpOptions.prefix(path);
+         httpOptions = httpOptions.prefix(path);
       }
       if (from.getMarker() != null) {
-        httpOptions =  httpOptions.pageToken(from.getMarker());
+         httpOptions = httpOptions.pageToken(from.getMarker());
       }
       if (from.getMaxResults() != null) {
-       httpOptions =  httpOptions.maxResults(from.getMaxResults());
+         httpOptions = httpOptions.maxResults(from.getMaxResults());
       }
       return httpOptions;
    }

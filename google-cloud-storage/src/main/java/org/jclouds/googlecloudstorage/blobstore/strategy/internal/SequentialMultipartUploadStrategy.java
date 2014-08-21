@@ -18,6 +18,8 @@ package org.jclouds.googlecloudstorage.blobstore.strategy.internal;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Set;
+
 import javax.annotation.Resource;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -29,10 +31,12 @@ import org.jclouds.googlecloudstorage.GoogleCloudStorageApi;
 import org.jclouds.googlecloudstorage.blobstore.functions.BlobMetadataToObjectTemplate;
 import org.jclouds.googlecloudstorage.domain.GCSObject;
 import org.jclouds.googlecloudstorage.domain.templates.ComposeObjectTemplate;
+import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
 import org.jclouds.io.Payload;
 import org.jclouds.io.PayloadSlicer;
 import org.jclouds.logging.Logger;
 
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
 public class SequentialMultipartUploadStrategy implements MultipartUploadStrategy {
@@ -62,7 +66,12 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
 
    @Override
    public String execute(String container, Blob blob) {
-      ComposeObjectTemplate template = new ComposeObjectTemplate();
+      
+      ObjectTemplate destination  = blob2ObjectTemplate.apply(blob.getMetadata());
+      ComposeObjectTemplate template = new ComposeObjectTemplate().destination(destination);
+      
+      Set<GCSObject> sourceList = Sets.newHashSet();
+      
       String key = blob.getMetadata().getName();
       Payload payload = blob.getPayload();
       Long length = payload.getContentMetadata().getContentLength();
@@ -78,19 +87,21 @@ public class SequentialMultipartUploadStrategy implements MultipartUploadStrateg
          for (Payload part : slicer.slice(payload, chunkSize)) {
             int partNum = algorithm.getNextPart();
             String partName = namingStrategy.getPartName(key, partNum, partCount);
+            long partSize = ((partCount+1) == partNum) ? algorithm.getRemaining() : algorithm.getChunkSize();
             Blob blobPart = blobBuilders.get()
                                         .name(partName)
                                         .payload(part)
                                         .contentDisposition(partName)
-                                        .contentLength(chunkSize)
+                                        .contentLength(partSize)
                                         .contentType(blob.getMetadata().getContentMetadata().getContentType())
                                         .build();
             GCSObject object=  api.getObjectApi().multipartUpload(container, blob2ObjectTemplate.apply(blobPart.getMetadata()), blobPart.getPayload());
-            template = template.addsourceObject(object);          
+            sourceList.add(object);                   
          }
+         template = template.sourceObjects(sourceList); 
          return api.getObjectApi().composeObjects(container, key, template).getEtag();
       } else {
-         return api.getObjectApi().multipartUpload(container, blob2ObjectTemplate.apply(blob.getMetadata()), blob.getPayload()).getEtag();
+          return api.getObjectApi().multipartUpload(container, blob2ObjectTemplate.apply(blob.getMetadata()), blob.getPayload()).getEtag();
       }
    }
 }

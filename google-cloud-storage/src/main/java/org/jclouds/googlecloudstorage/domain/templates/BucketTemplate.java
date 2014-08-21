@@ -19,8 +19,6 @@ package org.jclouds.googlecloudstorage.domain.templates;
 
 import java.util.Set;
 
-import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
-import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Location;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.StorageClass;
 import org.jclouds.googlecloudstorage.domain.internal.BucketCors;
@@ -36,8 +34,8 @@ public class BucketTemplate {
 
    protected String name;
    protected Long projectNumber;
-   protected Set<BucketAccessControls> acl = Sets.newHashSet();
-   protected Set<DefaultObjectAccessControls> defaultObjectAccessControls = Sets.newHashSet();
+   protected Set<BucketAccessControlsTemplate> acl = Sets.newHashSet();
+   protected Set<ObjectAccessControlsTemplate> defaultObjectAccessControls = Sets.newHashSet();
    protected Owner owner;
    protected Location location;
    protected Website website;
@@ -92,22 +90,22 @@ public class BucketTemplate {
       return this;
    }
 
-   public BucketTemplate addAcl(BucketAccessControls bucketAccessControls) {
-      this.acl.add(bucketAccessControls);
+   public BucketTemplate addAcl(BucketAccessControlsTemplate bucketAccessControlsTemplate) {
+      this.acl.add(bucketAccessControlsTemplate);
       return this;
    }
 
-   public BucketTemplate acl(Set<BucketAccessControls> acl) {
+   public BucketTemplate acl(Set<BucketAccessControlsTemplate> acl) {
       this.acl.addAll(acl);
       return this;
    }
 
-   public BucketTemplate addDefaultObjectAccessControls(DefaultObjectAccessControls oac) {
+   public BucketTemplate addDefaultObjectAccessControls(ObjectAccessControlsTemplate oac) {
       this.defaultObjectAccessControls.add(oac);
       return this;
    }
 
-   public BucketTemplate defaultObjectAccessControls(Set<DefaultObjectAccessControls> defaultObjectAcl) {
+   public BucketTemplate defaultObjectAccessControls(Set<ObjectAccessControlsTemplate> defaultObjectAcl) {
       this.defaultObjectAccessControls.addAll(defaultObjectAcl);
       return this;
    }
@@ -130,11 +128,11 @@ public class BucketTemplate {
       return name;
    }
 
-   public Set<BucketAccessControls> getAcl() {
+   public Set<BucketAccessControlsTemplate> getAcl() {
       return acl;
    }
 
-   public Set<DefaultObjectAccessControls> getDefaultObjectAccessControls() {
+   public Set<ObjectAccessControlsTemplate> getDefaultObjectAccessControls() {
       return defaultObjectAccessControls;
    }
 

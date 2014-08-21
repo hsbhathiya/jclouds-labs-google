@@ -53,7 +53,7 @@ import com.google.common.io.ByteSource;
 
 @Test(groups = { "live", "blobstorelive" })
 public class GCSBlobIntegrationLiveTest extends BaseBlobIntegrationTest {
-   
+
    private ByteSource oneHundredOneConstitutions;
    private long PART_SIZE = MultipartUpload.MIN_PART_SIZE;
 
@@ -208,10 +208,10 @@ public class GCSBlobIntegrationLiveTest extends BaseBlobIntegrationTest {
       HashCode md5 = hf.newHasher().putString(TEST_STRING, Charsets.UTF_8).hash();
       assertEquals(metadata.getContentMetadata().getContentMD5AsHashCode(), md5);
    }
-   
+
    @Test(groups = { "integration", "live" })
    public void testMultipartChunkedFileStream() throws IOException, InterruptedException {
-      String containerName = "bhashbucket";//getContainerName();
+      String containerName =  getContainerName();
       try {
          BlobStore blobStore = view.getBlobStore();
          long countBefore = blobStore.countBlobs(containerName);
@@ -219,27 +219,21 @@ public class GCSBlobIntegrationLiveTest extends BaseBlobIntegrationTest {
          addMultipartBlobToContainer(containerName, "const.txt");
 
          long countAfter = blobStore.countBlobs(containerName);
-         assertNotEquals(countBefore, countAfter,
-                         "No blob was created");
-         /*assertTrue(countAfter - countBefore > 1,
-                    "A multipart blob wasn't actually created - " +
-                    "there was only 1 extra blob but there should be one manifest blob and multiple chunk blobs");*/
+         assertNotEquals(countBefore, countAfter, "No blob was created");
+         assertTrue(countAfter - countBefore > 1, "A multipart blob wasn't actually created - "
+                  + "there was only 1 extra blob but there should be one manifest blob and multiple chunk blobs");
       } finally {
-         // returnContainer(containerName);
+          returnContainer(containerName);
       }
    }
 
-   
    protected void addMultipartBlobToContainer(String containerName, String key) throws IOException {
       ByteSource sourceToUpload = createFileBiggerThan(PART_SIZE);
 
       BlobStore blobStore = view.getBlobStore();
       blobStore.createContainerInLocation(null, containerName);
-      Blob blob = blobStore.blobBuilder(key)
-         .payload(sourceToUpload)
-         .contentLength(sourceToUpload.size())
-         .contentType(MediaType.TEXT_PLAIN)
-         .build();
+      Blob blob = blobStore.blobBuilder(key).payload(sourceToUpload).contentLength(sourceToUpload.size())
+               .contentType(MediaType.TEXT_PLAIN).build();
       blobStore.putBlob(containerName, blob, PutOptions.Builder.multipart());
    }
 
@@ -252,6 +246,6 @@ public class GCSBlobIntegrationLiveTest extends BaseBlobIntegrationTest {
       for (int i = 0; i < copiesNeeded; i++) {
          temp = ByteSource.concat(temp, oneHundredOneConstitutions);
       }
-      return  temp;
+      return temp;
    }
 }

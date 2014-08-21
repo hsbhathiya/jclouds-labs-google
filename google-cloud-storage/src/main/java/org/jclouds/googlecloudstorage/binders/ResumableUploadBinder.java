@@ -31,9 +31,10 @@ public class ResumableUploadBinder implements MapBinder {
    private BindToJsonPayload jsonBinder;
 
    @Override
-   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) throws IllegalArgumentException {
-      ObjectTemplate template = (ObjectTemplate) postParams.get("template");   
-      return bindToRequest(request, template);      
+   public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams)
+            throws IllegalArgumentException {
+      ObjectTemplate template = (ObjectTemplate) postParams.get("template");
+      return bindToRequest(request, template);
    }
 
    @Override

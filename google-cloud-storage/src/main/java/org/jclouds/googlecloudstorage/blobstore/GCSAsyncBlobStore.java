@@ -46,7 +46,7 @@ import com.google.inject.name.Named;
 
 @SuppressWarnings("deprecation")
 @Singleton
-public class GCSAsyncBlobStore extends ForwardingObject implements AsyncBlobStore{
+public class GCSAsyncBlobStore extends ForwardingObject implements AsyncBlobStore {
    private final BlobStore blobstore;
    private final ListeningExecutorService executor;
 
@@ -123,7 +123,8 @@ public class GCSAsyncBlobStore extends ForwardingObject implements AsyncBlobStor
    }
 
    @Override
-   public ListenableFuture<PageSet<? extends StorageMetadata>> list(final String container, final ListContainerOptions options) {
+   public ListenableFuture<PageSet<? extends StorageMetadata>> list(final String container,
+            final ListContainerOptions options) {
       return executor.submit(new Callable<PageSet<? extends StorageMetadata>>() {
          public PageSet<? extends StorageMetadata> call() {
             return delegate().list(container, options);

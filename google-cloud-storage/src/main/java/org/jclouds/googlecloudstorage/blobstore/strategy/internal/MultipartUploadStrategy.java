@@ -22,6 +22,5 @@ import com.google.inject.ImplementedBy;
 
 @ImplementedBy(SequentialMultipartUploadStrategy.class)
 public interface MultipartUploadStrategy extends MultipartUpload {
-
    String execute(String container, Blob blob);
 }

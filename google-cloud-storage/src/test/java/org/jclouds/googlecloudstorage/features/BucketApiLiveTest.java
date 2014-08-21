@@ -38,7 +38,9 @@ import org.jclouds.googlecloudstorage.domain.Resource.Kind;
 import org.jclouds.googlecloudstorage.domain.internal.BucketCors;
 import org.jclouds.googlecloudstorage.domain.internal.Logging;
 import org.jclouds.googlecloudstorage.domain.internal.Versioning;
+import org.jclouds.googlecloudstorage.domain.templates.BucketAccessControlsTemplate;
 import org.jclouds.googlecloudstorage.domain.templates.BucketTemplate;
+import org.jclouds.googlecloudstorage.domain.templates.ObjectAccessControlsTemplate;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiLiveTest;
 import org.jclouds.googlecloudstorage.options.DeleteBucketOptions;
 import org.jclouds.googlecloudstorage.options.GetBucketOptions;
@@ -69,10 +71,8 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
       Bucket logResponse = api().createBucket(PROJECT_NUMBER, logTemplate);
       assertNotNull(logResponse);
 
-      BucketAccessControls acl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers").role(Role.OWNER)
-               .build();
-      DefaultObjectAccessControls oac = DefaultObjectAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
-               .role(ObjectRole.OWNER).build();
+      BucketAccessControlsTemplate acl = new BucketAccessControlsTemplate().entity("allUsers").role(Role.OWNER);
+      ObjectAccessControlsTemplate oac = new ObjectAccessControlsTemplate().entity("allUsers").role(ObjectRole.OWNER);
       BucketCors bucketCors = BucketCors.builder().addOrigin("http://example.appspot.com").addMethod("GET")
                .addMethod("HEAD").addResponseHeader("x-meta-goog-custom").maxAgeSeconds(10).build();
       Versioning version = Versioning.builder().enalbled(true).build();
@@ -108,13 +108,13 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    @Test(groups = "live")
    public void testCreateBucketWithOptions() {
 
-      DefaultObjectAccessControls oac = DefaultObjectAccessControls.builder().bucket(BUCKET_NAME_WITHOPTIONS)
-               .entity("allUsers").role(ObjectRole.OWNER).build();
+      ObjectAccessControlsTemplate oac2 = new ObjectAccessControlsTemplate().entity("allUsers").role(ObjectRole.OWNER);
+
       BucketCors bucketCors = BucketCors.builder().addOrigin("http://example.appspot.com").addMethod("GET")
                .addMethod("HEAD").addResponseHeader("x-meta-goog-custom").maxAgeSeconds(10).build();
       Versioning version = Versioning.builder().enalbled(true).build();
 
-      BucketTemplate template = new BucketTemplate().name(BUCKET_NAME_WITHOPTIONS).addDefaultObjectAccessControls(oac)
+      BucketTemplate template = new BucketTemplate().name(BUCKET_NAME_WITHOPTIONS).addDefaultObjectAccessControls(oac2)
                .versioning(version).location(Location.US_CENTRAL2)
                .storageClass(StorageClass.DURABLE_REDUCED_AVAILABILITY).addCORS(bucketCors);
 
@@ -134,8 +134,8 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    @Test(groups = "live", dependsOnMethods = "testCreateBucket")
    public void testUpdateBucket() {
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME)
-               .entity("allAuthenticatedUsers").role(Role.OWNER).build();
+      BucketAccessControlsTemplate bucketacl = new BucketAccessControlsTemplate().entity("allAuthenticatedUsers").role(
+               Role.OWNER);
       BucketTemplate template = new BucketTemplate().name(BUCKET_NAME).addAcl(bucketacl);
       Bucket response = api().updateBucket(BUCKET_NAME, template);
 
@@ -146,8 +146,8 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
 
    @Test(groups = "live", dependsOnMethods = "testCreateBucketWithOptions")
    public void testUpdateBucketWithOptions() {
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME_WITHOPTIONS)
-               .entity("allAuthenticatedUsers").role(Role.OWNER).build();
+      BucketAccessControlsTemplate bucketacl = new BucketAccessControlsTemplate().entity("allAuthenticatedUsers").role(
+               Role.OWNER);
       UpdateBucketOptions options = new UpdateBucketOptions().projection(Projection.FULL);
       BucketTemplate template = new BucketTemplate().name(BUCKET_NAME_WITHOPTIONS).addAcl(bucketacl);
       Bucket response = api().updateBucket(BUCKET_NAME_WITHOPTIONS, template, options);
@@ -221,7 +221,7 @@ public class BucketApiLiveTest extends BaseGoogleCloudStorageApiLiveTest {
    public void testDeleteBucketWithOptions() {
       DeleteBucketOptions options = new DeleteBucketOptions().ifMetagenerationMatch(metageneration)
                .ifMetagenerationNotMatch(metageneration + 1);
-      
+
       api().deleteBucket(BUCKET_NAME_WITHOPTIONS, options);
    }
 

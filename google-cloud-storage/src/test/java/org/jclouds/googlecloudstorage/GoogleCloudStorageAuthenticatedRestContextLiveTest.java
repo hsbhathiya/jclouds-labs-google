@@ -17,6 +17,7 @@
 package org.jclouds.googlecloudstorage;
 
 import org.jclouds.googlecloudstorage.reference.GoogleCloudStorageConstants;
+import org.jclouds.googlecloudstorage.utils.GoogleCloudStorageUtils;
 import org.jclouds.oauth.v2.internal.BaseOAuthAuthenticatedApiLiveTest;
 import org.testng.annotations.Test;
 

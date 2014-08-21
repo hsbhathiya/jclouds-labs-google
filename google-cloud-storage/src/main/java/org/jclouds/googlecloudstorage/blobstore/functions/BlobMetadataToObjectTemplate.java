@@ -33,24 +33,24 @@ public class BlobMetadataToObjectTemplate implements Function<BlobMetadata, Obje
    public ObjectTemplate apply(BlobMetadata from) {
       if (from == null)
          return null;
-      
+
       String name = from.getName();
-      Map<String, String>  userMeta = from.getUserMetadata();
-      
+      Map<String, String> userMeta = from.getUserMetadata();
+
       ContentMetadata metadata = from.getContentMetadata();
       String contentDisposition = metadata.getContentDisposition();
       String contentEncoding = metadata.getContentEncoding();
       String contentLanguage = metadata.getContentLanguage();
       String contentType = metadata.getContentType();
       Long contentLength = metadata.getContentLength();
-      
+
       HashCode md5 = metadata.getContentMD5AsHashCode();
-      
+
       ObjectTemplate to = new ObjectTemplate().contentType(contentType).size(contentLength)
                .contentEncoding(contentEncoding).contentLanguage(contentLanguage)
                .contentDisposition(contentDisposition).name(name).customMetadata(userMeta);
 
-      if(md5!= null){
+      if (md5 != null) {
          to = to.md5Hash(md5);
       }
       return to;

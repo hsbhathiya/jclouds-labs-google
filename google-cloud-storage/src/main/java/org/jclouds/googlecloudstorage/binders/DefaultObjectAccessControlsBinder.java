@@ -20,7 +20,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.jclouds.googlecloudstorage.domain.templates.DefaultObjectAccessControlsTemplate;
+import org.jclouds.googlecloudstorage.domain.templates.ObjectAccessControlsTemplate;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.rest.MapBinder;
 import org.jclouds.rest.binders.BindToJsonPayload;
@@ -32,7 +32,7 @@ public class DefaultObjectAccessControlsBinder implements MapBinder {
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams) throws IllegalArgumentException {
-      DefaultObjectAccessControlsTemplate template = (DefaultObjectAccessControlsTemplate) postParams.get("template");
+      ObjectAccessControlsTemplate template = (ObjectAccessControlsTemplate) postParams.get("template");
       return bindToRequest(request, template);
    }
 

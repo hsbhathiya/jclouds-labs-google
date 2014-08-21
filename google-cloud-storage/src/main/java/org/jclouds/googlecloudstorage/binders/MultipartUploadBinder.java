@@ -54,8 +54,7 @@ public class MultipartUploadBinder implements MapBinder {
       Part mediaPart = Part.create(template.getName(), payload, new Part.PartOptions().contentType(contentType));
 
       MultipartForm compPayload = new MultipartForm(BOUNDARY_HEADER, jsonPart, mediaPart);
-      request.setPayload(compPayload)
-      ;
+      request.setPayload(compPayload);
       // HeaderPart
       request.toBuilder().removeHeader("Content-Type")
                .addHeader("Content-Type", "Multipart/related; boundary= " + BOUNDARY_HEADER).build();

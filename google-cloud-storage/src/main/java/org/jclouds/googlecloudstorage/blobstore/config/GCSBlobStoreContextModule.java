@@ -35,7 +35,6 @@ public class GCSBlobStoreContextModule extends AbstractModule {
       bind(ConsistencyModel.class).toInstance(ConsistencyModel.EVENTUAL);
       bind(BlobStore.class).to(GCSBlobStore.class).in(Scopes.SINGLETON);
       bind(AsyncBlobStore.class).to(GCSAsyncBlobStore.class).in(Scopes.SINGLETON);
-
       bind(
                new TypeLiteral<Function<org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Location, Location>>() {
                }).to(GCSLocationToLocation.class);

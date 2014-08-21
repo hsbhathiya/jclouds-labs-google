@@ -26,6 +26,7 @@ import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Role;
 import org.jclouds.googlecloudstorage.domain.ListBucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.Resource.Kind;
+import org.jclouds.googlecloudstorage.domain.templates.BucketAccessControlsTemplate;
 import org.jclouds.googlecloudstorage.domain.templates.BucketTemplate;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiLiveTest;
 import org.jclouds.rest.ResourceNotFoundException;
@@ -48,8 +49,7 @@ public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLi
    @Test(groups = "live")
    public void testCreateBucketacl() {
       createBucket(BUCKET_NAME);
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
-               .role(Role.READER).build();
+      BucketAccessControlsTemplate bucketacl = new BucketAccessControlsTemplate().entity("allUsers").role(Role.READER);
       BucketAccessControls response = api().createBucketAccessControls(BUCKET_NAME, bucketacl);
 
       assertNotNull(response);
@@ -58,8 +58,7 @@ public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLi
 
    @Test(groups = "live", dependsOnMethods = "testCreateBucketacl")
    public void testUpdateBucketacl() {
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
-               .role(Role.WRITER).build();
+      BucketAccessControlsTemplate bucketacl = new BucketAccessControlsTemplate().entity("allUsers").role(Role.WRITER);
       BucketAccessControls response = api().updateBucketAccessControls(BUCKET_NAME, "allUsers", bucketacl);
 
       assertNotNull(response);
@@ -87,8 +86,7 @@ public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLi
 
    @Test(groups = "live", dependsOnMethods = "testUpdateBucketacl")
    public void testPatchBucketacl() {
-      BucketAccessControls bucketacl = BucketAccessControls.builder().bucket(BUCKET_NAME).entity("allUsers")
-               .role(Role.READER).build();
+      BucketAccessControlsTemplate bucketacl = new BucketAccessControlsTemplate().entity("allUsers").role(Role.READER);
       BucketAccessControls response = api().patchBucketAccessControls(BUCKET_NAME, "allUsers", bucketacl);
 
       assertNotNull(response);
@@ -102,10 +100,10 @@ public class BucketAccessControlsApiLiveTest extends BaseGoogleCloudStorageApiLi
       deleteBucket(BUCKET_NAME);
    }
 
-   /*@Test(groups = "live", dependsOnMethods = "testDeleteBucketacl", expectedExceptions = ResourceNotFoundException.class)
+   @Test(groups = "live", dependsOnMethods = "testDeleteBucketacl")
    public void testDeleteNotExistingBucketAccessControls() {
       api().deleteBucketAccessControls(BUCKET_NAME, "allUsers");
-   }*/
+   }
 
    private void deleteBucket(String BucketName) {
       api.getBucketApi().deleteBucket(BucketName);

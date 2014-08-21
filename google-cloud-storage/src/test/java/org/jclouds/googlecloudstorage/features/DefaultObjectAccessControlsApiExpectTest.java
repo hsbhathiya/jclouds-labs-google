@@ -25,7 +25,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRole;
-import org.jclouds.googlecloudstorage.domain.templates.DefaultObjectAccessControlsTemplate;
+import org.jclouds.googlecloudstorage.domain.templates.ObjectAccessControlsTemplate;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiExpectTest;
 import org.jclouds.googlecloudstorage.parse.DefaultObjectAclGetTest;
 import org.jclouds.googlecloudstorage.parse.DefaultObjectAclInsertTest;
@@ -115,7 +115,7 @@ public class DefaultObjectAccessControlsApiExpectTest extends BaseGoogleCloudSto
       DefaultObjectAccessControlsApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE),
                TOKEN_RESPONSE, insertRequest, CREATE_DEFAULT_OBJECTACL_RESPONSE).getDefaultObjectAccessControlsApi();
 
-      DefaultObjectAccessControlsTemplate template = new DefaultObjectAccessControlsTemplate().entity("allUsers").role(
+      ObjectAccessControlsTemplate template = new ObjectAccessControlsTemplate().entity("allUsers").role(
                ObjectRole.OWNER);
 
       assertEquals(api.createDefaultObjectAccessControls(EXPECTED_TEST_BUCKET, template),

@@ -16,22 +16,10 @@
  */
 package org.jclouds.googlecloudstorage.blobstore.integration;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.base.Throwables.propagateIfPossible;
 import static com.google.common.collect.Iterables.get;
-import static com.google.common.hash.Hashing.md5;
-import static org.jclouds.blobstore.options.ListContainerOptions.Builder.afterMarker;
-import static org.jclouds.blobstore.options.ListContainerOptions.Builder.inDirectory;
 import static org.jclouds.blobstore.options.ListContainerOptions.Builder.maxResults;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Set;
-
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.blobstore.domain.BlobMetadata;
@@ -39,10 +27,7 @@ import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.integration.internal.BaseContainerIntegrationTest;
 import org.jclouds.blobstore.options.ListContainerOptions;
-import org.jclouds.googlecloudstorage.blobstore.GCSBlobStore;
 import org.testng.annotations.Test;
-
-import clojure.lang.Compiler.C;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
@@ -61,9 +46,8 @@ public class GCSContainerIntegrationTest extends BaseContainerIntegrationTest {
       String key = "hello";
       String containerName = getContainerName();
       try {
-         addBlobToContainer(containerName,
-         // NOTE all metadata in jclouds comes out as lowercase, in an effort to
-         // normalize the providers.
+         addBlobToContainer(
+                  containerName,
                   view.getBlobStore().blobBuilder(key).userMetadata(ImmutableMap.of("adrian", "powderpuff"))
                            .payload(TEST_STRING).contentType(MediaType.TEXT_PLAIN)
                            .contentMD5(Hashing.md5().newHasher().putString(TEST_STRING, Charsets.UTF_8).hash()).build());

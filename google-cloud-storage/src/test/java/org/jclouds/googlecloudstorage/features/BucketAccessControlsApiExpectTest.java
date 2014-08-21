@@ -25,12 +25,10 @@ import static org.jclouds.googlecloudstorage.reference.GoogleCloudStorageConstan
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 
-import java.net.URI;
-
 import javax.ws.rs.core.MediaType;
 
-import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.Role;
+import org.jclouds.googlecloudstorage.domain.templates.BucketAccessControlsTemplate;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiExpectTest;
 import org.jclouds.googlecloudstorage.parse.BucketAclGetTest;
 import org.jclouds.googlecloudstorage.parse.BucketAclInsertTest;
@@ -52,7 +50,7 @@ public class BucketAccessControlsApiExpectTest extends BaseGoogleCloudStorageApi
    private final HttpResponse GET_BUCKETACL_RESPONSE = HttpResponse.builder().statusCode(200)
             .payload(staticPayloadFromResource("/bucketacl_get.json")).build();
 
-   private  final HttpResponse CREATE_BUCKETACL_RESPONSE = HttpResponse.builder().statusCode(200)
+   private final HttpResponse CREATE_BUCKETACL_RESPONSE = HttpResponse.builder().statusCode(200)
             .payload(staticPayloadFromResource("/bucketacl_insert_response.json")).build();
 
    private final HttpRequest LIST_BUCKETACL_REQUEST = HttpRequest.builder().method("GET")
@@ -109,20 +107,16 @@ public class BucketAccessControlsApiExpectTest extends BaseGoogleCloudStorageApi
                .endpoint("https://www.googleapis.com/storage/v1/b/jcloudtestbucket/acl")
                .addHeader("Accept", "application/json")
                .addHeader("Authorization", "Bearer " + TOKEN)
-               .payload(payloadFromResourceWithContentType("/bucketacl_insert_response.json",
+               .payload(payloadFromResourceWithContentType("/bucketacl_insert_requestpayload.json",
                         MediaType.APPLICATION_JSON)).build();
 
       BucketAccessControlsApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE,
                insertRequest, CREATE_BUCKETACL_RESPONSE).getBucketAccessControlsApi();
 
-      BucketAccessControls options = BucketAccessControls
-               .builder()
-               .id("jcloudtestbucket/allAuthenticatedUsers")
-               .selfLink(
-                        URI.create("https://content.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allAuthenticatedUsers"))
-               .bucket(EXPECTED_TEST_BUCKET).entity("allAuthenticatedUsers").role(Role.WRITER).etag("CAQ=").build();
+      BucketAccessControlsTemplate template = new BucketAccessControlsTemplate().entity("allAuthenticatedUsers").role(
+               Role.WRITER);
 
-      assertEquals(api.createBucketAccessControls(EXPECTED_TEST_BUCKET, options), new BucketAclInsertTest().expected());
+      assertEquals(api.createBucketAccessControls(EXPECTED_TEST_BUCKET, template), new BucketAclInsertTest().expected());
 
    }
 
@@ -161,20 +155,19 @@ public class BucketAccessControlsApiExpectTest extends BaseGoogleCloudStorageApi
                .endpoint("https://www.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allUsers")
                .addHeader("Accept", "application/json")
                .addHeader("Authorization", "Bearer " + TOKEN)
-               .payload(payloadFromResourceWithContentType("/bucketacl_update_response.json",
+               .payload(payloadFromResourceWithContentType("/bucketacl_update_initial.json",
                         MediaType.APPLICATION_JSON)).build();
 
       HttpResponse updateResponse = HttpResponse.builder().statusCode(200)
-               .payload(staticPayloadFromResource("/bucketacl_update_initial.json")).build();
+               .payload(staticPayloadFromResource("/bucketacl_update_response.json")).build();
 
       BucketAccessControlsApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE,
                update, updateResponse).getBucketAccessControlsApi();
 
-      BucketAccessControls options = BucketAccessControls.builder().id("jcloudtestbucket/allUsers")
-               .selfLink(URI.create("https://content.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allUsers"))
-               .bucket(EXPECTED_TEST_BUCKET).entity("allUsers").role(Role.OWNER).etag("CAg=").build();
+      BucketAccessControlsTemplate template = new BucketAccessControlsTemplate().entity("allUsers").role(
+               Role.OWNER);
 
-      assertEquals(api.updateBucketAccessControls(EXPECTED_TEST_BUCKET, "allUsers", options),
+      assertEquals(api.updateBucketAccessControls(EXPECTED_TEST_BUCKET, "allUsers", template),
                new BucketAclUpdateTest().expected());
    }
 
@@ -186,20 +179,19 @@ public class BucketAccessControlsApiExpectTest extends BaseGoogleCloudStorageApi
                .endpoint("https://www.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allUsers")
                .addHeader("Accept", "application/json")
                .addHeader("Authorization", "Bearer " + TOKEN)
-               .payload(payloadFromResourceWithContentType("/bucketacl_update_response.json",
+               .payload(payloadFromResourceWithContentType("/bucketacl_update_initial.json",
                         MediaType.APPLICATION_JSON)).build();
 
       HttpResponse patchResponse = HttpResponse.builder().statusCode(200)
-               .payload(staticPayloadFromResource("/bucketacl_update_initial.json")).build();
+               .payload(staticPayloadFromResource("/bucketacl_update_response.json")).build();
 
       BucketAccessControlsApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE), TOKEN_RESPONSE,
                patchRequest, patchResponse).getBucketAccessControlsApi();
 
-      BucketAccessControls options = BucketAccessControls.builder().id("jcloudtestbucket/allUsers")
-               .selfLink(URI.create("https://content.googleapis.com/storage/v1/b/jcloudtestbucket/acl/allUsers"))
-               .bucket(EXPECTED_TEST_BUCKET).entity("allUsers").role(Role.OWNER).etag("CAg=").build();
+      BucketAccessControlsTemplate template = new BucketAccessControlsTemplate().entity("allUsers").role(
+               Role.OWNER);
 
-      assertEquals(api.patchBucketAccessControls(EXPECTED_TEST_BUCKET, "allUsers", options),
+      assertEquals(api.patchBucketAccessControls(EXPECTED_TEST_BUCKET, "allUsers", template),
                new BucketAclUpdateTest().expected());
    }
 }

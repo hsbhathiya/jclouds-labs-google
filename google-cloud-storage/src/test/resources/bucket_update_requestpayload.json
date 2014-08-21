@@ -2,8 +2,6 @@
    "name":"bhashbucket",
    "acl": [
       {
-         "kind":"storage#bucketAccessControl",
-         "bucket":"bhashbucket",
          "entity": "allAuthenticatedUsers",
          "role": "OWNER"
       }

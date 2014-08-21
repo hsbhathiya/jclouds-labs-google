@@ -51,7 +51,7 @@ import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRol
 import org.jclouds.googlecloudstorage.domain.GCSObject;
 import org.jclouds.googlecloudstorage.domain.ListPage;
 import org.jclouds.googlecloudstorage.domain.templates.BucketTemplate;
-import org.jclouds.googlecloudstorage.domain.templates.DefaultObjectAccessControlsTemplate;
+import org.jclouds.googlecloudstorage.domain.templates.ObjectAccessControlsTemplate;
 import org.jclouds.googlecloudstorage.domain.templates.ObjectTemplate;
 import org.jclouds.googlecloudstorage.options.ListObjectOptions;
 import org.jclouds.http.HttpResponseException;
@@ -145,7 +145,7 @@ public class GCSBlobStore extends BaseBlobStore {
       Bucket bucket = api.getBucketApi().createBucket(PROJECT_ID, template);
       if (options.isPublicRead()) {
          try {
-            DefaultObjectAccessControlsTemplate doAclTemplate = new DefaultObjectAccessControlsTemplate().entity(
+            ObjectAccessControlsTemplate doAclTemplate = new ObjectAccessControlsTemplate().entity(
                      "allUsers").role(ObjectRole.READER);
             api.getDefaultObjectAccessControlsApi().createDefaultObjectAccessControls(container, doAclTemplate);
          } catch (HttpResponseException e) {

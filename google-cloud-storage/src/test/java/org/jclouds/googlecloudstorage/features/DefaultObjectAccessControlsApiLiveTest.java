@@ -27,7 +27,7 @@ import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRol
 import org.jclouds.googlecloudstorage.domain.ListDefaultObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.Resource.Kind;
 import org.jclouds.googlecloudstorage.domain.templates.BucketTemplate;
-import org.jclouds.googlecloudstorage.domain.templates.DefaultObjectAccessControlsTemplate;
+import org.jclouds.googlecloudstorage.domain.templates.ObjectAccessControlsTemplate;
 import org.jclouds.googlecloudstorage.internal.BaseGoogleCloudStorageApiLiveTest;
 import org.jclouds.rest.ResourceNotFoundException;
 import org.testng.annotations.Test;
@@ -49,7 +49,7 @@ public class DefaultObjectAccessControlsApiLiveTest extends BaseGoogleCloudStora
    @Test(groups = "live")
    public void testCreateDefaultObjectacl() {
       createBucket(BUCKET_NAME);
-      DefaultObjectAccessControlsTemplate template = new DefaultObjectAccessControlsTemplate().entity("allUsers").role(
+      ObjectAccessControlsTemplate template = new ObjectAccessControlsTemplate().entity("allUsers").role(
                ObjectRole.READER);
 
       DefaultObjectAccessControls response = api().createDefaultObjectAccessControls(BUCKET_NAME, template);

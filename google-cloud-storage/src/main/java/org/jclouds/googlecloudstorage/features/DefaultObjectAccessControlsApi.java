@@ -35,7 +35,7 @@ import org.jclouds.googlecloudstorage.binders.DefaultObjectAccessControlsBinder;
 import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.ListDefaultObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRole;
-import org.jclouds.googlecloudstorage.domain.templates.DefaultObjectAccessControlsTemplate;
+import org.jclouds.googlecloudstorage.domain.templates.ObjectAccessControlsTemplate;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.oauth.v2.config.OAuthScopes;
 import org.jclouds.oauth.v2.filters.OAuthAuthenticationFilter;
@@ -96,7 +96,7 @@ public interface DefaultObjectAccessControlsApi {
    @OAuthScopes(STORAGE_FULLCONTROL_SCOPE)
    @MapBinder(DefaultObjectAccessControlsBinder.class)
    DefaultObjectAccessControls createDefaultObjectAccessControls(@PathParam("bucket") String bucketName,
-            @PayloadParam("template") DefaultObjectAccessControlsTemplate template);
+            @PayloadParam("template") ObjectAccessControlsTemplate template);
 
    /**
     * Permanently deletes the {@link DefaultObjectAccessControls } entry for the specified entity on the specified bucket.
