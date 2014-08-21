@@ -1,0 +1,50 @@
+{
+ "kind": "storage#objects",
+ "items": [
+
+   "kind": "storage#object",
+   "id": "bhashbucket/file/1408100153379000",
+   "selfLink": "https://www.googleapis.com/storage/v1/b/bhashbucket/o/file",
+   "name": "file",
+   "bucket": "bhashbucket",
+   "generation": "1408100153379000",
+   "metageneration": "5",
+   "contentType": "text/xml",
+   "updated": "2014-08-15T10:55:53.379Z",
+   "storageClass": "STANDARD",
+   "size": "5846",
+   "md5Hash": "2tqh0M02BdGIyym3n9JAFA==",
+   "mediaLink": "https://www.googleapis.com/download/storage/v1/b/bhashbucket/o/file?generation=1408100153379000&alt=media",
+   "contentEncoding": "en",
+   "contentDisposition": "attachment",
+   "contentLanguage": "en",
+   "owner": {
+    "entity": "user-00b4903a979105b8b299d9412b18493c177a8b1150e4c30382f473470371729f",
+    "entityId": "00b4903a979105b8b299d9412b18493c177a8b1150e4c30382f473470371729f"
+   },
+   "crc32c": "h1k2+Q==",
+   "etag": "CLiRzeuNlcACEAU="
+  },
+
+  {
+
+   "kind": "storage#object",
+   "id": "bhashbucket/const.txt/1408527552052000",
+   "selfLink": "https://www.googleapis.com/storage/v1/b/bhashbucket/o/const.txt",
+   "name": "const.txt",
+   "bucket": "bhashbucket",
+   "generation": "1408527552052000",
+   "metageneration": "1",
+   "contentType": "text/plain",
+   "updated": "2014-08-20T09:39:12.052Z",
+   "storageClass": "STANDARD",
+   "size": "13670754",
+   "md5Hash": "h04Bp0U0hYaYs0hbDgHw9g==",
+   "mediaLink": "https://www.googleapis.com/download/storage/v1/b/bhashbucket/o/const.txt?generation=1408527552052000&alt=media",
+   "owner": {
+    "entity": "user-00b4903a979105b8b299d9412b18493c177a8b1150e4c30382f473470371729f",
+    "entityId": "00b4903a979105b8b299d9412b18493c177a8b1150e4c30382f473470371729f"
+   },
+   "crc32c": "9zLoRA==",
+   "etag": "CKD2lYPGocACEAE="
+  }

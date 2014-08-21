@@ -16,7 +16,6 @@
  */
 package org.jclouds.googlecloudstorage.reference;
 
-import com.google.common.annotations.Beta;
 
 public final class GoogleCloudStorageHeaders {
 

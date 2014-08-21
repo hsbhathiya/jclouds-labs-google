@@ -17,22 +17,18 @@
 
 package org.jclouds.googlecloudstorage.features;
 
-import static org.jclouds.googlecloudstorage.reference.GoogleCloudStorageConstants.STORAGE_FULLCONTROL_SCOPE;
 import static org.jclouds.io.Payloads.newByteSourcePayload;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.jclouds.Constants.PROPERTY_MAX_RETRIES;
 import static org.jclouds.Constants.PROPERTY_SO_TIMEOUT;
-import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static com.google.common.util.concurrent.MoreExecutors.newDirectExecutorService;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.jclouds.ContextBuilder;
 import org.jclouds.concurrent.config.ExecutorServiceModule;
@@ -53,81 +49,40 @@ import com.google.common.net.HttpHeaders;
 import com.google.inject.Module;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
-
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.googlecloudstorage.GoogleCloudStorageApi;
+import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.StorageClass;
 import org.jclouds.googlecloudstorage.domain.GCSObject;
 import org.jclouds.googlecloudstorage.domain.ListPage;
+import org.jclouds.googlecloudstorage.domain.Resource.Kind;
+import org.jclouds.googlecloudstorage.domain.internal.Owner;
 
 public class ObjectApiMockTest {
-    SimpleDateFormatDateService dates = new SimpleDateFormatDateService();
-
-   private static final Pattern urlTokenPattern = Pattern.compile(":\\s*\"\\s*URL");
+   SimpleDateFormatDateService dates = new SimpleDateFormatDateService();
 
    static final Payload PAYLOAD = newByteSourcePayload(ByteSource.wrap("googlecloudstorage".getBytes()));
 
-   protected ListPage<GCSObject> parsedObjectsForUrl(String baseUri) {
-      baseUri += "v1/MossoCloudFS_5bcf396e-39dd-45ff-93a1-712b9aba90a9/myContainer";
-      
-      
-      ImmutableList<GCSObject> items =  ImmutableList.of(
-               GCSObject.builder().name("test_obj_1").selfLink(URI.create(baseUri + "/test_obj_1"))
-                        .etag("4281c348eaf83e70ddce0e07221c3d28")
-                        .updated(dates.iso8601DateParse("2009-02-03T05:26:32.612278")).build(),
-               GCSObject.builder().name("test_obj_2").selfLink(URI.create(baseUri + "/test_obj_2"))
-                        .contentType(MediaType.APPLICATION_OCTET_STREAM_TYPE.toString())
-                        .etag("b039efe731ad111bc1b0ef221c3849d0")
-                        .updated(dates.iso8601DateParse("2009-02-03T05:26:32.612278")).build(),
-               GCSObject.builder().name("test obj 3").selfLink(URI.create(baseUri + "/test%20obj%203"))
-                        .etag("0b2e80bd0744d9ebb20484149a57c82e")
-                        .contentType(MediaType.APPLICATION_OCTET_STREAM_TYPE.toString())
-                        .updated(dates.iso8601DateParse("2014-05-20T05:26:32.612278")).build());
-      
-      Set<String> prefixes =  ImmutableSet.<String>of();
-      
-      ListPage<GCSObject> list = ListPage.<GCSObject>builder().items(items).prefixes(prefixes).build();
-      
-      return list;
-  
-   }
-   
+   private static final String BUCKET_NAME = "mycontainer";
+
    protected static final String TOKEN = "1/8xbJqaOZXSUZbHLl5EOtu1pxz3fmmetKx9W8CV4t79M";
    private MockWebServer server;
    private GoogleCloudStorageApi api;
-   private static final Set<Module> modules = ImmutableSet.<Module> of(new ExecutorServiceModule(newDirectExecutorService(), newDirectExecutorService()));
+   private static final Set<Module> modules = ImmutableSet.<Module> of(new ExecutorServiceModule(
+            newDirectExecutorService(), newDirectExecutorService()));
 
-   private static GoogleCloudStorageApi getGoogleCloudStorageApi(URL server){
+   private static GoogleCloudStorageApi getGoogleCloudStorageApi(URL server) {
       Properties overrides = new Properties();
       overrides.put(OAuthProperties.SIGNATURE_OR_MAC_ALGORITHM, OAuthConstants.NO_ALGORITHM);
       overrides.setProperty(PROPERTY_SO_TIMEOUT, "0");
       overrides.setProperty(PROPERTY_MAX_RETRIES, "1");
-      return ContextBuilder.newBuilder("google-cloud-storage").credentials("accessKey", "secretKey").endpoint(server.toString())
-            .modules(modules).overrides(overrides).buildApi(GoogleCloudStorageApi.class);
-      
-   }
-   
-   /*public GoogleCloudStorageApi api(String uri, String provider, Properties overrides) {
-      if (!overrides.containsKey(PROPERTY_MAX_RETRIES)) {
-         overrides.setProperty(PROPERTY_MAX_RETRIES, "1");
-      }
-       overrides.put(OAuthProperties.SIGNATURE_OR_MAC_ALGORITHM, OAuthConstants.NO_ALGORITHM);
-      
-      return ContextBuilder.newBuilder(provider)               
-            .credentials("skip", "skip")
-            .endpoint(uri)
-            .overrides(overrides)
-            .modules(modules)
-            .buildApi(GoogleCloudStorageApi.class);
+      return ContextBuilder.newBuilder("google-cloud-storage").credentials("accessKey", "secretKey")
+               .endpoint(server.toString()).modules(modules).overrides(overrides).buildApi(GoogleCloudStorageApi.class);
+
    }
 
-   public GoogleCloudStorageApi api(String uri, String provider) {
-      return api(uri, provider, new Properties());
-   }*/
-
-   
    @BeforeMethod
    private void initServer() throws IOException {
       server = new MockWebServer();
@@ -139,36 +94,103 @@ public class ObjectApiMockTest {
    private void shutdownServer() throws IOException {
       server.shutdown();
    }
-   
+
    private static MockResponse buildBaseResponse(int responseCode) {
       MockResponse mr = new MockResponse();
       mr.setResponseCode(responseCode);
-      mr.addHeader(GlacierHeaders.REQUEST_ID, REQUEST_ID);
-      mr.addHeader(HttpHeaders.DATE, DATE);
+      mr.addHeader(HttpHeaders.CACHE_CONTROL, "private, max-age=0, must-revalidate, no-transform");
+      mr.addHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
+      mr.addHeader(HttpHeaders.CONTENT_LENGTH, "1123");
+      mr.addHeader(HttpHeaders.DATE, "Thu, 21 Aug 2014 14:06:23 GMT");
+      mr.addHeader(HttpHeaders.EXPIRES, "Thu, 21 Aug 2014 14:06:23 GMT");
+      mr.addHeader(HttpHeaders.SERVER, "GSE");
       return mr;
    }
-   
-   
-   
-   @Test(singleThreaded = true, groups = {"mock"})
+
+   private static MockWebServer enqueAuthResponse(MockWebServer server) {
+      server.enqueue(new MockResponse().setResponseCode(200).setBody(
+               "{\n" + "  \"access_token\" : \"" + TOKEN + "\",\n" + "  \"token_type\" : \"Bearer\",\n"
+                        + "  \"expires_in\" : 3600\n" + "}"));
+      return server;
+   }
+
+   // Test Object list
+
+   protected ListPage<GCSObject> parsedObjectsForUrl(String baseUri) {
+
+      ImmutableList<GCSObject> items = ImmutableList
+               .of(GCSObject
+                        .builder()
+                        .id("bhashbucket/const.txt/1408527552052000")
+                        .selfLink(URI.create("https://www.googleapis.com/storage/v1/b/bhashbucket/o/const.txt"))
+                        .name("const.txt")
+                        .bucket("bhashbucket")
+                        .generation(1408527552052000L)
+                        .metageneration(1L)
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .updated(dates.iso8601DateParse("2014-08-20T09:39:12.052Z"))
+                        .storageClass(StorageClass.STANDARD)
+                        .size(13670754L)
+                        .md5Hash("h04Bp0U0hYaYs0hbDgHw9g==")
+                        .mediaLink(
+                                 URI.create("https://www.googleapis.com/download/storage/v1/b/bhashbucket/o/const.txt?generation=1408527552052000&alt=media"))
+                        .owner(Owner.builder()
+                                 .entity("user-00b4903a979105b8b299d9412b18493c177a8b1150e4c30382f473470371729f")
+                                 .entityId("00b4903a979105b8b299d9412b18493c177a8b1150e4c30382f473470371729f").build())
+                        .crc32c("9zLoRA==").etag("CKD2lYPGocACEAE=").build(),
+
+                        GCSObject.builder()
+
+                                 .id("bhashbucket/file/1408100153379000")
+                                 .name("file")
+                                 .selfLink(URI.create("https://www.googleapis.com/storage/v1/b/bhashbucket/o/file"))
+                                 .bucket("bhashbucket")
+                                 .generation(1408100153379000L)
+                                 .metageneration(5L)
+                                 .contentType(MediaType.APPLICATION_XML)
+                                 .updated(dates.iso8601DateParse("2014-08-15T10:55:53.379Z"))
+                                 .storageClass(StorageClass.STANDARD)
+                                 .size(13670754L)
+                                 .contentEncoding("en")
+                                 .contentDisposition("attachment")
+                                 .contentLanguage("en")
+                                 .md5Hash("2tqh0M02BdGIyym3n9JAFA==")
+                                 .mediaLink(
+                                          URI.create("https://www.googleapis.com/download/storage/v1/b/bhashbucket/o/file?generation=1408100153379000&alt=media"))
+                                 .owner(Owner
+                                          .builder()
+                                          .entity("user-00b4903a979105b8b299d9412b18493c177a8b1150e4c30382f473470371729f")
+                                          .entityId("00b4903a979105b8b299d9412b18493c177a8b1150e4c30382f473470371729f")
+                                          .build()).crc32c("h1k2+Q==").etag("CLiRzeuNlcACEAU=").build());
+
+      Set<String> prefixes = ImmutableSet.<String> of();
+
+      ListPage<GCSObject> list = ListPage.<GCSObject> builder().items(items).prefixes(prefixes).kind(Kind.OBJECTS)
+               .build();
+
+      return list;
+   }
+
+   @Test(singleThreaded = true, groups = { "mock" })
    public void testList() throws Exception {
-      MockWebServer  server = new MockWebServer();
-     // server.enqueue(new MockResponse().setResponseCode(200).setBody("{\n" + "  \"access_token\" : \"" + TOKEN + "\",\n"
-    //           + "  \"token_type\" : \"Bearer\",\n" + "  \"expires_in\" : 3600\n" + "}"));
-    //  server.enqueue(addCommonHeaders(new MockResponse().setBody(stringFromResource("/"))));
-       
-      ListPage<GCSObject> objects =  api.getObjectApi().listObjects("mycontainer");
+
+      MockWebServer server = new MockWebServer();
+      enqueAuthResponse(server);
+      MockResponse response = buildBaseResponse(200);
+      response.setBody(stringFromResource("/list_object.json"));
+      server.enqueue(response);
+
+      ListPage<GCSObject> objects = api.getObjectApi().listObjects(BUCKET_NAME);
 
       assertEquals(objects, parsedObjectsForUrl(server.getUrl("/").toString()));
-      assertEquals(objects.iterator().next().getBucket(), "mycontainer");
+      assertEquals(objects.iterator().next().getBucket(), BUCKET_NAME);
 
       assertEquals(server.getRequestCount(), 2);
       assertAuthentication(server);
-      assertRequest(server.takeRequest(), "GET",
-               "https://www.googleapis.com/storage/v1/b/mycontainer/o");
+      assertRequest(server.takeRequest(), "GET", server.getUrl("/").toString() + "/storage/v1/b/" + BUCKET_NAME + "/o");
    }
-   
-   
+
+   //
    public String stringFromResource(String resourceName) {
       try {
          return Strings2.toStringAndClose(getClass().getResourceAsStream(resourceName));
@@ -181,12 +203,12 @@ public class ObjectApiMockTest {
       mockResponse.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
       return mockResponse;
    }
-   
+
    public void assertRequest(RecordedRequest request, String method, String path) {
       assertEquals(request.getMethod(), method);
       assertEquals(request.getPath(), path);
    }
-   
+
    public void assertAuthentication(MockWebServer server) {
       assertTrue(server.getRequestCount() >= 1);
       try {
