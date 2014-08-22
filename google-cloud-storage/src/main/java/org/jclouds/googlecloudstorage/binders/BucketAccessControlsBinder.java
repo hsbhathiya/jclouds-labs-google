@@ -19,7 +19,9 @@ package org.jclouds.googlecloudstorage.binders;
 import java.util.Map;
 
 import javax.inject.Inject;
+
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
+import org.jclouds.googlecloudstorage.domain.templates.BucketAccessControlsTemplate;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.rest.MapBinder;
 import org.jclouds.rest.binders.BindToJsonPayload;
@@ -31,7 +33,7 @@ public class BucketAccessControlsBinder implements MapBinder {
 
    @Override
    public <R extends HttpRequest> R bindToRequest(R request, Map<String, Object> postParams)throws IllegalArgumentException {
-      BucketAccessControls postBucket = (BucketAccessControls) postParams.get("bucketAccessControls");
+      BucketAccessControlsTemplate postBucket = (BucketAccessControlsTemplate) postParams.get("bucketAccessControls");
       return bindToRequest(request, postBucket);
    }
 

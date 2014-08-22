@@ -109,7 +109,7 @@ public class DefaultObjectAccessControlsApiExpectTest extends BaseGoogleCloudSto
                .endpoint("https://www.googleapis.com/storage/v1/b/jcloudtestbucket/defaultObjectAcl")
                .addHeader("Accept", "application/json")
                .addHeader("Authorization", "Bearer " + TOKEN)
-               .payload(payloadFromResourceWithContentType("/default_objectacl_insert_requestpayload.json",
+               .payload(payloadFromResourceWithContentType("/acl_request_payload.json",
                         MediaType.APPLICATION_JSON)).build();
 
       DefaultObjectAccessControlsApi api = requestsSendResponses(requestForScopes(STORAGE_FULLCONTROL_SCOPE),
