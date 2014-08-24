@@ -88,7 +88,7 @@ public class ListObjectAccessControls {
       private ImmutableSet.Builder<ObjectAccessControls> items = ImmutableSet.builder();
 
       public Builder kind(Kind kind) {
-         this.kind = checkNotNull(kind ,"kind");
+         this.kind = checkNotNull(kind , "kind");
          return this;
       }
 

@@ -30,9 +30,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
+import org.jclouds.googlecloudstorage.binder.BucketAccessControlsBinder;
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.ListBucketAccessControls;
-import org.jclouds.googlecloudstorage.handlers.BucketAccessControlsBinder;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.oauth.v2.config.OAuthScopes;
 import org.jclouds.oauth.v2.filters.OAuthAuthenticationFilter;
