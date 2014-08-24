@@ -32,7 +32,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
-import org.jclouds.googlecloudstorage.binder.BucketBinder;
+import org.jclouds.googlecloudstorage.binders.BucketBinder;
 import org.jclouds.googlecloudstorage.domain.Bucket;
 import org.jclouds.googlecloudstorage.domain.ListPage;
 import org.jclouds.googlecloudstorage.domain.templates.BucketTemplate;

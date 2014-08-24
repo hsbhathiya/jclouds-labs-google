@@ -31,7 +31,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
-import org.jclouds.googlecloudstorage.binder.DefaultObjectAccessControlsBinder;
+import org.jclouds.googlecloudstorage.binders.DefaultObjectAccessControlsBinder;
 import org.jclouds.googlecloudstorage.domain.DefaultObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.ListDefaultObjectAccessControls;
 import org.jclouds.googlecloudstorage.domain.DomainResourceRefferences.ObjectRole;

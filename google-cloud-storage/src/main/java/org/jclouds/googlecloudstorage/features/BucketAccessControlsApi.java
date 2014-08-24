@@ -30,7 +30,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
-import org.jclouds.googlecloudstorage.binder.BucketAccessControlsBinder;
+import org.jclouds.googlecloudstorage.binders.BucketAccessControlsBinder;
 import org.jclouds.googlecloudstorage.domain.BucketAccessControls;
 import org.jclouds.googlecloudstorage.domain.ListBucketAccessControls;
 import org.jclouds.javax.annotation.Nullable;
