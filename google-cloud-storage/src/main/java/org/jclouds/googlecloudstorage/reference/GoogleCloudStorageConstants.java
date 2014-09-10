@@ -51,6 +51,6 @@ public final class GoogleCloudStorageConstants {
    @Beta
    public static final String OPERATION_COMPLETE_INTERVAL = "jclouds.google-cloud-storage.operation-complete-interval";
 
-   public static final Location GOOGLE_PROVIDER_LOCATION = new LocationBuilder().scope(LocationScope.PROVIDER).id
+   public static final Location GOOGLE_PROVIDER_LOCATION = new LocationBuilder().scope(LocationScope.REGION).id
             (GCS_PROVIDER_NAME).description(GCS_PROVIDER_NAME).build();
 }
