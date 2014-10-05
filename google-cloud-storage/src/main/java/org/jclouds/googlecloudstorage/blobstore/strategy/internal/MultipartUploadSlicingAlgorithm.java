@@ -44,7 +44,7 @@ public class MultipartUploadSlicingAlgorithm {
    @Inject(optional = true)
    @Named("jclouds.mpu.parts.magnitude")
    @VisibleForTesting
-   int magnitudeBase = DEFAULT_MAGNITUDE_BASE;
+  // int magnitudeBase = DEFAULT_MAGNITUDE_BASE;
 
    // calculated only once, but not from the constructor
    private volatile int parts; // required number of parts with chunkSize

@@ -94,7 +94,7 @@ public class GCSBlobStore extends BaseBlobStore {
       this.bucketToStorageMetadata = bucketToStorageMetadata;
       this.objectToBlobMetadata = objectToBlobMetadata;
       this.objectListToStorageMetadata = objectListToStorageMetadata;
-      this.fetchBlobMetadataProvider = checkNotNull(fetchBlobMetadataProvider, "fetchBlobMetadataProvider");
+      this.fetchBlobMetadataProvider = fetchBlobMetadataProvider;
       this.blobMetadataToObjectTemplate = blobMetadataToObjectTemplate;
       this.listContainerOptionsToListObjectOptions = listContainerOptionsToListObjectOptions;
       this.projectId = projectId;
@@ -141,7 +141,7 @@ public class GCSBlobStore extends BaseBlobStore {
                      "allUsers").role(ObjectRole.READER);
             api.getDefaultObjectAccessControlsApi().createDefaultObjectAccessControls(container, doAclTemplate);
          } catch (HttpResponseException e) {
-            // If DefaultObjectAccessControls operation fail, Reverse create operation the operation.
+            // If DefaultObjectAccessControls operation fail, reverse the create operation.
             api.getBucketApi().deleteBucket(container);
             return false;
          }
@@ -150,7 +150,6 @@ public class GCSBlobStore extends BaseBlobStore {
       return bucket != null;
    }
 
-   /** Returns list of of all the objects */
    @Override
    public PageSet<? extends StorageMetadata> list(String container) {
       ListPage<GCSObject> gcsList = api.getObjectApi().listObjects(container);
@@ -172,7 +171,7 @@ public class GCSBlobStore extends BaseBlobStore {
    }
 
    /**
-    * Checks whether an accessible object is available. Google cloud storage does not support directly support
+    * Checks whether an accessible object is available. Google cloud storage does not directly support
     * BucketExist or ObjectExist operations
     */
    @Override
@@ -190,7 +189,7 @@ public class GCSBlobStore extends BaseBlobStore {
     */
    @Override
    public String putBlob(String container, Blob blob) {
-      checkNotNull(blob.getPayload().getContentMetadata().getContentLength());
+      checkNotNull(blob.getPayload().getContentMetadata().getContentLength(), "content length");
       HashCode md5 = blob.getMetadata().getContentMetadata().getContentMD5AsHashCode();
 
       ObjectTemplate template = blobMetadataToObjectTemplate.apply(blob.getMetadata());
@@ -201,6 +200,7 @@ public class GCSBlobStore extends BaseBlobStore {
       return api.getObjectApi().multipartUpload(container, template, blob.getPayload()).getEtag();
    }
 
+   /**Support multipart uploads if the PutOptions.multipart = true */
    @Override
    public String putBlob(String container, Blob blob, PutOptions options) {
       if (options.multipart().isMultipart()) {
@@ -217,13 +217,13 @@ public class GCSBlobStore extends BaseBlobStore {
 
    @Override
    public Blob getBlob(String container, String name, org.jclouds.blobstore.options.GetOptions options) {
-      PayloadEnclosingImpl impl = api.getObjectApi().download(container, name);
+      PayloadEnclosingImpl object = api.getObjectApi().download(container, name);
 
       GCSObject gcsObject = api.getObjectApi().getObject(container, name);
       if (gcsObject == null) {
          return null;
       }
-      Blob blob = new BlobBuilderImpl().payload(impl.getPayload()).payload(impl.getPayload())
+      Blob blob = new BlobBuilderImpl().payload(object.getPayload()).payload(object.getPayload())
                .contentType(gcsObject.getContentType()).contentDisposition(gcsObject.getContentDisposition())
                .contentEncoding(gcsObject.getContentEncoding()).contentLanguage(gcsObject.getContentLanguage())
                .contentLength(gcsObject.getSize()).contentMD5(gcsObject.getMd5HashCode()).name(gcsObject.getName())
@@ -252,13 +252,12 @@ public class GCSBlobStore extends BaseBlobStore {
    @Override
    protected boolean deleteAndVerifyContainerGone(String container) {
       ListPage<GCSObject> list = api.getObjectApi().listObjects(container);
-      if (list == null) {
-         return api.getBucketApi().deleteBucket(container);
+      
+      //if the list contain either objects or prefixes container can not be deleted 
+      if((list !=null) && (list.iterator().hasNext() || !list.getPrefixes().isEmpty())){
+         return false;
       }
-      if (!list.iterator().hasNext() && list.getPrefixes().isEmpty())
-         return api.getBucketApi().deleteBucket(container);
-
-      return false;
+      return api.getBucketApi().deleteBucket(container);
    }
 
    public Set<String> listPrefixes(String container, ListContainerOptions options) {
