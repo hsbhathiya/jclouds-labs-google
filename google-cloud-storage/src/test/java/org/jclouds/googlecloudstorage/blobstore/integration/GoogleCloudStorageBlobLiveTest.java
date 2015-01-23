@@ -34,6 +34,7 @@ import org.jclouds.io.ByteStreams2;
 import org.jclouds.io.Payloads;
 import org.jclouds.io.payloads.ByteSourcePayload;
 import org.jclouds.utils.TestUtils;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -58,7 +59,7 @@ public class GoogleCloudStorageBlobLiveTest extends BaseBlobLiveTest {
 
    @Override
    @Parameters({ "jclouds.blobstore.httpstream.url", "jclouds.blobstore.httpstream.md5" })
-   public void testCopyUrl(String httpStreamUrl, String httpStreamMD5) throws Exception {
+   public void testCopyUrl(@Optional String httpStreamUrl, @Optional String httpStreamMD5) throws Exception {
       httpStreamUrl = checkNotNull(httpStreamUrl != null ? httpStreamUrl : sysHttpStreamUrl, "httpStreamUrl");
       httpStreamMD5 = checkNotNull(httpStreamMD5 != null ? httpStreamMD5 : sysHttpStreamMD5, "httpStreamMd5");
 

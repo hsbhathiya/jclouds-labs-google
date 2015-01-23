@@ -27,7 +27,9 @@ import com.google.common.collect.ImmutableList;
 @AutoValue public abstract class GoogleCloudStorageOAuthScopes implements OAuthScopes {
    abstract OAuthScopes readOrWriteScopes();
 
-   /** Full control is read/write + acls */
+   /**
+    * Full control is read/write + acls
+    */
    abstract List<String> fullControlScopes();
 
    public static GoogleCloudStorageOAuthScopes create() {
@@ -39,11 +41,15 @@ import com.google.common.collect.ImmutableList;
       );
    }
 
-   /** If the path contains or ends with {@code /acl} or {@code /defaultObjectAcl}, it needs full-control. */
+   /**
+    * If the path contains or ends with {@code /acl} or {@code /defaultObjectAcl}, it needs full-control.
+    */
    @Override public List<String> forRequest(HttpRequest input) {
       String path = input.getEndpoint().getPath();
       if (path.endsWith("/acl") || path.endsWith("/defaultObjectAcl") //
             || path.contains("/acl/") || path.contains("/defaultObjectAcl/")) {
+         return fullControlScopes();
+      } else if (input.getMethod().equalsIgnoreCase("PUT") || input.getMethod().equalsIgnoreCase("PATCH")) {
          return fullControlScopes();
       }
       return readOrWriteScopes().forRequest(input);

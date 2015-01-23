@@ -29,13 +29,13 @@ import com.google.inject.Module;
 
 public class BaseGoogleCloudStorageApiLiveTest extends BaseApiLiveTest<GoogleCloudStorageApi> {
 
-   protected static final String PROJECT_NUMBER = System.getProperty("test.google-cloud-storage.project-number");
+   protected static final String PROJECT_NUMBER = System.getProperty("test.jclouds.googlecloud.project-name");
 
    protected BaseGoogleCloudStorageApiLiveTest() {
       provider = "google-cloud-storage";
    }
 
-   @Override protected ProviderMetadata createProviderMetadata(){
+   @Override protected ProviderMetadata createProviderMetadata() {
       return new GoogleCloudStorageProviderMetadata();
    }
 
